@@ -1,8 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Billi Fighter</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -100,6 +96,7 @@ kbd{font-family:var(--f-body);font-weight:800;font-size:12px;border:1px solid va
 .mode{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;background:rgba(255,255,255,.04);border:2px solid var(--line);border-radius:10px;padding:12px 16px;color:var(--ink);cursor:pointer;font-family:var(--f-body)}
 .mode:hover,.mode:focus-visible{border-color:var(--ember);background:rgba(255,122,47,.08)}
 .mode b{font-family:var(--f-display);font-weight:400;font-size:24px;color:var(--hp)}.mode span{font-size:13px;color:var(--muted);line-height:1.4}
+.credits{font-size:10px;opacity:.55;padding:8px 0 2px;line-height:1.4}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-weight:700}
 .app.arena .wins{visibility:visible!important}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
@@ -182,6 +179,7 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
 #bpad{right:max(14px,env(safe-area-inset-right,0px));grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,52px);gap:2px}
 #bpad [data-k=h]{grid-column:1;grid-row:1;font-size:15px}#bpad [data-k=block]{grid-column:3;grid-row:1;font-size:15px}#bpad [data-k=k]{grid-column:3;grid-row:3;font-size:15px}
 #bpad [data-k=jump]{grid-column:1;grid-row:3;font-size:14px}
+#bpad [data-k=throw]{grid-column:2;grid-row:1;font-size:13px}#bpad [data-k=crouch]{grid-column:2;grid-row:3;font-size:12px}
 #bpad [data-k=rage]{grid-column:2;grid-row:2;border-color:var(--rage);color:var(--rage);font-size:15px}
 #pauseBtn{position:absolute;z-index:4;top:76px;left:50%;transform:translateX(-50%);font-family:var(--f-body);font-weight:800;font-size:12px;background:rgba(10,9,12,.6);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.banner b{animation:none}.heat.ready{animation:none}.btn:active{transform:none}}
@@ -189,7 +187,7 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
 
 <div class="app" id="app">
   <canvas id="c3" aria-label="ساحة القتال في المصنع"></canvas>
-  <div class="flash" id="flash"></div>
+  <div class="flash" id="flash"></div><div id="hitFlash" style="position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0"></div>
 
   <div class="hud" dir="ltr">
     <div class="side p1" id="s1">
@@ -207,7 +205,7 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
     </div>
   </div>
   <button id="pauseBtn" hidden data-i18n="pause"></button>
-  <div id="storyBar"><button id="exitBtn" hidden data-i18n="exit"></button><button id="dnBtn" hidden></button><button id="jkBtn" hidden></button></div>
+  <div id="storyBar"><button id="exitBtn" hidden data-i18n="exit"></button><button id="dnBtn" hidden></button><button id="jkBtn" hidden style="display:none"></button></div>
   <div id="storyHud"></div>
   <div id="dlg" hidden><img id="dlgFace" alt=""><canvas id="dlgCanvas" width="150" height="150" hidden></canvas><div class="dlgBox"><b id="dlgName"></b><p id="dlgText"></p><small id="dlgHint"></small></div></div>
   <div class="combo" id="cb1"></div>
@@ -216,11 +214,11 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
   <div class="keys" id="keysHud" dir="ltr"></div>
 
   <div class="pad" id="dpad">
-    <button data-k="up" aria-label="قفز">▲</button><button data-k="left" aria-label="يسار">◀</button><button data-k="right" aria-label="يمين">▶</button><button data-k="down" aria-label="انحناء">▼</button>
+    <button data-k="up" aria-label="قفز">▲</button><button data-k="left" aria-label="يسار">◀</button><button data-k="right" aria-label="يمين">▶</button><button data-k="down" aria-label="تحت">▼</button>
   </div>
   <div class="pad" id="spad"><button data-k="lock" data-i18n="padLock"></button><button data-k="heal" data-i18n="padHeal"></button><button data-k="knife" data-i18n="padKnife"></button></div>
   <div class="pad" id="bpad">
-    <button data-k="h" aria-label="Punch" data-i18n="padH"></button><button data-k="block" aria-label="Block" data-i18n="padP"></button><button data-k="rage" aria-label="Rage" data-i18n="rage"></button><button data-k="k" aria-label="Kick" data-i18n="padK"></button><button data-k="jump" aria-label="Jump" data-i18n="jumpShort"></button>
+    <button data-k="h" aria-label="Punch" data-i18n="padH"></button><button data-k="block" aria-label="Block" data-i18n="padP"></button><button data-k="rage" aria-label="Rage" data-i18n="rage"></button><button data-k="k" aria-label="Kick" data-i18n="padK"></button><button data-k="jump" aria-label="Jump" data-i18n="jumpShort"></button><button data-k="throw" aria-label="Throw" data-i18n="padT"></button><button data-k="crouch" aria-label="Crouch" data-i18n="padC"></button>
   </div>
 
   <div class="overlay" id="menu">
@@ -232,6 +230,7 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
         <button class="btn" id="storyBtn" data-i18n="storyBtn"></button>
         <button class="btn ghost" id="fightMenuBtn" data-i18n="fighting"></button>
         <button class="btn ghost" id="setMenuBtn" data-i18n="settings"></button>
+        <div class="credits" style="text-align:center">v35</div>
       </div>
       <div class="mm" id="mmFight" hidden>
         <div class="lbl" data-i18n="fighting"></div>
@@ -243,8 +242,10 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
         <div class="lbl" data-i18n="settings"></div>
         <div class="setrow"><span data-i18n="setLang"></span><button class="lang" id="setLang" type="button"></button></div>
         <div class="setrow"><span data-i18n="setSound"></span><button class="lang" id="setSound" type="button"></button></div>
+        <div class="setrow"><span data-i18n="setMusic"></span><button class="lang" id="setMusic" type="button"></button></div>
         <div class="setrow"><span data-i18n="setTime"></span><button class="lang" id="setTime" type="button"></button></div>
-        <div class="setrow"><span data-i18n="setJacket"></span><button class="lang" id="setJacket" type="button"></button></div>
+        <div class="setrow"><span data-i18n="setGfx"></span><button class="lang" id="setGfx" type="button"></button></div>
+        <div class="credits" dir="ltr"><span id="audSt"></span><br>Music loops: rekkerd.org (CC BY 3.0) · Motion capture: Quaternius (CC0) · v35</div>
         <button class="btn ghost sm" id="setBack" data-i18n="back"></button>
       </div>
       <div class="keysTitle"><div class="lbl" data-i18n="controls"></div><div class="keys static" id="keysMenu" dir="ltr"></div></div>
@@ -307,6 +308,17 @@ button:focus-visible{outline:3px solid var(--ice);outline-offset:2px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/libs/meshopt_decoder.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/utils/SkeletonUtils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/SAOShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/DepthLimitedBlurShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/UnpackDepthRGBAShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/MaskPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/SAOPass.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -315,7 +327,7 @@ const STEP=1/60;
 
 /* ================= Input ================= */
 const KEYS={KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',
-  KeyH:'h',KeyK:'k',KeyP:'block',KeyO:'rage',KeyL:'rage',Space:'jump',KeyQ:'lock',KeyE:'heal',KeyF:'knife'};
+  KeyH:'h',KeyK:'k',KeyP:'block',KeyG:'throw',KeyC:'crouch',KeyO:'rage',KeyL:'rage',Space:'jump',KeyQ:'lock',KeyE:'heal',KeyF:'knife'};
 let tick=0;
 const pin={held:{},buf:{},tap:{},dash:{},side:null,jumpUsed:false};
 function press(k){if(pin.held[k])return;pin.held[k]=true;pin.buf[k]=tick;
@@ -326,7 +338,6 @@ addEventListener('keydown',e=>{
   if(e.code==='Escape'){if(phase!=='menu'&&phase!=='end'&&phase!=='select')togglePause();return}
   // story mode: arrow keys turn the camera, WASD walks
   if(phase==='story'&&e.code==='KeyN'&&!e.repeat){$('dnBtn').click();return}
-  if(e.code==='KeyJ'&&!e.repeat){setJacket(!jacketOn);return}
   if(phase==='story'&&(e.code==='ArrowLeft'||e.code==='ArrowRight')){e.preventDefault();ST.camKey[e.code==='ArrowLeft'?0:1]=true;return}
   const k=KEYS[e.code];if(!k)return;e.preventDefault();if(!e.repeat)press(k)});
 addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='ArrowRight'){ST.camKey[e.code==='ArrowLeft'?0:1]=false;if(phase==='story')return}const k=KEYS[e.code];if(k)release(k)});
@@ -355,12 +366,41 @@ function initAudio(){
   master=ac.createGain();master.gain.value=(typeof soundOn==='undefined'||soundOn)?1.1:0;master.connect(comp);
   // unlock: play one silent sample inside the user gesture
   try{const b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0)}catch(e){}
-  ac.resume();
+  ac.resume();setTimeout(()=>loadSamples(),0);
   nbuf=ac.createBuffer(1,ac.sampleRate*.4,ac.sampleRate);const d=nbuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
 }
 ['pointerdown','keydown','touchend'].forEach(ev=>addEventListener(ev,()=>initAudio(),{passive:true}));
+/* Recorded 808 kicks/basses give hits real weight; the synth layer on top keeps the slap and crack.
+   Music: tracks mixed from rekkerd.org loops (CC BY 3.0) and 808 kicks, looped seamlessly. */
+const SMP={},SMP_MAP={hit:['k12',1.1],kick:['k21',1.25],heavy:['k18',1.45],head:['k21',1.1],belly:['k33',1.2],block:['k07',.55],land:['k33',.8],ko:['k29',1.4],rage:['b15',1.1],slap:['k12',.5],fartbig:['b28',.7]};
+let smpLoading=false;const AUDST={smp:0,smpN:0,smpErr:0,mus:{},err:''};
+// decodeAudioData: old Safari only has the callback form, new browsers return a promise; handle both
+function decodeA(buf){return new Promise((res,rej)=>{let done=false;const ok=b=>{if(!done){done=true;res(b)}},no=e=>{if(!done){done=true;rej(e)}};try{const p=ac.decodeAudioData(buf,ok,no);if(p&&p.then)p.then(ok,no)}catch(e){no(e)}})}
+const b64buf=t=>{const bin=atob(t),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
+function loadSamples(){if(smpLoading||!ac)return;smpLoading=true;fetch('assets/sfx.json').then(r=>r.json()).then(j=>{AUDST.smpN=Object.keys(j).length;
+  for(const k in j)decodeA(b64buf(j[k])).then(b=>{SMP[k]=b;AUDST.smp++},e=>{AUDST.smpErr++;AUDST.err=String(e&&e.message||e).slice(0,60)})}).catch(e=>{smpLoading=false;AUDST.err='sfx '+String(e).slice(0,50)})}
+function playSmp(k,g){const b=SMP[k];if(!b||!ac)return;const s=ac.createBufferSource(),v=ac.createGain();s.buffer=b;s.playbackRate.value=.93+Math.random()*.14;v.gain.value=g;s.connect(v);v.connect(master);s.start()}
+let musicOn=true;try{musicOn=localStorage.getItem('billi-music')!=='0'}catch(e){}
+const MUS={meta:{menu:[.5,41.739],street:[.5,69.820],fight:[.5,69.820],versus:[.5,66.207],boss:[.5,61.44],end:[.5,37.895]},buf:{},loading:{},cur:null,node:null,gain:null,bus:null};
+function musicBus(){if(!MUS.bus&&ac){MUS.bus=ac.createGain();MUS.bus.gain.value=musicOn?.38:0;MUS.bus.connect(master)}return MUS.bus}
+function loadTrack(n){if(MUS.buf[n]||MUS.loading[n]||!ac)return;MUS.loading[n]=1;
+  AUDST.mus[n]='…';fetch('assets/music/'+n+'.json').then(r=>r.json()).then(j=>decodeA(b64buf(j.mp3))).then(b=>{MUS.buf[n]=b;AUDST.mus[n]='✓';if(MUS.want===n)MUS.cur=null},e=>{AUDST.mus[n]='✗';AUDST.err='music '+String(e&&e.message||e).slice(0,50);setTimeout(()=>{MUS.loading[n]=0},4000)})}
+function wantMusic(){
+  if(phase==='menu'||phase==='select')return'menu';
+  if(phase==='story'){if(!$('endScr').hidden)return'end';if(ST.mode==='arena')return'versus';if(ST.active)return ZONES[ST.zone]&&ZONES[ST.zone].boss?'boss':'fight';return'street'}
+  return'versus'}
+// called every frame: crossfade to whatever the game wants now
+function musicTick(){
+  if(!ac||ac.state!=='running')return;const bus=musicBus();const n=wantMusic();MUS.want=n;loadTrack(n);
+  bus.gain.setTargetAtTime(musicOn?(paused?.14:.38):0,ac.currentTime,.3);
+  if(MUS.cur===n||!MUS.buf[n])return;
+  const t=ac.currentTime;
+  if(MUS.node){const o=MUS.node,og=MUS.gain;og.gain.setTargetAtTime(0,t,.5);setTimeout(()=>{try{o.stop()}catch(e){}},3000)}
+  const src=ac.createBufferSource(),g=ac.createGain(),[st,len]=MUS.meta[n];src.buffer=MUS.buf[n];src.loop=true;src.loopStart=st;src.loopEnd=st+len;
+  g.gain.value=0;g.gain.setTargetAtTime(1,t,.6);src.connect(g);g.connect(bus);src.start(t,st);MUS.node=src;MUS.gain=g;MUS.cur=n}
 function sfx(kind){
   if(!ac)return;if(ac.state!=='running')ac.resume();const t=ac.currentTime;
+  if(!smpLoading)loadSamples();const sm=SMP_MAP[kind];if(sm)playSmp(sm[0],sm[1]);
   const nz=(f,type,v,dec)=>{const s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=nbuf;fl.type=type;fl.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dec);s.connect(fl);fl.connect(g);g.connect(master);s.start(t);s.stop(t+dec+.02)};
   const th=(f0,f1,v,dec,type='sine')=>{const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dec);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dec);o.connect(g);g.connect(master);o.start(t);o.stop(t+dec+.02)};
   // hits: a sharp crack on top of a body thump, so every blow lands with weight
@@ -393,8 +433,8 @@ const GUARD=P({hipY:-.07,hipRY:.3,spY:-.18,hdY:-.12,hdX:.06,lShX:-1.15,lShZ:-.25
 const G=o=>({...GUARD,...o});
 const POSE={
   guard:GUARD,
-  jab:G({lShX:-1.58,lShZ:-.1,lEl:-.06,spY:.15,hipRY:.12,lunge:.14}),
-  straight:G({rShX:-1.62,rShZ:.08,rEl:-.06,spY:-.6,hipRY:-.05,lunge:.24,lShX:-.9,lEl:-2.2,rThX:.5}),
+  jab:G({lShX:-1.7,lShZ:-.04,lEl:0,spY:.34,hipRY:.16,spZ:-.06,hdX:.14,hdY:-.12,lunge:.17,lKn:.5,rKn:.4,rShX:-.8,rEl:-2.5,rShZ:.3}),
+  straight:G({rShX:-1.72,rShZ:.16,rEl:0,spY:-.82,hipRY:-.42,spZ:.07,spX:.1,hdX:.14,hdY:.18,lunge:.3,lShX:-.85,lEl:-2.45,lShZ:-.35,rThX:.62,rKn:.38,lThX:-.4,lKn:.58,hipY:-.05}),
   lowkick:G({lThX:-.6,lKn:.12,lThZ:.12,rKn:.55,hipY:-.12,spX:-.14,lunge:.14}),
   highkick:G({rThX:-1.85,rKn:.05,rThZ:.25,lKn:.15,lThX:0,spX:-.4,spZ:.2,hipRY:-.5,spY:-.2,lunge:.24,lShZ:-.95,lShX:-.4,lEl:-.6,rShZ:.8,rShX:-.2,rEl:-.5}),
   upWind:G({hipY:-.3,lKn:1,rKn:1,lThX:-.65,rThX:.1,rShX:.35,rShZ:.25,rEl:-1.4,spX:.28}),
@@ -418,14 +458,15 @@ const TAU=Math.PI*2;
    pivoting away (~135deg) and the trunk dropping away from the kick -> hip turns over and the shin/instep
    whips out -> leg snaps back to chamber with the knee still up -> lands back in guard (follow-through). */
 const K={
-  jabAnt:G({lShX:-1.0,lEl:-2.35,spin:.06,hipY:-.09}),
-  stAnt:G({spin:.22,rShX:-.55,rEl:-2.4,hipY:-.1,rKn:.55}),
-  stFt:G({rShX:-1.55,rShZ:.05,rEl:-.1,spY:-.7,spin:-.18,lunge:.26,lShX:-.9,lEl:-2.2,rThX:.6,lKn:.5}),
+  jabAnt:G({lShX:-1.1,lEl:-2.2,spY:-.06,spin:.04,hipY:-.09,lKn:.5,hdX:.12}),
+  jabSnap:G({lShX:-1.3,lEl:-1.2,spY:.15,hipRY:.06,lunge:.08,hdX:.12}),
+  stAnt:G({spin:.16,spY:.28,hipRY:.14,rShX:-.65,rEl:-2.45,rShZ:.35,hipY:-.1,rKn:.62,lKn:.42,hdX:.12}),
+  stFt:G({rShX:-1.25,rShZ:.25,rEl:-1.1,spY:-.5,hipRY:-.25,lunge:.18,lShX:-.9,lEl:-2.4,rThX:.45,rKn:.3,lKn:.5,hdX:.12}),
   upFt:G({hipY:.06,rShX:-3.0,rShZ:.15,rEl:-.2,spX:-.35,spY:-.5,lunge:.18,lKn:.05,rKn:.05,lThX:-.15,rThX:.25,hdX:-.2}),
   rhAnt:G({hipY:-.13,spin:.2,spX:.08,rThX:.4,rKn:.6,lKn:.55,lShX:-1.3,lEl:-2.35,rShX:-1.1,rEl:-2.35}),
-  rhCh:G({hipY:-.03,spin:-.85,lunge:.08,rThX:-.3,rThZ:1.25,rKn:2.0,lThX:.05,lThZ:-.08,lKn:.28,spZ:.32,hipRZ:.18,spX:-.05,hdZ:-.15,hdY:.35,lShX:-1.35,lShZ:-.2,lEl:-2.35,rShX:.45,rShZ:.85,rEl:-.5}),
+  rhCh:G({hipY:-.03,spin:-.85,lunge:.08,rThX:-.3,rThZ:1.25,rKn:2.0,lThX:.05,lThZ:-.08,lKn:.28,spZ:.32,hipRZ:.18,spX:-.05,hdZ:-.15,hdY:.35,lShX:-1.35,lShZ:-.2,lEl:-2.35,rShX:.35,rShZ:.45,rEl:-.6}),
 };
-K.rhHit={...K.rhCh,spin:-1.3,lunge:.2,rThX:-.15,rThZ:1.52,rKn:.04,spZ:.58,hipRZ:.32,hdZ:-.3,hdY:.55,rShX:.7,rShZ:1.15,rEl:-.2};
+K.rhHit={...K.rhCh,spin:-1.3,lunge:.2,rThX:-.15,rThZ:1.52,rKn:.04,spZ:.58,hipRZ:.32,hdZ:-.3,hdY:.55,rShX:.55,rShZ:.55,rEl:-.35,lShX:-1.35,lEl:-2.35};
 K.rhRet={...K.rhCh,spin:-.95,rKn:1.85,rThZ:1.12,spZ:.35};
 K.lkCh=G({spin:.35,lThX:-.3,lThZ:-.75,lKn:1.35,rKn:.5,spZ:-.15,hipY:-.1,lunge:.05,rShZ:.6,rShX:.2,rEl:-.8});
 K.lkHit={...K.lkCh,spin:.62,lThX:-.35,lThZ:-.88,lKn:.06,rKn:.58,spZ:-.26,hipY:-.12,lunge:.17,hdY:-.3};
@@ -455,7 +496,7 @@ K.flipB={...K.flipA,flip:-3.6,rootY:.75,lThX:-1.1,rThX:-1.0,lKn:.8,rKn:.8};
 K.flipLand={...POSE.crouch,flip:-TAU,hipY:-.25};
 /* ---- knife: Billi holds it in her lead hand (stab, slash, backhand, lunging finisher) ---- */
 const KN={ant:G({lShX:.35,lShZ:-.15,lEl:-1.7,spY:-.55,hipRY:-.15,hipY:-.12,lunge:-.06,spX:.05}),
-  stab:G({lShX:-1.35,lShZ:-.05,lEl:-.08,spY:.5,hipRY:.3,lunge:.42,spX:.3,hdX:.12,hipY:-.15,lKn:.7,lThX:-.6,rThX:.55,rShX:-.5,rEl:-1.6}),
+  stab:G({lShX:-1.55,lShZ:-.02,lEl:0,spY:.55,hipRY:.32,lunge:.46,spX:.22,hdX:.14,hipY:-.16,lKn:.72,lThX:-.6,rThX:.6,rKn:.35,rShX:-.7,rEl:-2.3,rShZ:.35}),
   slA:G({lShX:-1.45,lShZ:-.45,lEl:-.25,spY:-.9,hipRY:-.15,lunge:.05}),
   slB:G({lShX:-1.45,lShZ:.35,lEl:-.2,spY:.9,hipRY:.35,lunge:.18,hdY:.2}),
   bkA:G({lShX:-1.4,lShZ:.4,lEl:-1.2,spY:.95,hipRY:.4,lunge:.1}),
@@ -472,6 +513,7 @@ const STANCE={
     // Billi's block: one forearm up over her face, the other across her chest
     block:G({lShX:-1.25,lEl:-2.0,lShZ:.45,rShX:-.5,rEl:-1.55,rShZ:-1.0,hdX:.2,spX:.15,spY:0,hipRY:.15,hdY:0,lunge:-.06})},
   gent:{pose:G({hipY:-.03,hipRY:.2,spX:-.08,spY:-.1,hdX:-.12,lShX:-1.3,lShZ:-.05,lEl:-1.3,rShX:-1.0,rShZ:.12,rEl:-1.7,lThX:-.15,rThX:.22,lKn:.25,rKn:.28}),freq:2.3,amp:.015,weave:0,hop:.025,arm:.12},
+  stranger:{pose:G({hipY:-.06,hipRY:.25,spX:.05,spY:-.15,hdX:.05,lShX:-1.05,lShZ:-.2,lEl:-1.9,rShX:-.75,rShZ:.3,rEl:-2.2,lThX:-.3,rThX:.32,lKn:.45,rKn:.48}),freq:2.2,amp:.02,weave:.05,hop:0,arm:.1},
   pablo:{pose:G({hipY:-.05,hipRY:.15,spX:-.12,spZ:.04,hdX:-.05,hdZ:-.06,lShX:-.95,lShZ:-.4,lEl:-1.75,rShX:-.75,rShZ:.42,rEl:-1.95,lThX:-.2,rThX:.24,lKn:.3,rKn:.32,lThZ:-.12,rThZ:.12}),freq:1.7,amp:.03,weave:.12,hop:0,arm:.14},
   // Marana: kickboxer, side-on, both fists high, bouncing
   marana:{pose:G({hipRY:.42,spY:-.3,hdY:-.2,hdX:.05,lShX:-1.25,lShZ:-.15,lEl:-2.2,rShX:-.95,rShZ:.25,rEl:-2.45,lThX:-.3,rThX:.36,lKn:.42,rKn:.5,hipY:-.06}),freq:3.0,amp:.02,weave:.03,hop:.03,arm:.1},
@@ -501,10 +543,10 @@ const SP={
 
 /* ================= Moves (frames @60fps; keys = [frame, pose]) ================= */
 const MOVES={
-  jab:{s:7,a:3,r:11,keys:[[0,GUARD],[3,K.jabAnt],[7,POSE.jab],[10,POSE.jab],[21,GUARD]],hits:[{f:7,dmg:6,lvl:'high',range:1.05,hs:16,bs:9,push:.05}],chains:[{btn:'h',to:'onetwo'},{btn:'k',to:'jabkick'}],from:5},
+  jab:{s:7,a:3,r:11,keys:[[0,GUARD],[3,K.jabAnt],[7,{...POSE.jab,lShX:-1.76,spY:.38}],[10,POSE.jab],[14,K.jabSnap],[21,GUARD]],hits:[{f:7,dmg:6,lvl:'high',range:1.05,hs:16,bs:9,push:.05}],chains:[{btn:'h',to:'onetwo'},{btn:'k',to:'jabkick'}],from:5},
   onetwo:{travel:[1,8,1.6],s:8,a:3,r:16,keys:[[0,POSE.jab],[3,K.stAnt],[8,POSE.straight],[11,POSE.straight],[17,K.stFt],[27,GUARD]],hits:[{f:8,dmg:8,lvl:'high',range:1.25,hs:18,bs:11,push:.06}],chains:[{btn:'h',to:'hook'},{btn:'k',to:'finish'}],from:6},
   finish:{home:true,travel:[1,8,1.4],s:12,a:4,r:20,keys:[[0,GUARD],[4,K.rhAnt],[9,K.rhCh],[12,K.rhHit],[16,K.rhHit],[24,K.rhRet],[36,GUARD]],hits:[{f:12,dmg:13,lvl:'mid',range:1.25,hs:0,bs:15,push:.45,knock:'hard'}]},
-  straight:{s:10,a:3,r:15,keys:[[0,GUARD],[4,K.stAnt],[10,POSE.straight],[13,POSE.straight],[19,K.stFt],[28,GUARD]],hits:[{f:10,dmg:9,lvl:'high',range:1.08,hs:18,bs:11,push:.3}]},
+  straight:{s:10,a:3,r:15,keys:[[0,GUARD],[4,K.stAnt],[10,{...POSE.straight,rShX:-1.78,spY:-.9}],[13,POSE.straight],[18,K.stFt],[28,GUARD]],hits:[{f:10,dmg:9,lvl:'high',range:1.08,hs:18,bs:11,push:.3}]},
   lowkick:{s:11,a:3,r:14,keys:[[0,GUARD],[6,K.lkCh],[11,K.lkHit],[14,K.lkHit],[20,K.lkCh],[28,GUARD]],hits:[{f:11,dmg:7,lvl:'low',range:1.15,hs:17,bs:13,push:.1}]},
   highkick:{home:true,s:15,a:4,r:19,keys:[[0,GUARD],[5,K.rhAnt],[11,K.rhCh],[15,K.rhHit],[19,K.rhHit],[27,K.rhRet],[38,GUARD]],hits:[{f:15,dmg:12,lvl:'mid',range:1.26,hs:24,bs:14,push:.12}],chains:[{btn:'k',to:'kk2'},{btn:'h',to:'onetwo'}],from:8},
   /* kick string: K K K ends in a big finisher (per fighter), K K H goes into the power blow */
@@ -558,7 +600,7 @@ const MOVES={
   knife_finish:{travel:[3,14,3.2],s:13,a:4,r:24,keys:[[0,KN.bkB],[6,KN.fAnt],[13,KN.fin],[17,KN.fin],[41,GUARD]],hits:[{f:13,len:4,dmg:14,lvl:'mid',range:1.45,bs:18,push:.6,knock:'hard',big:true}]},
   knife_lunge:{travel:[4,14,4.5],s:12,a:4,r:22,keys:[[0,GUARD],[5,KN.fAnt],[12,KN.fin],[16,KN.fin],[38,GUARD]],hits:[{f:12,len:4,dmg:12,lvl:'mid',range:1.4,hs:30,bs:16,push:.4,crumple:true}]},
   /* punch string: H H H H ends in a power blow, H H H K ends in a launching kick */
-  hook:{travel:[1,8,1.6],s:8,a:3,r:16,keys:[[0,POSE.straight],[4,G({lShX:-.9,lShZ:-.5,lEl:-1.7,spY:-.5})],[8,G({lShX:-1.25,lShZ:-1.15,lEl:-1.55,spY:.75,hipRY:.45,lunge:.18,hdY:.2})],[11,G({lShX:-1.2,lShZ:-1.2,lEl:-1.5,spY:.85,hipRY:.5,lunge:.18})],[27,GUARD]],
+  hook:{travel:[1,8,1.6],s:8,a:3,r:16,keys:[[0,POSE.straight],[4,G({lShX:-.75,lShZ:-.9,lEl:-1.8,spY:-.45,hipRY:-.15,lKn:.55,hipY:-.08,hdX:.12})],[8,G({lShX:-.32,lShZ:-1.42,lEl:-1.62,spY:.9,hipRY:.5,spin:.12,lunge:.18,lKn:.38,lThX:-.25,rKn:.5,hdX:.14,hdY:.15,rShX:-.8,rEl:-2.45,rShZ:.35})],[11,G({lShX:-.3,lShZ:-1.38,lEl:-1.6,spY:1.0,hipRY:.55,spin:.14,lunge:.18,lKn:.38,rKn:.5,hdX:.14,rShX:-.8,rEl:-2.45})],[18,G({lShX:-.8,lShZ:-.8,lEl:-1.9,spY:.4,hipRY:.2,lunge:.1})],[27,GUARD]],
     hits:[{f:8,dmg:8,lvl:'high',range:1.25,hs:20,bs:12,push:.06}],chains:[{btn:'h',to:'@power'},{btn:'k',to:'@launch'}],from:5},
   power:{s:12,a:4,r:24,keys:[[0,POSE.jab],[6,G({spY:.6,rShX:-.3,rEl:-2.3,hipY:-.12,rKn:.7,spX:.15})],[12,G({rShX:-1.62,rShZ:.05,rEl:-.04,spY:-.9,lunge:.4,rThX:.7,lKn:.65,hipY:-.1,lShX:-.8,lEl:-2.2})],[16,G({rShX:-1.6,rEl:-.04,spY:-.95,lunge:.42,rThX:.7,lKn:.65,hipY:-.1})],[40,GUARD]],
     hits:[{f:12,len:4,dmg:15,lvl:'high',range:1.4,bs:18,push:.6,knock:'hard',big:true}]},
@@ -653,8 +695,92 @@ function init3D(){
 }
 function resize(){
   if(!R)return;const r=$('app').getBoundingClientRect();
+  R.renderer.setPixelRatio(Math.min(devicePixelRatio||1,gfxQ==='high'?2:gfxQ==='med'?1.5:1.25));
   R.renderer.setSize(r.width,r.height,false);R.cam.aspect=r.width/r.height;R.cam.updateProjectionMatrix();
+  if(FX.comp){const pr=R.renderer.getPixelRatio();FX.comp.setPixelRatio(pr);FX.comp.setSize(r.width,r.height)}
 }
+/* ================= Graphics: post-processing, environment light, quality levels ================= */
+/* low  = plain render (old phones)
+   med  = bloom + colour grade + multisampled anti-aliasing
+   high = med + ambient occlusion (soft contact darkening in corners and under bodies) + sharper pixels */
+const GFXQ=['low','med','high'];
+let gfxQ=(()=>{try{const q=localStorage.getItem('billi-gfx');if(GFXQ.includes(q))return q}catch(e){}
+  const touch=matchMedia('(pointer:coarse)').matches;return touch?'med':'high'})();
+const FX={comp:null,bloom:null,sao:null,grade:null,env:{},mode:null};
+const GradeShader={uniforms:{tDiffuse:{value:null},uExp:{value:1.05},uVig:{value:.32},uSat:{value:1.08},uCon:{value:1.06},uTint:{value:null},uGrain:{value:.018},uTime:{value:0}},
+  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`uniform sampler2D tDiffuse;uniform float uVig,uSat,uCon,uGrain,uTime,uExp;uniform vec3 uTint;varying vec2 vUv;
+    vec3 rrt(vec3 v){vec3 a=v*(v+.0245786)-.000090537;vec3 b=v*(.983729*v+.432951)+.238081;return a/b;}
+    vec3 aces(vec3 c){const mat3 I=mat3(vec3(.59719,.076,.0284),vec3(.35458,.90834,.13383),vec3(.04823,.01566,.83777));
+      const mat3 O=mat3(vec3(1.60475,-.10208,-.00327),vec3(-.53108,1.10813,-.07276),vec3(-.07367,-.00605,1.07602));
+      c*=uExp/.6;return clamp(O*rrt(I*c),0.,1.);}
+    float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+    void main(){vec4 c=texture2D(tDiffuse,vUv);vec3 l=aces(max(c.rgb,0.));
+      vec3 s=mix(l*12.92,1.055*pow(l,vec3(1./2.4))-.055,step(.0031308,l));
+      s=(s-.5)*uCon+.5;float y=dot(s,vec3(.2126,.7152,.0722));s=mix(vec3(y),s,uSat)*uTint;
+      float d=distance(vUv,vec2(.5));s*=1.-uVig*smoothstep(.35,.9,d);
+      s+=(h(vUv*vec2(1733.,977.)+uTime)-.5)*uGrain;gl_FragColor=vec4(s,1.);}`};
+function buildFX(){
+  const T=R.T;if(FX.comp){FX.comp.renderTarget1.dispose();FX.comp.renderTarget2.dispose();FX.comp=null}
+  R.renderer.toneMapping=T.ACESFilmicToneMapping;
+  if(gfxQ==='low'||!T.EffectComposer||!T.UnrealBloomPass){FX.comp=null;return}
+  const r=$('app').getBoundingClientRect(),w=Math.max(2,r.width),h=Math.max(2,r.height);
+  const gl2=R.renderer.capabilities.isWebGL2;
+  const rt=new T.WebGLRenderTarget(w,h,{type:T.HalfFloatType,samples:gl2?4:0});
+  const comp=new T.EffectComposer(R.renderer,rt);comp.setPixelRatio(R.renderer.getPixelRatio());comp.setSize(w,h);
+  comp.addPass(new T.RenderPass(R.scene,R.cam));
+  FX.sao=null;
+  if(gfxQ==='high'&&T.SAOPass){const sao=new T.SAOPass(R.scene,R.cam,false,true,new T.Vector2(512,512));
+    Object.assign(sao.params,{saoBias:.4,saoIntensity:.012,saoScale:6,saoKernelRadius:22,saoMinResolution:0,saoBlur:true,saoBlurRadius:6,saoBlurStdDev:4,saoBlurDepthCutoff:.01});
+    comp.addPass(sao);FX.sao=sao}
+  const bloom=new T.UnrealBloomPass(new T.Vector2(w/2,h/2),.7,.5,.78);comp.addPass(bloom);FX.bloom=bloom;
+  GradeShader.uniforms.uTint.value=new T.Vector3(1,1,1);
+  const grade=new T.ShaderPass(GradeShader);comp.addPass(grade);FX.grade=grade;
+  FX.comp=comp;FX.mode=null;R.renderer.toneMapping=T.NoToneMapping;
+}
+// soft reflections: a tiny procedural "sky" (lamps, signs, horizon) baked into an environment map
+function makeEnv(kind){
+  const T=R.T;if(FX.env[kind])return FX.env[kind];
+  const sc=new T.Scene(),geo=new T.SphereGeometry(20,32,16),col=[],top=new T.Color(),hor=new T.Color(),bot=new T.Color();
+  const P={night:[0x0a0e1c,0x4a3a2c,0x0c0b0a],day:[0x5d97d6,0xd8e6f0,0x6b6050],factory:[0x1a1d22,0x3a3630,0x161412]}[kind];
+  top.setHex(P[0]);hor.setHex(P[1]);bot.setHex(P[2]);
+  const pos=geo.attributes.position;for(let i=0;i<pos.count;i++){const y=pos.getY(i)/20,c=y>0?hor.clone().lerp(top,Math.pow(y,.6)):hor.clone().lerp(bot,Math.pow(-y,.5));col.push(c.r,c.g,c.b)}
+  geo.setAttribute('color',new T.Float32BufferAttribute(col,3));
+  sc.add(new T.Mesh(geo,new T.MeshBasicMaterial({vertexColors:true,side:T.BackSide})));
+  const glow=(c,i,x,y,z,sx,sy,sz)=>{const m=new T.Mesh(new T.BoxGeometry(sx,sy,sz),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(i)}));m.position.set(x,y,z);sc.add(m)};
+  if(kind==='night'){for(let k=0;k<10;k++){const a=k/10*Math.PI*2;glow(0xffc890,6,Math.cos(a)*12,7,Math.sin(a)*12,.8,.5,.8)}
+    glow(0xff3a2a,2.5,-14,3,6,.3,1.2,6);glow(0x3a8aff,2.5,14,3,-8,.3,1.2,6);glow(0xffd9a0,1.2,-15,6,-4,.2,6,10);glow(0xbfe0ff,1,15,8,5,.2,6,10)}
+  else if(kind==='day'){glow(0xfff6e0,30,-8,14,10,2.5,2.5,2.5)}
+  else{glow(0xe8f0ff,5,0,12,-4,10,.4,2);glow(0xffa04a,3,-12,4,8,1,1,1);glow(0x4fd6ff,2.5,12,4,-6,1,1,1)}
+  const pm=new T.PMREMGenerator(R.renderer),tex=pm.fromScene(sc,.04).texture;pm.dispose();
+  FX.env[kind]=tex;return tex}
+// pick the look for the current place and time of day
+function fxScene(){
+  const story=phase==='story',k=story?(storyDay?'day':'night'):'factory';
+  if(FX.mode===k)return;FX.mode=k;
+  R.scene.environment=gfxQ==='low'?null:makeEnv(k);
+  if(R.fill)R.fill.intensity=gfxQ==='low'?0:k==='night'?.28:k==='day'?.08:.18;
+  if(RIM.col.value){RIM.col.value.setHex(k==='night'?0x9fb8ff:k==='day'?0xfff2e0:0xbfe6ff);RIM.k.value=gfxQ==='low'?0:k==='night'?.24:k==='day'?.12:.2}
+  if(!FX.comp)return;const b=FX.bloom,u=FX.grade.uniforms;
+  if(k==='night'){b.strength=.6;b.radius=.5;b.threshold=1.1;u.uTint.value.set(.96,.98,1.06);u.uSat.value=1.06;u.uCon.value=1.12;u.uVig.value=.38}
+  else if(k==='day'){b.strength=.15;b.radius=.4;b.threshold=2.5;u.uTint.value.set(1.03,1.0,.96);u.uSat.value=1.1;u.uCon.value=1.05;u.uVig.value=.22}
+  else{b.strength=.35;b.radius=.5;b.threshold=1.4;u.uTint.value.set(1.02,1,.97);u.uSat.value=1.06;u.uCon.value=1.07;u.uVig.value=.34}
+  if(FX.sao)FX.sao.enabled=story}   // the factory's see-through walls would confuse the occlusion pass
+function fxRender(t){
+  if(!FX.built){FX.built=1;buildFX();R.fill=new R.T.PointLight(0xfff0e0,.3,7,2);R.scene.add(R.fill);FX.mode=null}
+  R.fill.position.copy(R.cam.position).add({x:0,y:.4,z:0});
+  fxScene();
+  const fov0=R.cam.fov;if(R.kick>0&&!reduced){R.cam.fov=fov0*(1-.07*R.kick);R.cam.updateProjectionMatrix()}
+  if(FX.comp){FX.grade.uniforms.uTime.value=t%10;FX.comp.render()}else R.renderer.render(R.scene,R.cam);
+  if(R.cam.fov!==fov0){R.cam.fov=fov0;R.cam.updateProjectionMatrix()}}
+function setGfx(q){gfxQ=q;try{localStorage.setItem('billi-gfx',q)}catch(e){}resize();buildFX();FX.mode=null;applyDayNight&&applyDayNight()}
+// a soft dark patch on the ground under each fighter so nobody floats
+let BLOB_TEX=null;
+function blobFor(f){
+  const T=R.T;if(!BLOB_TEX){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,2,32,32,32);
+    g.addColorStop(0,'rgba(0,0,0,.62)');g.addColorStop(.5,'rgba(0,0,0,.3)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,64,64);BLOB_TEX=new T.CanvasTexture(c)}
+  const m=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:BLOB_TEX,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));
+  m.rotation.x=-Math.PI/2;m.renderOrder=1;m.userData.blob=1;return m}
 addEventListener('resize',resize);
 
 /* ================= Fighter model ================= */
@@ -740,6 +866,71 @@ function buildFighter(o){
   R.scene.add(outer);
   return{outer,pitch,hips,spine,head,hairBack,strands,lA,rA,lL,rL,mats,aura};
 }
+/* Motion capture (Quaternius Universal Animation Library, CC0): clips are pre-baked into the driver rig's
+   own convention (character-space rotation per bone, limbs pointing down at rest), so they play on every character.
+   Locomotion uses them; fight moves stay procedural. */
+let MOCAP=null;
+const MC_B=['hips','spine','head','lSh','lEl','rSh','rEl','lTh','lKn','rTh','rKn'],MC_LEGS=new Set(['lTh','lKn','rTh','rKn']),MC_TORSO=new Set(['hips','spine','head']);
+// natural ground speed of each clip (m/s), measured from the planted foot
+const MC_V={Walk_Loop:.91,Jog_Fwd_Loop:5.4,Crouch_Fwd_Loop:.68};
+function loadMocap(){fetch('assets/mocap.json').then(r=>r.json()).then(j=>{
+  for(const k in j.clips){const c=j.clips[k];if(!c)continue;c.f=c.f.map(r=>Float32Array.from(r));
+    c.mean=MC_B.map((_,b)=>{const m=[0,0,0,0];for(const r of c.f){const sg=(r[b*4]*c.f[0][b*4]+r[b*4+1]*c.f[0][b*4+1]+r[b*4+2]*c.f[0][b*4+2]+r[b*4+3]*c.f[0][b*4+3])<0?-1:1;for(let i=0;i<4;i++)m[i]+=r[b*4+i]*sg}
+      const l=Math.hypot(...m)||1;return new R.T.Quaternion(m[0]/l,m[1]/l,m[2]/l,m[3]/l)})}
+  MOCAP=j.clips}).catch(()=>{})}
+/* The capture is a man's walk; the women get a style layer on top: feet placed close to the centre line,
+   hips swaying out over the standing leg with the shoulders kept level, and a smaller, closer arm swing. */
+const FEM=new Set(['billi','katara','marana']);
+const FEM_STYLE={Walk_Loop:{add:.085,roll:.075,shift:.022,arm:.45,armIn:.07,spine:.35},Idle_Loop:{add:.06,roll:.05,shift:.02,arm:0,armIn:.05,spine:0,still:1},
+  Idle_Talking_Loop:{add:.06,roll:.04,shift:.015,arm:.2,armIn:.03,spine:0,still:1},Jog_Fwd_Loop:{add:.05,roll:.04,shift:.012,arm:.25,armIn:.05,spine:.2}};
+function femStyle(f,M,S,clip){
+  const st=FEM_STYLE[clip];if(!st||!FEM.has(f.id))return;const T=R.T,c=MOCAP[clip],q=new T.Quaternion(),Z=new T.Vector3(0,0,1),i=n=>MC_B.indexOf(n);
+  const ph=st.still?1:Math.sin(M.u*Math.PI*2);   // >0 while the right (+x) leg carries her
+  // legs drawn in toward the centre line
+  for(const[n,sg]of[['lTh',1],['lKn',1],['rTh',-1],['rKn',-1]])S.q[i(n)].premultiply(q.setFromAxisAngle(Z,sg*st.add));
+  // hips roll up over the standing leg, shoulders stay level
+  S.q[i('hips')].premultiply(q.setFromAxisAngle(Z,st.roll*ph));S.q[i('spine')].premultiply(q.setFromAxisAngle(Z,-st.roll*ph*.85));
+  S.x+=st.shift*ph;
+  // calmer arms, held a little closer
+  for(const[n,sg]of[['lSh',1],['rSh',-1],['lEl',1],['rEl',-1]]){const b=i(n);if(st.arm)S.q[b].slerp(c.mean[b],st.arm);S.q[b].premultiply(q.setFromAxisAngle(Z,sg*st.armIn))}
+  if(st.spine){const b=i('spine');S.q[b].slerp(c.mean[b],st.spine)}}
+function mocapPlan(f){
+  if(!MOCAP||f.state==='ko'||f.state==='roll')return null;
+  if(f.state==='hit'&&!f.hitLow)return{c:f.hitHigh?'Hit_Head':'Hit_Chest',rate:1.15,once:true,mask:'torso'};
+  const v=f.moveSpd||0,loco=['idle','walkF','walkB','run'].includes(f.state);
+  if((f.relaxed&&loco)||(f.story&&f.state==='run')){
+    if(f.state==='idle'||v<.2){const talk=ST.dlg&&ST.dlg.lines[ST.dlg.i]&&DLG_WHO(ST.dlg.lines[ST.dlg.i][0])===f;return{c:talk?'Idle_Talking_Loop':'Idle_Loop',rate:1,legs:false}}
+    if(f.state==='run'||v>3.5)return{c:'Jog_Fwd_Loop',rate:Math.max(.7,v/MC_V.Jog_Fwd_Loop),legs:false};
+    return{c:'Walk_Loop',rate:Math.min(1.8,Math.max(.8,v/MC_V.Walk_Loop)),legs:false}}
+  // guard up while moving in a street fight: real walking legs under the fighting stance
+  if(f.story&&(f.state==='walkF'||f.state==='walkB')){const sp=Math.max(1.2,v);return{c:'Walk_Loop',rate:(f.state==='walkB'?-1:1)*Math.min(1.9,sp/MC_V.Walk_Loop),legs:true}}
+  return null}
+const DLG_WHO=w=>w==='billi'?ST.player:w==='katara'?ST.katara:w==='son'?ST.kid:(ST.actors||[]).find(a=>a.id===w&&a!==ST.player)||null;
+function mcSample(c,u,out){const n=c.f.length,x=((u%1)+1)%1*n,i=Math.floor(x)%n,j=(i+1)%n,a=x-Math.floor(x),A=c.f[i],B=c.f[j];
+  for(let b=0;b<11;b++){out.q[b].set(A[b*4],A[b*4+1],A[b*4+2],A[b*4+3]).slerp(out.t.set(B[b*4],B[b*4+1],B[b*4+2],B[b*4+3]),a)}
+  out.y=A[44]+(B[44]-A[44])*a;out.x=A[45]+(B[45]-A[45])*a;return out}
+function applyMocap(f,dt){
+  const T=R.T,plan=mocapPlan(f);let M=f.mc;
+  if(!M){if(!plan)return;const mk=()=>({q:MC_B.map(()=>new T.Quaternion()),t:new T.Quaternion(),y:1,x:0});
+    M=f.mc={c:null,u:0,w:0,prev:null,pu:0,x:1,legs:false,A:mk(),B:mk(),W:MC_B.map(()=>new T.Quaternion())}}
+  if(plan&&plan.c!==M.c){if(M.c&&M.w>.05){M.prev=M.c;M.pu=M.u;M.x=0}else M.x=1;M.c=plan.c}
+  if(plan){M.legs=plan.legs;M.mask=plan.mask||(plan.legs?'legs':null)}
+  M.w+=((plan?(plan.once?.9:1):0)-M.w)*Math.min(1,dt*(plan&&plan.once||M.mask==='torso'?22:9));if(M.w<.01&&!plan){M.w=0;M.c=null;return}
+  const c=MOCAP[M.c];if(!c)return;
+  if(plan&&plan.once)M.u=Math.min(.97,f.st*STEP*plan.rate/c.d);else if(plan){M.u+=dt*plan.rate/c.d;if(M.prev&&MOCAP[M.prev])M.pu+=dt*Math.abs(plan.rate)/MOCAP[M.prev].d}
+  M.x=Math.min(1,M.x+dt*6);if(M.x>=1)M.prev=null;
+  const S=mcSample(c,M.u,M.A);
+  femStyle(f,{u:M.u},S,M.c);
+  if(M.prev&&MOCAP[M.prev]){const P=mcSample(MOCAP[M.prev],M.pu,M.B);femStyle(f,{u:M.pu},P,M.prev);for(let b=0;b<11;b++)P.q[b].slerp(S.q[b],M.x),S.q[b].copy(P.q[b]);S.y=P.y+(S.y-P.y)*M.x;S.x=P.x+(S.x-P.x)*M.x}
+  // procedural world rotations (in the character's own frame), then blend toward the capture
+  const rg=f.rig,W=M.W,L={hips:rg.hips,spine:rg.spine,head:rg.head,lSh:rg.lA.sh,lEl:rg.lA.el,rSh:rg.rA.sh,rEl:rg.rA.el,lTh:rg.lL.th,lKn:rg.lL.kn,rTh:rg.rL.th,rKn:rg.rL.kn};
+  const par={hips:null,spine:'hips',head:'spine',lSh:'spine',lEl:'lSh',rSh:'spine',rEl:'rSh',lTh:'hips',lKn:'lTh',rTh:'hips',rKn:'rTh'};
+  MC_B.forEach((n,b)=>{const p=par[n];W[b].copy(L[n].quaternion);if(p)W[b].premultiply(W[MC_B.indexOf(p)])});
+  const msk=n=>M.mask==='legs'?MC_LEGS.has(n):M.mask==='torso'?MC_TORSO.has(n):true;
+  const fin=MC_B.map((n,b)=>W[b].clone().slerp(S.q[b],M.w*(msk(n)?1:0)));
+  MC_B.forEach((n,b)=>{const p=par[n];if(p)L[n].quaternion.copy(fin[MC_B.indexOf(p)].clone().invert().multiply(fin[b]));else L[n].quaternion.copy(fin[b])});
+  if(M.mask!=='torso'){const hw=M.w*(M.legs?.8:1);rg.hips.position.y+=(.99*S.y-rg.hips.position.y)*hw;rg.hips.position.x=S.x*hw*(M.legs?0:1)}
+}
 function applyPose(rig,p,t){
   // flip turns the body around the hips (~1m up) instead of the feet, so backflips look right
   // flip turns the body over around the hips (front/back), roll turns it sideways around a tucked centre
@@ -769,7 +960,7 @@ function addHandBones(SK){
   const G4=['getX','getY','getZ','getW'],S4=['setX','setY','setZ','setW'];
   si.getComponent=(i,k)=>si[G4[k]](i);si.setComponent=(i,k,v)=>si[S4[k]](i,v);sw.getComponent=(i,k)=>sw[G4[k]](i);sw.setComponent=(i,k,v)=>sw[S4[k]](i,v);
   // two passes per arm: wrist (palm bone) then knuckles (finger bone that curls into the palm)
-  for(const[el,hn,from,a0,a1]of[['lEl','lHand','lEl',.53,.63],['rEl','rHand','rEl',.53,.63],['lEl','lFing','lHand',.76,.84],['rEl','rFing','rHand',.76,.84]]){
+  for(const[el,hn,from,a0,a1]of[['lEl','lHand','lEl',.53,.63],['rEl','rHand','rEl',.53,.63],['lEl','lFing','lHand',.74,.81],['rEl','rFing','rHand',.74,.81],['lEl','lFing2','lFing',.86,.91],['rEl','rFing2','rFing',.86,.91]]){
     const J=rig.joints[el],p=J.p,e=J.e,d=[e[0]-p[0],e[1]-p[1],e[2]-p[2]],L2=d[0]*d[0]+d[1]*d[1]+d[2]*d[2];
     const wr=p.map((x,i)=>x+d[i]*(a0+a1)/2);rig.joints[hn]={p:wr,e:e.slice(),parent:from};rig.names.push(hn);
     const ei=rig.names.indexOf(from),hi=rig.names.length-1;
@@ -783,7 +974,25 @@ function addHandBones(SK){
   }
   si.needsUpdate=sw.needsUpdate=true;
 }
-let jacketOn=true;try{jacketOn=localStorage.getItem('billi-jacket')!=='0'}catch(e){}
+// Billi's outfits: each is a garment skinned to her skeleton; full outfits also hide the body underneath
+const OUTFITS=['none','jacket','leather','dress'];
+let outfit='none';
+let jacketOn=outfit!=='none';
+const OUTFIT_HIDE={leather:{bones:['hips','spine','chest','lSh','rSh','lEl','rEl','lTh','lKn','rTh','rKn'],y1:.80},
+  dress:{bones:['hips','spine','chest','lTh','rTh'],y0:.31,y1:.76,xMax:.112}};
+// rebuild the body's triangle list without the parts a full outfit covers (stops skin poking through)
+function applyOutfitHide(SK){
+  const geo=SK.src&&SK.src[0]&&SK.src[0].geo;if(!geo||!geo.index)return;
+  if(!geo.userData.full)geo.userData.full=geo.index.array.slice();
+  const full=geo.userData.full,rule=OUTFIT_HIDE[outfit];
+  if(!rule){geo.setIndex(new R.T.BufferAttribute(full,1));return}
+  const si=geo.attributes.skinIndex,sw=geo.attributes.skinWeight,pos=geo.attributes.position,n=pos.count,hide=new Uint8Array(n);
+  const want=new Set(rule.bones.map(b=>SK.rig.names.indexOf(b))),y0=rule.y0??-9,y1=rule.y1??9,xm=rule.xMax??9;
+  for(let i=0;i<n;i++){let b=si.getX(i),w=sw.getX(i);if(sw.getY(i)>w){w=sw.getY(i);b=si.getY(i)}if(sw.getZ(i)>w){w=sw.getZ(i);b=si.getZ(i)}if(sw.getW(i)>w){b=si.getW(i)}
+    const y=pos.getY(i);if(want.has(b)&&y>y0&&y<y1&&(y<.52||Math.abs(pos.getX(i)-.007)<xm))hide[i]=1}
+  const out=[];for(let t=0;t<full.length;t+=3){const a=full[t],b=full[t+1],c=full[t+2];if(hide[a]&&hide[b]&&hide[c])continue;out.push(a,b,c)}
+  geo.setIndex(new R.T.BufferAttribute(new Uint32Array(out),1));
+}
 function loadExtras(SK){
   const T=R.T,ld=new T.GLTFLoader();if(window.MeshoptDecoder)ld.setMeshoptDecoder(window.MeshoptDecoder);
   const b64=t=>{const bin=atob(t),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
@@ -797,16 +1006,21 @@ function loadExtras(SK){
   }).catch(()=>{});
 }
 function attachExtra(f,ex){
-  const S=f.skin;if(!S||S.extra&&S.extra[ex.tag])return;const mat=ex.src.mat.clone();mat.emissive=new R.T.Color(0);
-  const m=new R.T.SkinnedMesh(ex.src.geo,mat);m.frustumCulled=false;m.castShadow=true;S.container.add(m);m.bind(S.skel);f.rig.mats.push(mat);
-  S.extra=S.extra||{};S.extra[ex.tag]=m;m.visible=ex.tag!=='jacket'||jacketOn;
+  const S=f.skin;if(!S||S.extra&&S.extra[ex.tag])return;const mat=charMat(ex.src.mat.clone());mat.emissive=new R.T.Color(0);
+  const m=new R.T.SkinnedMesh(ex.src.geo,mat);m.frustumCulled=false;m.castShadow=true;S.container.add(m);m.bind(S.skel,S.bindM);f.rig.mats.push(mat);// reuse the body's bind: a plain bind() would recompute inverses from the current (posed) skeleton
+  S.extra=S.extra||{};S.extra[ex.tag]=m;m.visible=ex.tag===outfit;
 }
-function setJacket(on){jacketOn=on;try{localStorage.setItem('billi-jacket',on?'1':'0')}catch(e){}for(const f of allFighters())if(f&&f.skin&&f.skin.extra&&f.skin.extra.jacket)f.skin.extra.jacket.visible=on;if($('jkBtn'))$('jkBtn').textContent=L(on?'jacketOff':'jacketOn')}
+function setOutfit(o){outfit=o;jacketOn=o!=='none';try{localStorage.setItem('billi-outfit',o)}catch(e){}
+  for(const f of allFighters())if(f&&f.skin&&f.skin.extra)for(const k in f.skin.extra)f.skin.extra[k].visible=k===o;
+  applyOutfitHide(SKINS.billi);if($('jkBtn'))$('jkBtn').textContent=L('outfit')+': '+L('of_'+o)}
+function nextOutfit(){setOutfit(OUTFITS[(OUTFITS.indexOf(outfit)+1)%OUTFITS.length])}
+function setJacket(on){setOutfit(on===true?(outfit==='none'?'jacket':outfit):on===false?'none':outfit)}
 const BT_RIG={"names": ["hips", "spine", "chest", "head", "lSh", "lEl", "rSh", "rEl", "lTh", "lKn", "rTh", "rKn"], "joints": {"hips": {"p": [0, 0.47, -0.005], "e": [0, 0.57, -0.005], "parent": null}, "spine": {"p": [0, 0.57, -0.005], "e": [0, 0.67, -0.005], "parent": "hips"}, "chest": {"p": [0, 0.67, -0.005], "e": [0, 0.79, -0.01], "parent": "spine"}, "head": {"p": [0, 0.8, -0.01], "e": [0, 0.98, 0.01], "parent": "chest"}, "lSh": {"p": [-0.155, 0.705, -0.04], "e": [-0.212, 0.59, -0.06], "parent": "chest"}, "lEl": {"p": [-0.212, 0.59, -0.06], "e": [-0.282, 0.455, -0.055], "parent": "lSh"}, "rSh": {"p": [0.155, 0.705, -0.04], "e": [0.212, 0.59, -0.06], "parent": "chest"}, "rEl": {"p": [0.212, 0.59, -0.06], "e": [0.282, 0.455, -0.055], "parent": "rSh"}, "lTh": {"p": [-0.062, 0.44, -0.02], "e": [-0.092, 0.265, -0.035], "parent": "hips"}, "lKn": {"p": [-0.092, 0.265, -0.035], "e": [-0.122, 0.045, -0.035], "parent": "lTh"}, "rTh": {"p": [0.065, 0.44, -0.02], "e": [0.098, 0.265, -0.035], "parent": "hips"}, "rKn": {"p": [0.098, 0.265, -0.035], "e": [0.128, 0.045, -0.035], "parent": "rTh"}}};
 const KT_RIG={"names": ["hips", "spine", "chest", "head", "lSh", "lEl", "rSh", "rEl", "lTh", "lKn", "rTh", "rKn"], "joints": {"hips": {"p": [0, 0.49, -0.005], "e": [0, 0.58, -0.005], "parent": null}, "spine": {"p": [0, 0.58, -0.005], "e": [0, 0.68, -0.005], "parent": "hips"}, "chest": {"p": [0, 0.68, -0.005], "e": [0, 0.8, -0.01], "parent": "spine"}, "head": {"p": [0, 0.82, -0.01], "e": [0, 0.98, 0], "parent": "chest"}, "lSh": {"p": [-0.115, 0.775, -0.035], "e": [-0.25, 0.765, -0.033], "parent": "chest"}, "lEl": {"p": [-0.25, 0.765, -0.033], "e": [-0.4, 0.73, -0.027], "parent": "lSh"}, "rSh": {"p": [0.115, 0.775, -0.035], "e": [0.25, 0.765, -0.033], "parent": "chest"}, "rEl": {"p": [0.25, 0.765, -0.033], "e": [0.4, 0.73, -0.027], "parent": "rSh"}, "lTh": {"p": [-0.055, 0.46, -0.01], "e": [-0.062, 0.26, -0.015], "parent": "hips"}, "lKn": {"p": [-0.062, 0.26, -0.015], "e": [-0.063, 0.04, -0.02], "parent": "lTh"}, "rTh": {"p": [0.05, 0.46, -0.01], "e": [0.052, 0.26, -0.015], "parent": "hips"}, "rKn": {"p": [0.052, 0.26, -0.015], "e": [0.048, 0.04, -0.02], "parent": "rTh"}}};
 const MR_RIG={"names": ["hips", "spine", "chest", "head", "lSh", "lEl", "rSh", "rEl", "lTh", "lKn", "rTh", "rKn"], "joints": {"hips": {"p": [0, 0.49, -0.005], "e": [0, 0.58, -0.005], "parent": null}, "spine": {"p": [0, 0.58, -0.005], "e": [0, 0.68, -0.005], "parent": "hips"}, "chest": {"p": [0, 0.68, -0.005], "e": [0, 0.8, -0.01], "parent": "spine"}, "head": {"p": [0, 0.82, -0.01], "e": [0, 0.98, 0], "parent": "chest"}, "lSh": {"p": [-0.115, 0.775, -0.035], "e": [-0.25, 0.765, -0.033], "parent": "chest"}, "lEl": {"p": [-0.25, 0.765, -0.033], "e": [-0.4, 0.73, -0.027], "parent": "lSh"}, "rSh": {"p": [0.115, 0.775, -0.035], "e": [0.25, 0.765, -0.033], "parent": "chest"}, "rEl": {"p": [0.25, 0.765, -0.033], "e": [0.4, 0.73, -0.027], "parent": "rSh"}, "lTh": {"p": [-0.06, 0.46, -0.01], "e": [-0.066, 0.26, -0.02], "parent": "hips"}, "lKn": {"p": [-0.066, 0.26, -0.02], "e": [-0.07, 0.04, -0.02], "parent": "lTh"}, "rTh": {"p": [0.06, 0.46, -0.01], "e": [0.066, 0.26, -0.02], "parent": "hips"}, "rKn": {"p": [0.066, 0.26, -0.02], "e": [0.07, 0.04, -0.02], "parent": "rTh"}}};
-const SKINS={marana:{rig:MR_RIG,sc:1.74,file:'assets/marana.json',src:null},katara:{rig:KT_RIG,sc:1.74,file:'assets/katara.json',src:null,flat:true},bitchinho:{rig:BT_RIG,sc:1.85,file:'assets/bitchinho.json',src:null},billi:{rig:BILLI_RIG,sc:1.8,file:'assets/billi.json',src:null,hands:true,extras:[{tag:'jacket',file:'assets/jacket.json',src:null}]},pablo:{rig:PABLO_RIG,sc:1.75,file:'assets/pablo.json',src:null},son:{rig:SON_RIG,sc:1.6,file:'assets/son.json',src:null}};
-function loadSkins(){for(const id in SKINS)loadSkin(id)}
+const PB2_RIG={"names": ["hips", "spine", "chest", "head", "lSh", "lEl", "rSh", "rEl", "lTh", "lKn", "rTh", "rKn"], "joints": {"hips": {"p": [0, 0.44, -0.005], "e": [0, 0.55, 0], "parent": null}, "spine": {"p": [0, 0.55, 0], "e": [0, 0.67, -0.005], "parent": "hips"}, "chest": {"p": [0, 0.67, -0.005], "e": [0, 0.8, -0.02], "parent": "spine"}, "head": {"p": [0, 0.82, -0.02], "e": [0, 0.98, 0], "parent": "chest"}, "lSh": {"p": [-0.14, 0.765, -0.05], "e": [-0.3, 0.765, -0.05], "parent": "chest"}, "lEl": {"p": [-0.3, 0.765, -0.05], "e": [-0.46, 0.752, -0.01], "parent": "lSh"}, "rSh": {"p": [0.14, 0.765, -0.05], "e": [0.3, 0.765, -0.05], "parent": "chest"}, "rEl": {"p": [0.3, 0.765, -0.05], "e": [0.46, 0.752, -0.01], "parent": "rSh"}, "lTh": {"p": [-0.075, 0.42, -0.01], "e": [-0.085, 0.27, -0.03], "parent": "hips"}, "lKn": {"p": [-0.085, 0.27, -0.03], "e": [-0.098, 0.05, -0.03], "parent": "lTh"}, "rTh": {"p": [0.075, 0.42, -0.01], "e": [0.085, 0.27, -0.03], "parent": "hips"}, "rKn": {"p": [0.085, 0.27, -0.03], "e": [0.098, 0.05, -0.03], "parent": "rTh"}}};
+const SKINS={stranger:{rig:PABLO_RIG,sc:1.75,file:'assets/pablo.json',src:null},marana:{rig:MR_RIG,sc:1.74,file:'assets/marana.json',src:null},katara:{rig:KT_RIG,sc:1.74,file:'assets/katara.json',src:null,flat:true},bitchinho:{rig:BT_RIG,sc:1.85,file:'assets/bitchinho.json',src:null},billi:{rig:BILLI_RIG,sc:1.8,file:'assets/billi.json',src:null,hands:true},pablo:{rig:PB2_RIG,sc:1.82,file:'assets/pablo2.json',src:null},son:{rig:SON_RIG,sc:1.6,file:'assets/son.json',src:null}};
+function loadSkins(){for(const id in SKINS)loadSkin(id);loadMocap()}
 function loadSkin(id){const SK=SKINS[id];
   const T=R.T;if(!T.GLTFLoader)return;
   const ld=new T.GLTFLoader();if(window.MeshoptDecoder)ld.setMeshoptDecoder(window.MeshoptDecoder);
@@ -823,10 +1037,25 @@ function loadSkin(id){const SK=SKINS[id];
       geo.computeBoundingSphere();return{geo,mat:mesh.material}});
     // some Tripo normal maps smear the face once re-encoded; this model looks right with plain shading
     if(SK.flat)for(const p of SK.src){p.mat.normalMap=null;p.mat.roughnessMap=null;p.mat.metalnessMap=null;p.mat.metalness=0;p.mat.roughness=.8;p.mat.needsUpdate=true}
-    if(SK.hands)addHandBones(SK);if(SK.extras)loadExtras(SK);
+    if(SK.hands)addHandBones(SK);if(SK.extras)loadExtras(SK);if(SK===SKINS.billi)applyOutfitHide(SK);
     for(const f of allFighters())if(f&&f.id===id&&!f.skin)attachSkin(f);
   }).catch(()=>{});
 }
+/* Character shading, as fighting games do it: a rim light that outlines the body against the background,
+   skin kept soft (Tripo roughness maps can make it look plastic or chalky), and a gentle fill light from the camera. */
+const RIM={col:{value:null},k:{value:.32}};
+function charMat(m){
+  if(!m||m.userData.charMat||!m.isMeshStandardMaterial)return m;m.userData.charMat=1;
+  if(!RIM.col.value)RIM.col.value=new R.T.Color(0x9fb8ff);
+  m.onBeforeCompile=sh=>{sh.uniforms.uRim=RIM.col;sh.uniforms.uRimK=RIM.k;
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uRim;uniform float uRimK;')
+      .replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
+        vec3 _al=diffuseColor.rgb;float _skin=step(.12,_al.r-_al.b)*step(_al.g,_al.r)*step(_al.b,_al.g)*step(.15,_al.r)*(1.-step(.92,_al.g));
+        roughnessFactor=mix(roughnessFactor,clamp(roughnessFactor,.48,.72),_skin);`)
+      .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+        float _rim=pow(1.-clamp(dot(normal,normalize(vViewPosition)),0.,1.),3.);
+        totalEmissiveRadiance+=uRim*uRimK*_rim*(.55+.45*clamp(normal.y+.5,0.,1.))*(.6+.4*_skin);`)};
+  m.customProgramCacheKey=()=>'charRim';m.needsUpdate=true;return m}
 function attachSkin(f){
   const SK=SKINS[f.id],T=R.T,J=SK.rig.joints,names=SK.rig.names,bones={},restQ={},down=new T.Vector3(0,-1,0);
   const limb=n=>/Sh|El|Th|Kn|Hand/.test(n);
@@ -841,16 +1070,16 @@ function attachSkin(f){
   container.updateMatrixWorld(true);const skel=new T.Skeleton(names.map(n=>bones[n]));
   f.skinSkel=skel;
   for(const part of SK.src){
-    const mat=part.mat.clone();mat.emissive=new T.Color(0);
+    const mat=charMat(part.mat.clone());mat.emissive=new T.Color(0);
     const mesh=new T.SkinnedMesh(part.geo,mat);mesh.frustumCulled=false;mesh.castShadow=true;container.add(mesh);
     mesh.bind(skel);f.rig.mats.push(mat);
   }
   R.scene.add(container);
   f.rig.outer.traverse(m=>{if(m.isMesh)m.visible=false});
-  f.skin={SK,container,bones,names,skel,q:new T.Quaternion(),q2:new T.Quaternion(),pw:{},v:new T.Vector3(),fist:0};
+  f.skin={SK,container,bones,names,skel,bindQ:Object.fromEntries(names.map(n=>[n,bones[n].quaternion.clone()])),bindM:container.children[1]?container.children[1].bindMatrix.clone():container.matrixWorld.clone(),q:new T.Quaternion(),q2:new T.Quaternion(),pw:{},v:new T.Vector3(),fist:0};
   if(SK.extras)for(const ex of SK.extras)if(ex.src)attachExtra(f,ex);
 }
-const ZAX={x:0,y:0,z:1,isVector3:true};
+const ZAX={x:0,y:0,z:1,isVector3:true},YAX={x:0,y:1,z:0,isVector3:true};
 function driveSkin(f){
   const S=f.skin,rg=f.rig,B=S.bones;
   S.container.visible=rg.outer.visible;
@@ -863,8 +1092,13 @@ function driveSkin(f){
   for(const n of S.names){
     const par=S.SK.rig.joints[n].parent;
     if(!want[n]){const fi=S.fist;
-      if(n.endsWith('Fing')){B[n].quaternion.setFromAxisAngle(ZAX,(n[0]==='l'?1:-1)*1.75*fi);B[n].scale.set(1,1-.15*fi,1)}
-      else{B[n].quaternion.identity();B[n].scale.set(1+.06*fi,1-.12*fi,1+.06*fi)}
+      // curls are applied on top of each joint's own rest orientation
+      if(n.endsWith('Fing')){B[n].quaternion.copy(S.bindQ[n]).multiply(S.q.setFromAxisAngle(ZAX,(n[0]==='l'?1:-1)*1.55*fi));B[n].scale.set(1,1-.12*fi,1)}
+      else if(n.endsWith('Fing2')){B[n].quaternion.copy(S.bindQ[n]).multiply(S.q.setFromAxisAngle(ZAX,(n[0]==='l'?1:-1)*1.9*fi))}
+      else{
+        // the fist turns over (palm down) as a straight punch reaches full extension
+        const el=n[0]==='l'?f.cur.lEl:f.cur.rEl,ext=f.state==='attack'?Math.max(0,1-(-el)/1.1):0;S.tw=S.tw||{};S.tw[n]=(S.tw[n]||0)+((n[0]==='l'?1:-1)*1.35*ext-(S.tw[n]||0))*.45;
+        B[n].quaternion.copy(S.bindQ[n]).multiply(S.q.setFromAxisAngle(YAX,S.tw[n]));B[n].scale.set(1+.06*fi,1-.12*fi,1+.06*fi)}
       S.pw[n]=S.pw[par];continue}
     if(par)B[n].quaternion.copy(S.pw[par].clone().invert().multiply(want[n]));else B[n].quaternion.copy(want[n]);
     S.pw[n]=want[n];
@@ -893,7 +1127,7 @@ function attachRigged(f){
   const T=R.T,root=T.SkeletonUtils?T.SkeletonUtils.clone(GENT_SRC):GENT_SRC.clone(true);
   const container=new T.Group();container.scale.setScalar(GENT.sc);container.add(root);R.scene.add(container);container.updateMatrixWorld(true);
   const bones={};root.traverse(b=>{if(b.isBone)bones[b.name]=b});
-  root.traverse(m=>{if(m.isMesh){m.castShadow=true;m.frustumCulled=false;m.material=m.material.clone();if(m.material.emissive)f.rig.mats.push(m.material)}});
+  root.traverse(m=>{if(m.isMesh){m.castShadow=true;m.frustumCulled=false;m.material=charMat(m.material.clone());if(m.material.emissive)f.rig.mats.push(m.material)}});
   const info={},down=new T.Vector3(0,-1,0);
   for(const k in GENT.map){const b=bones[GENT.map[k]];if(!b)continue;const q0=b.getWorldQuaternion(new T.Quaternion()),A=new T.Quaternion();
     if(GENT.ends[k]&&bones[GENT.ends[k]]){const p=b.getWorldPosition(new T.Vector3()),e=bones[GENT.ends[k]].getWorldPosition(new T.Vector3());A.setFromUnitVectors(down,e.sub(p).normalize())}
@@ -920,6 +1154,7 @@ const LOOKS={
   katara:{skin:0xd9a98a,top:0x4a1e22,pants:0x7a96b8,pants2:0x6a86a8,shoe:0xeeeeee,sole:0xdddddd,hair:0x2a1a14,iris:0x5b3a26,lip:0xb5706b,wrap:0xd9a98a,hairStyle:'long',ribs:false,midriff:true,mole:false},
   bitchinho:{skin:0xc89a78,top:0x1c1c1e,pants:0x26262a,pants2:0x202024,shoe:0xeeeeee,sole:0xdddddd,hair:0x1a1410,iris:0x3d2416,lip:0x9a6a5a,wrap:0xc89a78,hairStyle:'bob',ribs:false,midriff:false,mole:false},
   son:{skin:0xe0b090,top:0x2b3f8a,pants:0x4a6a9f,pants2:0x3d5a8a,shoe:0xeeeeee,sole:0xdddddd,hair:0x1a1410,iris:0x3d2416,lip:0xb07a6a,wrap:0xe0b090,hairStyle:'bob',ribs:false,midriff:false,mole:false},
+  stranger:{skin:0xc08a6a,top:0xc08a6a,pants:0x2a2a2a,pants2:0x222222,shoe:0xeeeeee,sole:0xdddddd,hair:0x1a1410,iris:0x3d2416,lip:0x8a5a4a,wrap:0xc08a6a,hairStyle:'bob',ribs:false,midriff:true,mole:false},
   pablo:{skin:0xc08a6a,top:0xc08a6a,pants:0x2a2a2a,pants2:0x222222,shoe:0xeeeeee,sole:0xdddddd,hair:0x1a1410,iris:0x3d2416,lip:0x8a5a4a,wrap:0xc08a6a,hairStyle:'bob',ribs:false,midriff:true,mole:false},
 };
 function makeFighter(look,isAI){
@@ -980,6 +1215,34 @@ function pickMove0(f,I,fwdHeld,backHeld){
 }
 
 const JUMPHIT={kick:{dmg:12,lvl:'mid',range:1.6,hs:20,bs:14,push:.5,knock:'hard'},punch:{dmg:8,lvl:'mid',range:1.35,hs:18,bs:12,push:.3}};
+/* Throw (Tekken-style): a short grab reach; if it catches a standing opponent she lifts them overhead and tosses them.
+   Unblockable, but the victim can break it by pressing throw right after being caught. Whiffs leave a big opening. */
+const THROW={reach:1.05,dmg:24,lift:22,hold:12,toss:16,breakWin:10};
+const THROWABLE=['idle','walkF','walkB','block','run','dash','heal','getup'];
+function canThrow(o){if(!o||!(o.hp>0)||!o.rig||o.state==='thrown')return false;if(THROWABLE.includes(o.state))return true;
+  if(o.state==='attack'){const m=MOVES[o.move];return o.mf>m.s+m.a}return false}
+function dealDamage(att,def,dmg){
+  dmg=Math.max(1,Math.round(dmg*(att.dmgScale||1)*((CHARS[att.id]&&CHARS[att.id].dmgMul)||1)*((CHARS[def.id]&&CHARS[def.id].takeMul)||1)*(def.takeScale||1)));
+  def.hp=Math.max(0,def.hp-dmg);att.combo=1;att.stats.dmg+=dmg;att.stats.hits++;att.comboShow=90;def.flash=1;
+  att.heat=Math.min(100,(att.heat||0)+dmg*1.6);def.heat=Math.min(100,(def.heat||0)+dmg*1.1);
+  if(def.hp<=0&&phase==='fight'){phase='ko';phaseT=0;koWinner=att;slow(.3,9999);banner(L('ko'),'red',140)}}
+function breakThrow(a,v){
+  for(const[f,s]of[[a,-1],[v,1]]){setState(f,'hit');f.stun=14;const u=toOpp(a,v);f.vx=u.ux*s*3.2;f.vz=u.uz*s*3.2}
+  v.y=0;a.victim=null;v.thrower=null;sfx('block');spark((a.x+v.x)/2,1.2,(a.z+v.z)/2,0x4fd6ff,10);hitstop=6;
+  if(!v.isAI||!a.isAI)banner(L('throwBreak'),'gold sm',50)}
+function throwTick(f){
+  const v=f.victim;if(!v||v.thrower!==f){f.victim=null;if(f.st>=20)setState(f,'idle');return}
+  const k=f.st,L1=THROW.lift,L2=L1+THROW.hold;
+  if(k<=THROW.breakWin&&pressedF(v,'throw',THROW.breakWin)){consume(v,'throw');breakThrow(f,v);return}
+  // carry the victim: from in front of her, up over her head, then out in front as she throws
+  const ease=t=>t*t*(3-2*t);let fwd,hy;
+  if(k<L1){const t=ease(k/L1);fwd=.55-.5*t;hy=1.05*t}else if(k<L2){fwd=.05;hy=1.05+Math.sin((k-L1)*.5)*.02}else{const t=Math.min(1,(k-L2)/6);fwd=.05+.9*t;hy=1.05-.25*t}
+  v.x=f.x+f.ax*fwd;v.z=f.z+f.az*fwd;v.y=hy;v.ax=-f.ax;v.az=-f.az;v.tp=k;
+  if(k===L2+5){
+    // release: the victim flies forward and slams into the floor
+    v.thrower=null;f.victim=null;setState(v,'air');v.vy=3.2;v.vx=f.ax*5.4;v.vz=f.az*5.4;v.slam=true;v.ax=-f.ax;v.az=-f.az;
+    dealDamage(f,v,THROW.dmg);sfx('whoosh');R.shake=Math.max(R.shake,.1)}
+}
 function toOpp(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1e-4;return{ux:dx/d,uz:dz/d,d}}
 function updateFighter(f,o,I){
   f.st++;
@@ -989,7 +1252,7 @@ function updateFighter(f,o,I){
   const ground=!['air','jump','hop'].includes(f.state);
   if(ground){f.x+=f.vx*STEP;f.z+=f.vz*STEP;f.vx*=.82;f.vz*=.82}
   // auto-face the opponent unless committed to an attack
-  if(!f.noFace&&!['attack','air','down','ko','win','roll'].includes(f.state)){f.ax=ux;f.az=uz}
+  if(!f.noFace&&!['attack','air','down','ko','win','roll','thrown','throwA'].includes(f.state)){f.ax=ux;f.az=uz}
   switch(f.state){
     case'hit':case'block':if(--f.stun<=0)setState(f,'idle');break;
     case'air':case'jump':
@@ -1002,7 +1265,8 @@ function updateFighter(f,o,I){
       f.y+=f.vy*STEP;f.vy-=18*STEP;f.x+=f.vx*STEP;f.z+=f.vz*STEP;
       if(f.y<=0&&f.vy<0){f.y=0;f.vy=0;f.vx*=.3;f.vz*=.3;
         if(f.state==='jump')setState(f,'idle');
-        else{setState(f,f.hp<=0?'ko':'down');f.downT=44;R.shake=Math.max(R.shake,.06);sfx('land');if(f.hp<=0)sfx('ko')}}
+        else{setState(f,f.hp<=0?'ko':'down');f.downT=44;R.shake=Math.max(R.shake,.06);sfx('land');if(f.hp<=0)sfx('ko');
+          if(f.slam){f.slam=false;f.downT=56;R.shake=Math.max(R.shake,.22);sfx('heavy');sfx('ko');hitstop=Math.max(hitstop,8);impact(f.x,.25,f.z,'throw',0,0);spark(f.x,.15,f.z,0xd8c8a8,16);if(typeof puff==='function')puff(f.x,.1,f.z)}}}
       break;
     case'down':if(--f.downT<=0)setState(f,'getup');break;
     case'roll':{
@@ -1043,9 +1307,18 @@ function updateFighter(f,o,I){
       if(m.chains&&f.mf>=Math.max(m.from,m.hits[m.hits.length-1].f+1)&&f.mf<m.s+m.a+m.r*.7){const c=m.chains.find(c=>pressedF(f,c.btn,16)&&canUse(f,resolveMove(f,c.to)));if(c){startMove(f,resolveMove(f,c.to),o);break}}
       if(f.mf>=m.total)setState(f,'idle');
       break;}
+    case'grab':
+      // the reach: catches on frames 4-7, otherwise a long, punishable recovery
+      if(f.st>=4&&f.st<=7&&!f.victim){const u=toOpp(f,o);if(u.d<THROW.reach&&canThrow(o)&&Math.abs(o.y)<.2){
+        f.victim=o;o.thrower=f;setState(f,'throwA');setState(o,'thrown');o.vx=o.vz=0;f.ax=u.ux;f.az=u.uz;sfx('block');hitstop=5;
+        if(!f.isAI||!o.isAI)banner(L('thrown'),'gold sm',45)}}
+      if(f.state==='grab'&&f.st>=30)setState(f,'idle');break;
+    case'throwA':throwTick(f);if(f.state==='throwA'&&f.st>=THROW.lift+THROW.hold+THROW.toss)setState(f,'idle');break;
+    case'thrown':if(!f.thrower){setState(f,'air');f.vy=1;}break;
     case'ko':case'win':break;
     default:{
       if(!LIVE()){if(f.state!=='idle')setState(f,'idle');break}
+      if(pressedF(f,'throw',4)){consume(f,'throw');setState(f,'grab');f.ax=ux;f.az=uz;sfx('whoosh');break}
       const mv=pickMove(f,I,fwdHeld,backHeld);
       if(mv){startMove(f,mv,o);break}
       if(I.dashF){setState(f,'dash');f.vx=f.vz=0;sfx('dash');break}
@@ -1057,6 +1330,11 @@ function updateFighter(f,o,I){
       if(I.jump&&f.state!=='crouch'){setState(f,'jump');f.jatk=0;f.vy=7.2;sfx('whoosh');const j=(fwdHeld?1:backHeld?-1:0)*2.4;f.vx=ux*j;f.vz=uz*j;break}
       if(I.down){if(f.state!=='crouch')setState(f,'crouch');break}
       if(I.block){if(f.state!=='idle')setState(f,'idle');break}
+      if(I.lat){
+        // holding up/down walks around the opponent: up goes into the screen, down comes toward the camera
+        let px=-uz,pz=ux;if(px*R.camFwd.x+pz*R.camFwd.z<0){px=-px;pz=-pz}
+        const fb=fwdHeld?1:backHeld?-.8:0;f.x+=(px*I.lat*2.0+ux*fb*1.4)*STEP;f.z+=(pz*I.lat*2.0+uz*fb*1.4)*STEP;
+        if(f.state!=='walkF')setState(f,'walkF');break}
       if(fwdHeld&&f.state==='run'){f.x+=ux*4.6*STEP;f.z+=uz*4.6*STEP}
       else if(fwdHeld){if(f.state!=='walkF')setState(f,'walkF');f.x+=ux*2.3*STEP;f.z+=uz*2.3*STEP}
       else if(backHeld){if(f.state!=='walkB')setState(f,'walkB');f.x-=ux*1.9*STEP;f.z-=uz*1.9*STEP}
@@ -1068,7 +1346,7 @@ function updateFighter(f,o,I){
 
 const KICKISH=/kick|sweep|slide|kk|back|axe|kfin|finish|launch|flip|stomp|flop|belly|head|rocket/;
 function resolveHit(att,def,h,m){
-  if(['down','getup','ko','win'].includes(def.state))return'whiff';
+  if(['down','getup','ko','win','thrown'].includes(def.state))return'whiff';
   if(def.state==='roll'&&def.st<16)return'whiff';
   // Linear moves travel straight down the attacker's locked aim, so a sidestep takes the target out of their path.
   // Homing moves (roundhouses, spinning kick, sweep, rage) sweep a wide arc and still connect.
@@ -1088,7 +1366,7 @@ function resolveHit(att,def,h,m){
     if(blocked){
       setState(def,'block');def.stun=h.bs;def.crouchBlock=crouchB;const pb=h.push*6+1.3;def.vx=att.ax*pb;def.vz=att.az*pb;att.vx=-att.ax*.9;att.vz=-att.az*.9;
       att.heat=Math.min(100,(att.heat||0)+3);def.heat=Math.min(100,(def.heat||0)+2);
-      spark(mx,hy,mz,0x4fd6ff,8);sfx('block');hitstop=4;return'block';
+      spark(mx,hy,mz,0x4fd6ff,8);impact(mx,hy,mz,'block',att.ax,att.az);sfx('block');hitstop=5;def.shk=.4;return'block';
     }
   }
   const juggle=def.state==='air';
@@ -1109,14 +1387,16 @@ function resolveHit(att,def,h,m){
   else if(juggle){def.vy=Math.max(def.vy,4.4);kb(1.3)}
   else if(h.launch){setState(def,'air');def.vy=7.4;kb(.9);def.y=Math.max(def.y,.02)}
   else if(h.knock){setState(def,'air');def.vy=h.knock==='trip'?3.2:4.8;kb(h.knock==='trip'?.8:3.2);def.y=Math.max(def.y,.02)}
-  else{setState(def,'hit');def.stun=h.hs+(counter?8:0);def.hitLow=h.lvl==='low'||!!h.crumple;kb(h.crumple?.6:h.push*7+1.4)}
+  else{setState(def,'hit');def.stun=h.hs+(counter?8:0);def.hitLow=h.lvl==='low'||!!h.crumple;def.hitHigh=h.lvl==='high';kb(h.crumple?.6:h.push*7+1.4)}
   if(def.hp<=0){
     if(def.state!=='air'){setState(def,'air');def.vy=5.2;kb(3);def.y=.02}
     if(phase==='fight'){phase='ko';phaseT=0;koWinner=att;slow(.3,9999);banner(L('ko'),'red',140)}
   }
   const heavy=h.dmg>=12||h.big;
   spark(mx+att.ax*.05,juggle?def.y+.9:hy,mz+att.az*.05,h.snd&&h.snd.startsWith('fart')?0x8cff4a:knife?0xff2a3a:heavy?0xff7a2f:0xffe08a,heavy?18:11);
-  if(knife)sfx('slash');sfx(h.snd||(heavy?'heavy':(MOVES[att.move]&&/kick|sweep|slide|kk|back/.test(att.move)?'kick':'hit')));hitstop=heavy?8:5;R.shake=Math.max(R.shake,heavy?.13:.06);
+  if(knife){sfx('slash');sfx('belly')}sfx(h.snd||(heavy?'heavy':(MOVES[att.move]&&/kick|sweep|slide|kk|back/.test(att.move)?'kick':'hit')));
+  impact(mx+att.ax*.05,juggle?def.y+.9:hy,mz+att.az*.05,knife?'knife':heavy?'heavy':'light',att.ax,att.az);
+  hitstop=knife?11:heavy?10:6;if(counter)hitstop+=3;def.shk=knife||heavy?1:.6;R.shake=Math.max(R.shake,knife?.16:heavy?.14:.06);
   if(counter&&def.hp>0)banner(L('counter'),'gold sm',40);
   return'hit';
 }
@@ -1126,6 +1406,8 @@ function aiInput(f,o){
   const I={},D=DIFF[diff],d=toOpp(f,o).d;
   const hit=k=>{f.buf[{lp:'h',rp:'h',lk:'k',rk:'k'}[k]||k]=tick};
   if(!LIVE())return I;
+  if(f.state==='thrown'&&f.thrower&&f.thrower.st===4+(f.id.length%4)&&Math.random()<.22+diff*.12){f.buf.throw=tick;return I}
+  if(free(f)&&d<.95&&canThrow(o)&&(o.state==='block'||o.holdBack)&&Math.random()<.035+diff*.02){f.buf.throw=tick;return I}
   if(f.state==='attack'){
     if(f.move==='hook'&&f.mf===10&&f.connected&&Math.random()<.45+diff*.2)hit(Math.random()<.5?'h':'k');
     if(f.move==='onetwo'&&f.mf===10&&f.connected&&Math.random()<.45+diff*.15)hit(Math.random()<.65?'h':'k');
@@ -1184,6 +1466,56 @@ function spark(x,y,z,color,n){
   for(let i=0;i<n;i++){const s=R.sparks.find(s=>s.life<=0);if(!s)break;s.life=1;s.m.visible=true;s.m.position.set(x,y,z);s.m.material.color.setHex(color);
     const a=Math.random()*Math.PI*2,v=1.5+Math.random()*3.5;s.v.set(Math.cos(a)*v,Math.sin(a)*v+1,(Math.random()-.5)*2.5)}
 }
+/* Impact (after Street Fighter / Tekken / God of War): a white-hot flash at the contact point, speed lines bursting out,
+   a quick light on both fighters, blood for the knife, the victim shaking during the hit-freeze and a small camera punch. */
+const IMP={ready:false,flash:[],lines:[],blood:[],light:null};
+function impTex(draw){const c=document.createElement('canvas');c.width=c.height=64;draw(c.getContext('2d'));const t=new R.T.CanvasTexture(c);return t}
+function impInit(){
+  const T=R.T;IMP.ready=true;
+  const ft=impTex(x=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,240,200,.9)');g.addColorStop(.6,'rgba(255,170,80,.35)');g.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=g;x.fillRect(0,0,64,64)});
+  const lt=impTex(x=>{const g=x.createLinearGradient(0,0,64,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.35,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,28,64,8)});
+  for(let i=0;i<4;i++){const m=new T.Sprite(new T.SpriteMaterial({map:ft,blending:T.AdditiveBlending,depthWrite:false,transparent:true,fog:false}));m.visible=false;m.renderOrder=5;R.scene.add(m);IMP.flash.push({m,life:0})}
+  for(let i=0;i<36;i++){const m=new T.Sprite(new T.SpriteMaterial({map:lt,blending:T.AdditiveBlending,depthWrite:false,transparent:true,fog:false}));m.visible=false;m.renderOrder=5;R.scene.add(m);IMP.lines.push({m,life:0,a:0,r:0,c:new T.Vector3()})}
+  const bg=new T.SphereGeometry(.018,6,4);
+  for(let i=0;i<40;i++){const m=new T.Mesh(bg,new T.MeshBasicMaterial({color:0x7a0606,transparent:true}));m.visible=false;R.scene.add(m);IMP.blood.push({m,life:0,v:new T.Vector3()})}
+  IMP.light=new T.PointLight(0xffd8a0,0,4.5,2);R.scene.add(IMP.light);
+}
+function impact(x,y,z,kind,ax,az){
+  if(!R)return;if(!IMP.ready)impInit();const T=R.T;
+  const big=kind==='heavy'||kind==='throw'||kind==='knife',col=kind==='knife'?0xff5a5a:kind==='block'?0x9fdcff:kind==='heavy'?0xffc080:0xfff0d0;
+  const f=IMP.flash.find(o=>o.life<=0)||IMP.flash[0];f.life=1;f.big=big?2.0:kind==='block'?.8:1.3;f.m.visible=true;f.m.position.set(x,y,z);f.m.material.color.setHex(col);
+  const n=kind==='block'?6:big?18:11;
+  for(let i=0;i<n;i++){const o=IMP.lines.find(o=>o.life<=0);if(!o)break;o.life=1;o.a=Math.random()*Math.PI*2;o.r=0;o.len=(big?.9:.55)*(.6+Math.random()*.6);o.c.set(x,y,z);o.m.visible=true;o.m.material.color.setHex(col);o.m.material.rotation=o.a}
+  if(kind==='knife')for(let i=0;i<22;i++){const o=IMP.blood.find(o=>o.life<=0);if(!o)break;o.life=1;o.m.visible=true;o.m.position.set(x,y,z);
+    const sp=1.2+Math.random()*2.6;o.v.set(ax*sp+(Math.random()-.5)*1.4,.6+Math.random()*2.2,az*sp+(Math.random()-.5)*1.4);o.m.scale.setScalar(.6+Math.random()*1.2)}
+  IMP.light.position.set(x,y,z);IMP.light.color.setHex(kind==='knife'?0xff6a5a:kind==='block'?0x8fd0ff:0xffd8a0);IMP.light.intensity=big?9:kind==='block'?2.5:5;
+  // quick screen flash on the big ones (white for heavy hits and throws, red for the knife)
+  if(big&&!reduced){const fl=$('hitFlash');fl.style.background=kind==='knife'?'rgba(255,30,30,.28)':'rgba(255,245,225,.22)';fl.style.transition='none';fl.style.opacity=1;requestAnimationFrame(()=>{fl.style.transition='opacity .18s';fl.style.opacity=0})}
+  R.kick=Math.max(R.kick||0,big?1:kind==='block'?.25:.5)}
+function strikeTrail(f){
+  const T=R.T;if(!f.trl){const N=7,g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(new Float32Array(N*6),3));g.setAttribute('color',new T.BufferAttribute(new Float32Array(N*6),3));
+    const idx=[];for(let i=0;i<N-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}g.setIndex(idx);
+    const m=new T.Mesh(g,new T.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.24,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending,fog:false}));m.frustumCulled=false;R.scene.add(m);
+    f.trl={m,N,pts:[],last:{}};f.rig.outer.userData.trail=m}
+  const tr=f.trl,m=MOVES[f.move],on=f.state==='attack'&&m&&!m.isRage&&f.mf>=m.s-3&&f.mf<=m.s+m.a&&!(f.knife&&/^knife_/.test(f.move));
+  if(on){
+    // the limb that is moving fastest is the one striking
+    const rg=f.rig,cand=[[rg.lA.el,-.265,-.2],[rg.rA.el,-.265,-.2],[rg.lL.kn,-.44,-.34],[rg.rL.kn,-.44,-.34]];let best=null,bv=-1;
+    cand.forEach((c,i)=>{const p=new T.Vector3(0,c[1],0).applyMatrix4(c[0].matrixWorld),q=tr.last[i];const v=q?p.distanceTo(q):0;tr.last[i]=p;if(v>bv){bv=v;best=[p,new T.Vector3(0,c[2],0).applyMatrix4(c[0].matrixWorld)]}});
+    if(best&&bv>.012)tr.pts.unshift(best)}else{tr.pts.pop();tr.last={}}
+  if(tr.pts.length>tr.N)tr.pts.length=tr.N;
+  const pa=tr.m.geometry.attributes.position,ca=tr.m.geometry.attributes.color;
+  for(let i=0;i<tr.N;i++){const q=tr.pts[Math.min(i,tr.pts.length-1)],k=tr.pts.length?Math.max(0,1-i/tr.N):0;
+    if(q){pa.setXYZ(i*2,q[0].x,q[0].y,q[0].z);pa.setXYZ(i*2+1,q[1].x,q[1].y,q[1].z)}ca.setXYZ(i*2,k,k*.95,k*.85);ca.setXYZ(i*2+1,k*.3,k*.3,k*.3)}
+  pa.needsUpdate=ca.needsUpdate=true;tr.m.visible=tr.pts.length>1&&f.rig.outer.visible&&!reduced}
+function impTick(dt){
+  if(!IMP.ready)return;const cam=R.cam,right=new R.T.Vector3(),up=new R.T.Vector3();cam.matrixWorld.extractBasis(right,up,new R.T.Vector3());
+  for(const f of IMP.flash){if(f.life<=0)continue;f.life-=dt*9;const k=1-f.life;f.m.scale.setScalar((.25+k*.9)*f.big);f.m.material.opacity=Math.max(0,f.life);if(f.life<=0)f.m.visible=false}
+  for(const o of IMP.lines){if(o.life<=0)continue;o.life-=dt*6;o.r+=dt*4.5;const c=Math.cos(o.a),sn=Math.sin(o.a),d=.12+o.r*.5;
+    o.m.position.copy(o.c).addScaledVector(right,c*d).addScaledVector(up,sn*d);o.m.scale.set(o.len*(.5+o.life*.8),.1,1);o.m.material.opacity=Math.max(0,o.life);if(o.life<=0)o.m.visible=false}
+  for(const o of IMP.blood){if(o.life<=0)continue;o.life-=dt*1.1;o.v.y-=9.8*dt;o.m.position.addScaledVector(o.v,dt);if(o.m.position.y<.01){o.m.position.y=.01;o.v.set(0,0,0);o.m.scale.y=.25}o.m.material.opacity=Math.min(1,o.life*2);if(o.life<=0)o.m.visible=false}
+  IMP.light.intensity=Math.max(0,IMP.light.intensity-dt*40);
+  R.kick=Math.max(0,(R.kick||0)-dt*7)}
 function slow(scale,frames){timeScale=reduced?Math.max(scale,.6):scale;slowT=frames}
 let bannerTO=null;
 function banner(txt,cls,frames){
@@ -1248,11 +1580,11 @@ function simTick(){
     // map screen left/right onto toward/away from the opponent, based on where the camera sees them
     const u=toOpp(p1,p2),rightIsFwd=u.ux*R.camRight.x+u.uz*R.camRight.z>=0;
     const fk=rightIsFwd?'right':'left',bk=rightIsFwd?'left':'right';
-    I1.fwd=pin.held[fk];I1.back=pin.held[bk];I1.down=pin.held.down;I1.up=pin.held.up;I1.block=pin.held.block;
+    I1.fwd=pin.held[fk];I1.back=pin.held[bk];I1.down=pin.held.crouch;I1.up=pin.held.up;I1.block=pin.held.block;
+    I1.lat=pin.held.up&&tick-(pin.buf.up??-99)>10?1:pin.held.down&&tick-(pin.buf.down??-99)>10?-1:0;
     I1.dashF=tick-(pin.dash[fk]??-99)<3;I1.dashB=tick-(pin.dash[bk]??-99)<3;
     if(I1.dashF)pin.dash[fk]=-99;if(I1.dashB)pin.dash[bk]=-99;
     if(pin.side&&tick-pin.side.t<4){I1.side=pin.side.dir;pin.side=null}
-    if(pin.held.up&&!pin.jumpUsed&&tick-(pin.buf.up??-99)>=9){I1.jump=true;pin.jumpUsed=true}
     if(tick-(pin.buf.jump??-99)<=6&&free(p1)){I1.jump=true;pin.buf.jump=-99}
     if((pin.held.up||pin.held.down)&&(pressedF(p1,'k',6)||pressedF(p1,'h',6))){pin.jumpUsed=true;pin.noSide=true}
   }
@@ -1261,7 +1593,7 @@ function simTick(){
   updateFighter(p1,p2,I1);updateFighter(p2,p1,I2);
   // push boxes (circles) and round arena edge
   const dx=p2.x-p1.x,dz=p2.z-p1.z,ad=Math.hypot(dx,dz)||1e-4;
-  if(ad<.62&&![p1.state,p2.state].some(s=>s==='air'||s==='jump'||s==='hop')){const push=(.62-ad)/2;p1.x-=dx/ad*push;p1.z-=dz/ad*push;p2.x+=dx/ad*push;p2.z+=dz/ad*push}
+  if(ad<.62&&![p1.state,p2.state].some(s=>s==='air'||s==='jump'||s==='hop'||s==='thrown'||s==='throwA')){const push=(.62-ad)/2;p1.x-=dx/ad*push;p1.z-=dz/ad*push;p2.x+=dx/ad*push;p2.z+=dz/ad*push}
   for(const f of[p1,p2]){f.x=Math.max(ARENA.x0,Math.min(ARENA.x1,f.x));f.z=Math.max(ARENA.z0,Math.min(ARENA.z1,f.z))}
   for(const[a,d]of[[p1,p2],[p2,p1]])if(!['hit','air','down'].includes(d.state)&&!(d.state==='block'))a.combo=0;
 }
@@ -1273,6 +1605,8 @@ function frame(now){
     if(!paused&&phase!=='menu'&&phase!=='end'&&phase!=='select'){acc+=dt*timeScale;let n=0;while(acc>=STEP&&n<6){simTick();acc-=STEP;n++}if(n>=6)acc=0}
     render(dt,now/1000);
   }
+  musicTick();
+  if((tick&31)===0&&$('audSt'))$('audSt').textContent='Audio: '+(ac?ac.state:'locked')+' · samples '+AUDST.smp+'/'+AUDST.smpN+' · music '+Object.entries(AUDST.mus).map(([k,v])=>k+v).join(' ')+(AUDST.err?' · '+AUDST.err:'');
   requestAnimationFrame(frame);
 }
 
@@ -1307,8 +1641,13 @@ function targetPose(f,t){
       const ph=t*9*(f.state==='walkF'?1:-1),s=Math.sin(ph);return{...S,lShX:S.lShX+s*.12,rShX:S.rShX-s*.12,lEl:S.lEl-s*.15,rEl:S.rEl+s*.15,spY:S.spY+s*.06,lThX:S.lThX+s*.28,rThX:S.rThX-s*.28,lKn:S.lKn+Math.max(0,s)*.4,rKn:S.rKn+Math.max(0,-s)*.4,hipY:S.hipY-Math.abs(s)*.015}}
     case'crouch':return f.holdBack?(st.block?{...POSE.crouch,...pick(st.block,ARMS),hdX:.15}:POSE.cblock):POSE.crouch;
     case'block':return f.crouchBlock?(st.block?{...POSE.crouch,...pick(st.block,ARMS),hdX:.15}:POSE.cblock):(st.block||POSE.block);
+    case'grab':{const k=Math.min(1,f.st/5);return{...S,spX:.25*k,lShX:-1.45*k+S.lShX*(1-k),rShX:-1.45*k+S.rShX*(1-k),lShZ:-.15,rShZ:.15,lEl:-.25,rEl:-.25,lThX:-.35*k,rThX:.25*k,lKn:.35,rKn:.3,hipY:-.05}}
+    case'throwA':{const L1=THROW.lift,L2=L1+THROW.hold,k=f.st;
+      if(k<L2){const t=Math.min(1,k/L1);return{...S,spX:.3-.5*t,hdX:.1-.25*t,lShX:-1.4-1.6*t,rShX:-1.4-1.6*t,lShZ:-.25,rShZ:.25,lEl:-.35-.4*t,rEl:-.35-.4*t,lThX:-.3,rThX:.3,lKn:.6-.3*t,rKn:.5-.3*t,hipY:-.12+.08*t,lThZ:-.08,rThZ:.08}}
+      const t=Math.min(1,(k-L2)/7);return{...S,spX:-.2+.75*t,hdX:-.15+.3*t,lShX:-3+1.9*t,rShX:-3+1.9*t,lShZ:-.2,rShZ:.2,lEl:-.75+.5*t,rEl:-.75+.5*t,lThX:-.55*t,rThX:.35,lKn:.3+.4*t,rKn:.2,hipY:-.04-.1*t}}
+    case'thrown':{const t=Math.min(1,(f.tp||0)/THROW.lift);return{...POSE.air,rootRX:0,rootY:0,hipY:0,spX:0,lunge:0,flip:-Math.PI/2*t,lShZ:-.9,rShZ:.9,lShX:-.4,rShX:-.4,lEl:-.5,rEl:-.5,lThX:-.4,rThX:-.2,lKn:.7,rKn:.5,hdX:.3}}
     case'hit':return f.hitLow?POSE.hitLow:POSE.hit;
-    case'air':return POSE.air;
+    case'air':if(f.slam){const t=Math.min(1,f.st/18);return{...POSE.air,rootRX:0,rootY:0,hipY:0,spX:.1,lunge:0,flip:-Math.PI/2-.5*t,lShZ:-1.1,rShZ:1.1,lShX:-.6,rShX:-.6,lEl:-.3,rEl:-.3,lThX:-.2,rThX:.1,lKn:.4,rKn:.3,hdX:.4}}return POSE.air;
     case'down':case'ko':return POSE.down;
     case'getup':return POSE.crouch;
     case'jump':{
@@ -1358,10 +1697,13 @@ function render(dt,t){
     if(f.state!=='attack'&&f.state!=='roll'){for(const q of['spin','flip','roll'])if(Math.abs(f.cur[q])>Math.PI)f.cur[q]-=Math.round(f.cur[q]/TAU)*TAU}
     for(const key of KEYS_P)f.cur[key]+=(tp[key]-f.cur[key])*k;
     // face the aim direction, turned slightly toward the camera for a 3/4 view
-    const side=f.ax*R.camN.z-f.az*R.camN.x;let yawT=Math.atan2(f.ax,f.az)+(f.state==='win'||phase==='story'?0:(side>0?-.3:.3));
+    const side=f.ax*R.camN.z-f.az*R.camN.x;// 3/4 cheat toward the camera, but square to the opponent while striking or grabbing so attacks aim at them
+    const atk=['attack','grab','throwA','throwV','thrown'].includes(f.state);let yawT=Math.atan2(f.ax,f.az)+(f.state==='win'||phase==='story'||atk?0:(side>0?-.3:.3));
     let dy=yawT-f.yaw;dy-=Math.round(dy/TAU)*TAU;f.yaw+=dy*Math.min(1,dt*14);
     f.rig.outer.position.set(f.x,f.y,f.z);f.rig.outer.rotation.y=f.yaw;
-    applyPose(f.rig,f.cur,t);if(f.skin)driveSkin(f);if(f.rigged)driveRigged(f);
+    if(f.shk>0){if(hitstop>0&&!reduced){const a=(Math.random()-.5)*.06*f.shk;f.rig.outer.position.x+=a*(f.az||1);f.rig.outer.position.z+=a*(f.ax||0)}else f.shk=0}
+    if(!f.blob){f.blob=blobFor(f);f.rig.outer.add(f.blob)}{const b=f.blob,hy=Math.max(0,f.y);b.visible=true;b.position.y=-f.y+.012;const s=.95/(1+hy*.8);b.scale.set(s,s*1.15,1);b.material.opacity=1/(1+hy*1.5)}
+    applyPose(f.rig,f.cur,t);applyMocap(f,dt);if(f.skin)driveSkin(f);if(f.rigged)driveRigged(f);f.rig.outer.updateMatrixWorld(true);strikeTrail(f);
     f.flash=Math.max(0,f.flash-dt*5);
     for(const m of f.rig.mats)m.emissive.setRGB(f.flash*.5,f.flash*.12,f.flash*.05);
     f.rig.aura.intensity=f.rage&&f.state!=='ko'?1.6+Math.sin(t*8)*.6:0;
@@ -1405,7 +1747,7 @@ function render(dt,t){
   for(const r of R.rings){if(r.life<=0)continue;r.life-=dt*4;r.m.scale.setScalar(1+(1-r.life)*4);r.m.material.opacity=Math.max(0,r.life);r.m.lookAt(R.cam.position);if(r.life<=0)r.m.visible=false}
   if(!reduced){const pos=R.dust.geometry.attributes.position;for(let i=0;i<pos.count;i++){pos.setX(i,pos.getX(i)+Math.sin(t*.3+i)*dt*.08);pos.setY(i,pos.getY(i)+Math.cos(t*.4+i*1.7)*dt*.06)}pos.needsUpdate=true}
   const fl=R.fire();if(fl)fl.intensity=1.9+Math.sin(t*13)*.25+Math.sin(t*7.3)*.2;
-  R.renderer.render(R.scene,R.cam);
+  impTick(dt);fxRender(t);
   if(phase==='story'){storyHud();return}
   // HUD
   // two health layers: green (first 100) over yellow (last 100)
@@ -1429,9 +1771,10 @@ const STORY_LEN=118,STREET_W=5.2,KNIFE_AT_START=true,SIDE_LEN=34,SIDE_W=4.4;
 const SIDES=[{z:34,dirs:[-1,1]},{z:76,dirs:[-1,1]}];   // temporary: knife from the first step
 const ZONES=[
   {z:20,foes:[['gent',70],['pablo',80]],title:{en:"Bitchinho's lookouts",ar:'مراقبين بيتشينيو'}},
-  {z:52,foes:[['pablo',85],['gent',80],['pablo',85]],title:{en:'The gang hideout',ar:'وكر العصابة'}},
+  {z:34,foes:[['stranger',130]],ambush:true,title:{en:'!!',ar:'!!'}},
+  {z:56,foes:[['pablo',85],['gent',80],['pablo',85]],title:{en:'The gang hideout',ar:'وكر العصابة'}},
   {z:90,foes:[['bitchinho',260,true]],boss:true,title:{en:'Bitchinho',ar:'بيتشينيو'}}];
-const FOE_NAME={bitchinho:{en:'Bitchinho',ar:'بيتشينيو'},gent:{en:'Gang lookout',ar:'مراقب العصابة'},son:{en:"Billi's Son",ar:'ابن بيلي'},pablo:{en:'Gang thug',ar:'بلطجي العصابة'}};
+const FOE_NAME={stranger:{en:'The Stranger',ar:'الغريب'},bitchinho:{en:'Bitchinho',ar:'بيتشينيو'},gent:{en:'Gang lookout',ar:'مراقب العصابة'},son:{en:"Billi's Son",ar:'ابن بيلي'},pablo:{en:'Gang thug',ar:'بلطجي العصابة'}};
 // what Billi knows: tier 0 at the start, one more tier after each zone
 const TIERS=[['jab','onetwo','highkick','straight','knife_stab','knife_slash','knife_back','knife_finish','knife_lunge'],
   ['hook','jabkick','kk2','lowpunch','sweep','finish','frontkick','lowkick'],
@@ -1466,19 +1809,22 @@ const DLG={
   c0:[['billi','angry',{en:"Talk. Where is he?",ar:'تكلم. وينه؟'}],
       ['gent','',{en:"The... the hideout. Past the market. Please—",ar:'الـ... الوكر. بعد السوق. أرجوك...'}],
       ['billi','normal',{en:"Thank you. Now get out of my way.",ar:'شكراً. الحين انقلع من طريقي.'}]],
-  z1:[['pablo','',{en:"Boss said nobody gets through here.",ar:'الزعيم قال ما أحد يمر من هنا.'}],
+  z2:[['pablo','',{en:"Boss said nobody gets through here.",ar:'الزعيم قال ما أحد يمر من هنا.'}],
       ['billi','angry',{en:"Then your boss should have picked a different kid.",ar:'كان على زعيمك يختار ولد ثاني.'}]],
-  c1:[['billi','sad',{en:"I'm tired... but he's close. I can feel it.",ar:'تعبت... بس هو قريب. أحسه.'}],
+  c2:[['billi','sad',{en:"I'm tired... but he's close. I can feel it.",ar:'تعبت... بس هو قريب. أحسه.'}],
       ['billi','angry',{en:"Bitchinho. You're next.",ar:'بيتشينيو. دورك جاي.'}]],
-  z2:[['bitchinho','smirk',{en:"Queen Billi, in my part of town. The kid's fine. For now.",ar:'كوين بيلي، في حارتي. الولد بخير. حالياً.'}],
+  z3:[['bitchinho','smirk',{en:"Queen Billi, in my part of town. The kid's fine. For now.",ar:'كوين بيلي، في حارتي. الولد بخير. حالياً.'}],
       ['billi','angry',{en:"Give me my son.",ar:'عطني ولدي.'}],
       ['bitchinho','happy',{en:"Come take him.",ar:'تعالي خذيه.'}]],
-  c2:[['son','',{en:"Mom!",ar:'ماما!'}],
+  c3:[['son','',{en:"Mom!",ar:'ماما!'}],
       ['billi','happy',{en:"I've got you. I've got you, baby.",ar:'أنا معك. أنا معك يا قلبي.'}],
       ['billi','normal',{en:"Let's go home. Katara's waiting for you.",ar:'يلا البيت. كاتارا تنتظرك.'}],
       ['bitchinho','sad',{en:"This isn't over, Billi...",ar:'ما خلصت يا بيلي...'}],
       ['billi','angry',{en:"It is for tonight.",ar:'خلصت الليلة.'}]]};
-const DLG_NAME={billi:{en:'Queen Billi',ar:'كوين بيلي'},katara:{en:'Katara',ar:'كاتارا'},son:{en:"Billi's Son",ar:'ابن بيلي'},gent:{en:'Lookout',ar:'المراقب'},pablo:{en:'Gang thug',ar:'بلطجي'},bitchinho:{en:'Bitchinho',ar:'بيتشينيو'}};
+DLG.z1=[['stranger','',{en:"Going somewhere, Queen?",ar:'على وين يا ملكة؟'}],['billi','angry',{en:"Who the hell are you?",ar:'ومين أنت بعد؟'}],
+  ['stranger','',{en:"Someone paid to keep you away from that boy.",ar:'واحد ماخذ فلوس عشان يبعدك عن الولد.'}],['billi','angry',{en:"Then you're not getting paid tonight.",ar:'إذن الليلة ما راح تقبض.'}]];
+DLG.c1=[['stranger','',{en:"Bitchinho... won't stop...",ar:'بيتشينيو... ما راح يوقف...'}],['billi','angry',{en:"Neither will I.",ar:'ولا أنا.'}]];
+const DLG_NAME={stranger:{en:'The Stranger',ar:'الغريب'},billi:{en:'Queen Billi',ar:'كوين بيلي'},katara:{en:'Katara',ar:'كاتارا'},son:{en:"Billi's Son",ar:'ابن بيلي'},gent:{en:'Lookout',ar:'المراقب'},pablo:{en:'Gang thug',ar:'بلطجي'},bitchinho:{en:'Bitchinho',ar:'بيتشينيو'}};
 function startDlg(key,done){const lines=DLG[key];if(!lines){done&&done();return}ST.dlg={lines,i:0,t:0,done};$('dlg').hidden=false;$('app').classList.add('talking');showDlgLine()}
 function showDlgLine(){const D=ST.dlg;if(!D)return;const[who,face,txt]=D.lines[D.i];D.full=txt[lang]||txt.en;D.t=0;
   const img=$('dlgFace'),cv=$('dlgCanvas');
@@ -1520,14 +1866,19 @@ function spawnActor(id,hp,isAI){
   Object.assign(f,{hp,maxHp:hp,trail:hp,heat:0,dashReq:{},story:!isAI,noRage:isAI,ax:0,az:1,vz:0,vx:0});
   f.cur={...(STANCE[id]||STANCE.billi).pose};ST.actors.push(f);return f;
 }
-function removeActor(f){R.scene.remove(f.rig.outer);if(f.skin)R.scene.remove(f.skin.container);if(f.rigged)R.scene.remove(f.rigged.container);ST.actors=ST.actors.filter(a=>a!==f)}
+function removeActor(f){R.scene.remove(f.rig.outer);if(f.trl)R.scene.remove(f.trl.m);if(f.skin)R.scene.remove(f.skin.container);if(f.rigged)R.scene.remove(f.rigged.container);ST.actors=ST.actors.filter(a=>a!==f)}
 function buildStreet(){
   const T=R.T,g=new T.Group();
   const tex=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=4;return t};
   const asphalt=tex(256,256,(x,w,h)=>{x.fillStyle='#2a2a2e';x.fillRect(0,0,w,h);for(let i=0;i<2600;i++){const v=30+Math.random()*30|0;x.fillStyle=`rgb(${v},${v},${v+3})`;x.fillRect(Math.random()*w,Math.random()*h,2,2)}
     x.strokeStyle='rgba(20,20,22,.8)';x.lineWidth=2;for(let i=0;i<5;i++){x.beginPath();let px=Math.random()*w,py=Math.random()*h;x.moveTo(px,py);for(let k=0;k<6;k++){px+=(Math.random()-.5)*60;py+=(Math.random()-.5)*60;x.lineTo(px,py)}x.stroke()}});
   asphalt.wrapS=asphalt.wrapT=T.RepeatWrapping;asphalt.repeat.set(3,40);
-  const ground=new T.Mesh(new T.PlaneGeometry(STREET_W*2+1,STORY_LEN+40),new T.MeshStandardMaterial({map:asphalt,roughness:.85,metalness:0}));
+  // wet patches: a roughness map with smooth puddles, used at night so lamps and signs reflect off the road
+  const wet=tex(256,256,(x,w,h)=>{x.fillStyle='rgb(140,140,140)';x.fillRect(0,0,w,h);
+    for(let i=0;i<26;i++){const px=Math.random()*w,py=Math.random()*h,r=10+Math.random()*34,g=x.createRadialGradient(px,py,1,px,py,r);g.addColorStop(0,'rgba(80,80,80,.9)');g.addColorStop(.7,'rgba(100,100,100,.6)');g.addColorStop(1,'rgba(140,140,140,0)');x.fillStyle=g;x.beginPath();x.ellipse(px,py,r,r*.6,Math.random()*3,0,7);x.fill()}
+    for(let i=0;i<3000;i++){const v=110+Math.random()*90|0;x.fillStyle=`rgba(${v},${v},${v},.35)`;x.fillRect(Math.random()*w,Math.random()*h,2,2)}});
+  wet.encoding=T.LinearEncoding;wet.wrapS=wet.wrapT=T.RepeatWrapping;wet.repeat.set(1.2,16);
+  const ground=new T.Mesh(new T.PlaneGeometry(STREET_W*2+1,STORY_LEN+40),new T.MeshStandardMaterial({map:asphalt,roughness:.85,metalness:0}));ground.material.userData.wet=wet;
   // pavement either side so the buildings stand on ground, not on nothing
   const paveT=tex(256,256,(x,w,h)=>{x.fillStyle='#4e4d52';x.fillRect(0,0,w,h);for(let i=0;i<1800;i++){const v=70+Math.random()*26|0;x.fillStyle=`rgb(${v},${v},${v+2})`;x.fillRect(Math.random()*w,Math.random()*h,2,2)}x.strokeStyle='rgba(30,30,34,.7)';x.lineWidth=3;for(let k=0;k<=w;k+=64){x.beginPath();x.moveTo(k,0);x.lineTo(k,h);x.stroke();x.beginPath();x.moveTo(0,k);x.lineTo(w,k);x.stroke()}});
   paveT.wrapS=paveT.wrapT=T.RepeatWrapping;paveT.repeat.set(14,60);
@@ -1541,7 +1892,7 @@ function buildStreet(){
   const sideAsphalt=asphalt.clone();sideAsphalt.needsUpdate=true;sideAsphalt.repeat.set(10,3);
   for(const sd of SIDES)for(const dir of sd.dirs){
     const L=SIDE_LEN,cx=dir*(STREET_W+L/2);
-    const road=new T.Mesh(new T.PlaneGeometry(L,SIDE_W*2),new T.MeshStandardMaterial({map:sideAsphalt,roughness:.85,metalness:0}));road.rotation.x=-Math.PI/2;road.position.set(cx,.17,sd.z);road.receiveShadow=true;g.add(road);
+    const road=new T.Mesh(new T.PlaneGeometry(L,SIDE_W*2),new T.MeshStandardMaterial({map:sideAsphalt,roughness:.85,metalness:0}));road.material.userData.wet=wet;road.rotation.x=-Math.PI/2;road.position.set(cx,.17,sd.z);road.receiveShadow=true;g.add(road);
     for(const zz of[-1,1]){const k=new T.Mesh(new T.BoxGeometry(L-2,.16,1.4),curbM);k.position.set(cx+dir*1,.17+.08,sd.z+zz*(SIDE_W+.7));g.add(k)}
     for(let x=4;x<L-3;x+=4){const m=new T.Mesh(new T.PlaneGeometry(1.8,.12),new T.MeshBasicMaterial({color:0x8a7a3a}));m.rotation.x=-Math.PI/2;m.position.set(dir*(STREET_W+x),.18,sd.z);g.add(m)}
     const wall=new T.Mesh(new T.BoxGeometry(1,12,SIDE_W*2+6),new T.MeshStandardMaterial({color:0x26262a,roughness:1}));wall.position.set(dir*(STREET_W+L+.5),6,sd.z);g.add(wall);
@@ -1572,12 +1923,16 @@ function buildStreet(){
   // end walls
   for(const ez of[-12,STORY_LEN+14]){const w=new T.Mesh(new T.BoxGeometry(30,14,1),new T.MeshStandardMaterial({color:0x26262a,roughness:1}));w.position.set(0,7,ez);g.add(w)}
   // street lamps + a few real lights near the fights
-  const poleM=new T.MeshStandardMaterial({color:0x202024,roughness:.6}),bulbM=new T.MeshBasicMaterial({color:0xffe0a8});
+  const poleM=new T.MeshStandardMaterial({color:0x202024,roughness:.6}),bulbM=new T.MeshBasicMaterial({color:new T.Color(0xffe0a8).multiplyScalar(4)});
+  const coneA=tex(4,128,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#888');g.addColorStop(.3,'#444');g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,w,h)});coneA.encoding=T.LinearEncoding;
+  const coneG=new T.CylinderGeometry(.18,1.5,5,28,1,true),coneM=new T.MeshBasicMaterial({color:0xffc27a,alphaMap:coneA,transparent:true,opacity:.055,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide,fog:false});
   for(let lz=-4,j=0;lz<STORY_LEN+10;lz+=13,j++){const sx=j%2?1:-1,p=new T.Group();
     const pole=new T.Mesh(new T.CylinderGeometry(.07,.09,5.2,8),poleM);pole.position.y=2.6;p.add(pole);
     const arm=new T.Mesh(new T.BoxGeometry(1.2,.08,.08),poleM);arm.position.set(-sx*.55,5.15,0);p.add(arm);
     const bulb=new T.Mesh(new T.SphereGeometry(.16,10,8),bulbM);bulb.position.set(-sx*1.1,5.05,0);p.add(bulb);
     const glow=new T.Mesh(new T.CircleGeometry(2.2,24),new T.MeshBasicMaterial({color:0xffc070,transparent:true,opacity:.13,depthWrite:false}));glow.userData.glow=1;glow.rotation.x=-Math.PI/2;glow.position.set(-sx*1.4,.02,0);p.add(glow);
+    // the lamp's light falling through the night air
+    const cone=new T.Mesh(coneG,coneM);cone.position.set(-sx*1.1,2.55,0);cone.userData.glow=1;cone.renderOrder=2;p.add(cone);
     p.position.set(sx*(STREET_W+.5),0,lz);g.add(p)}
   for(const zn of ZONES){const L=new T.PointLight(0xffc890,1.4,16,1.6);L.position.set(0,4.6,zn.z);L.userData.lamp=1;g.add(L)}
   // props: dumpsters, barrels, crates along the curbs
@@ -1615,7 +1970,7 @@ function loadProps(){
   const ld=new T.GLTFLoader();if(window.MeshoptDecoder)ld.setMeshoptDecoder(window.MeshoptDecoder);
   const b64=t=>{const bin=atob(t),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
   // the props are split over two files (each stays under the host's size limit)
-  const packs=['assets/street.json','assets/street2.json'];
+  const packs=['assets/street.json','assets/street2.json','assets/street3.json'];
   propsP=Promise.all(packs.map(f=>fetch(f).then(r=>r.json()).catch(()=>({})))).then(ps=>Object.assign({},...ps)).then(pk=>Promise.all(Object.keys(pk).map(n=>new Promise(res=>ld.parse(b64(pk[n]),'',g=>{
     g.scene.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;[].concat(m.material).forEach(t=>{if(t)t.metalness=Math.min(t.metalness||0,.3)})}});PROP_SRC[n]=g.scene;res()},()=>res()))))).catch(()=>{});
   return propsP;
@@ -1661,7 +2016,9 @@ function applyDayNight(){
   E.hemi.intensity=d?1.05:.55;E.hemi.color.setHex(d?0xdfeeff:0x5a6a9a);E.hemi.groundColor.setHex(d?0x7a6a55:0x1a1612);E.sun.intensity=d?1.7:0;
   E.g.traverse(o=>{
     if(o.isMesh&&o.material.userData.facade){const m=o.material,fc=m.userData.facade;m.map=d?fc.day:fc.night;m.emissiveMap=fc.night;m.emissiveIntensity=d?0:.55;m.needsUpdate=true}
-    if(o.userData.glow)o.visible=!d;if(o.isPointLight&&o.userData.lamp)o.intensity=d?0:1.4});
+    if(o.userData.glow)o.visible=!d;if(o.isPointLight&&o.userData.lamp)o.intensity=d?0:1.4;
+    if(o.isMesh&&o.material.userData.wet){const m=o.material,w=!d&&gfxQ!=='low';m.roughnessMap=w?m.userData.wet:null;m.roughness=w?.95:.85;m.needsUpdate=true}});
+  FX.mode=null;
   if($('dnBtn'))$('dnBtn').textContent=L(d?'night':'day');
 }
 function knifeMesh(){
@@ -1745,6 +2102,8 @@ function stopStory(){
 function storyEngage(i){
   const zn=ZONES[i];ST.zone=i;ST.active=true;
   zn.foes.forEach(([id,hp,boss],k)=>{const e=spawnActor(id,hp,true);Object.assign(e,{x:(k-(zn.foes.length-1)/2)*2.2,z:zn.z+5+Math.random()*1.5,ax:0,az:-1,boss:!!boss});
+    // ambush: leaps out of the side street right beside her
+    if(zn.ambush){const P=ST.player;Object.assign(e,{x:-STREET_W+.4,z:P.z+1.6,y:1.6,vy:2.5,vx:2.2,vz:0,ax:1,az:0});setState(e,'jump');e.jatk=99;e.jdone=true;e.jkind='kick';R.shake=.18;sfx('heavy')}
     if(boss){e.dmgScale=1.25;e.takeScale=.8}else e.dmgScale=.7;e.targets=null;ST.foes.push(e)});
   banner(zn.title[lang],zn.boss?'red':'gold',110);sfx('bell');
   setTimeout(()=>{if(phase==='story'&&ST.active&&ST.zone===i)startDlg('z'+i)},900);
@@ -1806,7 +2165,7 @@ function storyTick(){
   // free movement (Bloodborne-style): face where you walk, or strafe around the lock
   P.moveSpd=0;
   if(['idle','walkF','walkB','run'].includes(P.state)&&!I.block){
-    if(dl>.15){const sprint=ST.sprintT>=12&&ST.stam>1,sp=sprint?5.2:2.1;P.x+=dx/dl*sp*STEP*Math.min(1,dl);P.z+=dz/dl*sp*STEP*Math.min(1,dl);P.moveSpd=sp;
+    if(dl>.15){const sprint=ST.sprintT>=12&&ST.stam>1,sp=sprint?5.2:ST.lock?1.8:1.55;P.x+=dx/dl*sp*STEP*Math.min(1,dl);P.z+=dz/dl*sp*STEP*Math.min(1,dl);P.moveSpd=sp*Math.min(1,dl);
       if(sprint){ST.stam-=.28;ST.stamT=30}
       if(ST.lock){const u=toOpp(P,ST.lock);P.ax=u.ux;P.az=u.uz;P.state=(dx*u.ux+dz*u.uz)<-.3?'walkB':'walkF';P.walkPh=(P.walkPh||0)+sp*STEP*4.3*(P.state==='walkB'?-2:0)}
       else{const a0=Math.atan2(P.ax,P.az),a1=Math.atan2(dx,dz);let da=a1-a0;da-=Math.round(da/TAU)*TAU;const a=a0+da*Math.min(1,STEP*14);P.ax=Math.sin(a);P.az=Math.cos(a);P.state=sprint?'run':'walkF'}
@@ -1821,12 +2180,12 @@ function storyTick(){
   if(ST.kid){const K=ST.kid;K.relaxed=true;K.state='idle';K.moveSpd=0;const u=toOpp(K,P);K.ax=u.ux;K.az=u.uz}
   // Katara walks home (back down the street) and fades out
   if(ST.katara){const K=ST.katara;K.relaxed=true;
-    if(K.leaving){K.ax=0;K.az=-1;K.z-=2.0*STEP;K.state='walkF';K.moveSpd=2.0;K.walkPh=(K.walkPh||0)+2.0*STEP*4.3;
+    if(K.leaving){K.ax=0;K.az=-1;K.z-=1.5*STEP;K.state='walkF';K.moveSpd=1.5;K.walkPh=(K.walkPh||0)+1.5*STEP*4.3;
       if(K.z<-11){removeActor(K);ST.katara=null}}
     else{K.state='idle';K.moveSpd=0;const u=toOpp(K,P);K.ax=u.ux;K.az=u.uz}}
   // enemies: one or two press the attack, the rest circle and wait their turn
   const order=[...live].sort((a,b)=>Math.hypot(a.x-P.x,a.z-P.z)-Math.hypot(b.x-P.x,b.z-P.z));
-  const attackers=ST.zone===2?1:Math.min(2,order.length);
+  const attackers=ZONES[ST.zone]&&ZONES[ST.zone].boss?1:Math.min(2,order.length);
   for(const e of ST.foes){
     let EI={};
     if(e.hp>0&&P.hp>0){EI=aiInput(e,P);
@@ -1836,13 +2195,15 @@ function storyTick(){
   }
   // bodies don't overlap
   const all=ST.actors.filter(a=>(a.state!=='ko'||a.y>0)&&a!==ST.katara&&a!==ST.kid);
-  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],b=all[j];if([a.state,b.state].some(s=>s==='air'||s==='jump'||s==='hop'))continue;
+  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],b=all[j];if([a.state,b.state].some(s=>s==='air'||s==='jump'||s==='hop'||s==='thrown'||s==='throwA'))continue;
     const ddx=b.x-a.x,ddz=b.z-a.z,d=Math.hypot(ddx,ddz)||1e-4;if(d<.62){const pu=(.62-d)/2;a.x-=ddx/d*pu;a.z-=ddz/d*pu;b.x+=ddx/d*pu;b.z+=ddz/d*pu}}
   // street bounds and fight gates
   const arena=ST.mode==='arena',z0=arena?ARZ-10:ST.active?ZONES[ST.zone].z-7.8:-8,z1=arena?ARZ+10:ST.active?ZONES[ST.zone].z+7.8:STORY_LEN;
   for(const a of ST.actors){if(a===ST.katara||a===ST.kid)continue;
     const sd=ST.active&&!arena?null:SIDES.find(s=>Math.abs(a.z-s.z)<SIDE_W&&s.dirs.includes(Math.sign(a.x)||1));
-    if(sd&&Math.abs(a.x)>STREET_W-.5){const lim=arena?STREET_W+8:STREET_W+SIDE_LEN-.6;a.x=Math.max(-lim,Math.min(lim,a.x));a.z=Math.max(sd.z-SIDE_W+.2,Math.min(sd.z+SIDE_W-.2,a.z))}
+    // inside the side street's mouth she may step sideways into it; z is only boxed in once she's actually in it
+    if(sd){const lim=arena?STREET_W+8:STREET_W+SIDE_LEN-.6;a.x=Math.max(-lim,Math.min(lim,a.x));
+      if(Math.abs(a.x)>STREET_W)a.z=Math.max(sd.z-SIDE_W+.2,Math.min(sd.z+SIDE_W-.2,a.z));else a.z=Math.max(z0,Math.min(z1,a.z))}
     else{a.x=Math.max(-STREET_W,Math.min(STREET_W,a.x));a.z=Math.max(z0,Math.min(z1,a.z))}}
   // parked vehicles are solid
   for(const a of ST.actors)for(const c of ST.cols){if(a.x>c.x0&&a.x<c.x1&&a.z>c.z0&&a.z<c.z1){const dl=a.x-c.x0,dr=c.x1-a.x,db=a.z-c.z0,df=c.z1-a.z,m=Math.min(dl,dr,db,df);
@@ -1902,7 +2263,7 @@ function storyFx(dt,t){
 }
 function storyLegend(){const ar=lang==='ar',k=(a,b)=>`<span class="k">${a}<b>${b}</b></span>`,kb=x=>`<kbd>${x}</kbd>`;
   return k(kb('W')+kb('A')+kb('S')+kb('D'),ar?'مشي':'Walk')+k(kb('←')+kb('→'),ar?'الكاميرا':'Camera')+k(kb('Space'),ar?'تفادي · مطوّل جري':'Dodge · hold to run')+k(kb('Q'),ar?'تثبيت':'Lock on')
-   +k(kb('H'),ar?'يد':'Punch')+k(kb('K'),ar?'رجل':'Kick')+k(kb('P'),ar?'صد':'Block')+(ST.mode==='arena'?k(kb('O'),ar?'غضب':'Rage'):k(kb('E'),ar?'علاج':'Heal')+k(kb('F'),ar?'سكين':'Knife'))+k(kb('N'),ar?'نهار/ليل':'Day/Night')+k(kb('J'),ar?'الجاكيت':'Jacket')+k(kb('Tab'),ar?'إخفاء':'hide')}
+   +k(kb('H'),ar?'يد':'Punch')+k(kb('K'),ar?'رجل':'Kick')+k(kb('P'),ar?'صد':'Block')+k(kb('G'),ar?'مسك ورمي':'Throw')+(ST.mode==='arena'?k(kb('O'),ar?'غضب':'Rage'):k(kb('E'),ar?'علاج':'Heal')+k(kb('F'),ar?'سكين':'Knife'))+k(kb('N'),ar?'نهار/ليل':'Day/Night')+k(kb('Tab'),ar?'إخفاء':'hide')}
 function storyHud(){
   const P=ST.player,F=p2!==P?p2:null,c=v=>Math.max(0,Math.min(100,v))+'%';
   const show=(f,i)=>{const k=MAXHP/(f.maxHp||MAXHP),h=f.hp*k,tr=f.trail*k;$('hp'+i).style.width=c(h);$('tr'+i).style.width=c(tr);$('hg'+i).style.width=c(h-100);$('tg'+i).style.width=c(tr-100)};
@@ -1922,6 +2283,7 @@ const CHARS={
     stance:{ar:'واقفة بثقة والورك مايل، الإيد اليمين تحت وجاهزة تصفع.',en:'Confident, hip cocked, right hand low and ready to slap.'},s1:'billi_back',s2:'billi_slap',rage:'billi_rage',kfin:'billi_axe',power:'billi_power',launch:'billi_launch',sw:['#151414','#1c1412','#e2b39a']},
   gent:{name:{ar:'جنتلمان',en:'Gentleman'},style:{ar:'ملاكمة إنجليزية قديمة',en:'Old-school English boxing'},
     stance:{ar:'واقف مستقيم والقبضتين ممدودة قدّام، ينط بخفة على أطراف رجوله.',en:'Upright, fists held out front, bouncing lightly on his toes.'},s1:'gent_haymaker',s2:'gent_jabs',sw:['#c98a7a','#3a2a22','#d9b8a0']},
+  stranger:{name:{ar:'الغريب',en:'The Stranger'},style:{ar:'قاتل مأجور',en:'Hired muscle'},stance:{ar:'',en:''},s1:'bt_elbow',s2:'gent_jabs',power:'power',launch:'launch',kfin:'kfin',sw:['#2a2a2a','#1a1410','#c08a6a']},
   pablo:{name:{ar:'بابلو',en:'Pablo'},style:{ar:'عراك شوارع',en:'Street brawling'},dmgMul:.75,takeMul:1.15,
     stance:{ar:'واقف بثقل والإيدين تحت، يتمايل ببطء. ضرباته بطيئة وأضعف من الباقين، ويتحمل أقل.',en:'Heavy and loose with hands low, swaying slowly. Slower, weaker hits, and he takes more damage.'},
     s1:'pablo_flop',s2:'pablo_headbutt',power:'pablo_belly',launch:'pablo_stomp',kfin:'pablo_haymaker',sw:['#2a2a2a','#1a1410','#c08a6a']},
@@ -1956,7 +2318,7 @@ const STR={
     loading:'جاري تحميل المصنع...',loadFail:'تعذّر تحميل المصنع، اللعب شغّال بأرضية بسيطة',
     pick1:'اختر مقاتلتك',pick2:'اختر الخصم',step1:'الخطوة ١ من ٢',step2:'الخطوة ٢ من ٢',next:'التالي',fightBtn:'قاتل!',back:'رجوع',random:'عشوائي',
     difficulty:'مستوى الكمبيوتر',easy:'سهل',normal:'متوسط',hard:'صعب',specials:'الضربات الخاصة',
-    rage:'غضب',rageReady:'جاهز',pause:'إيقاف مؤقت',resume:'كمّل',rageArt:'ضربة الغضب!',rageNotReady:'الغضب يفتح لما يخلص البار الأخضر',dlgNext:'اضغط H أو المس الشاشة ◂',fighting:'القتال',settings:'الإعدادات',mode25:'كلاسيك 2.5D',mode25d:'قتال وجه لوجه على طريقة تيكن، الكاميرا من الجنب.',mode3:'ساحة 3D',mode3d:'قتال حر بكل الاتجاهات زي طور القصة: الكاميرا ورا المقاتل، تثبيت، دحرجة وجري.',setLang:'اللغة',setSound:'الصوت',setTime:'وقت القصة',setJacket:'جاكيت بيلي',on:'شغّال',off:'مطفي',storyBtn:'طور القصة',exit:'القائمة',day:'نهار',night:'ليل',jacketOn:'البس الجاكيت',jacketOff:'اشلح الجاكيت',arc1:'الارك الأول: الولد المخطوف',
+    rage:'غضب',rageReady:'جاهز',pause:'إيقاف مؤقت',resume:'كمّل',rageArt:'ضربة الغضب!',rageNotReady:'الغضب يفتح لما يخلص البار الأخضر',dlgNext:'اضغط H أو المس الشاشة ◂',fighting:'القتال',outfit:'الملابس',of_none:'بدون',of_jacket:'جاكيت',of_leather:'طقم جلد',of_dress:'فستان',settings:'الإعدادات',mode25:'كلاسيك 2.5D',mode25d:'قتال وجه لوجه على طريقة تيكن، الكاميرا من الجنب.',mode3:'ساحة 3D',mode3d:'قتال حر بكل الاتجاهات زي طور القصة: الكاميرا ورا المقاتل، تثبيت، دحرجة وجري.',setLang:'اللغة',setSound:'الصوت',setGfx:'الجرافيكس',q_low:'منخفض',q_med:'متوسط',q_high:'عالي',setMusic:'الموسيقى',setTime:'وقت القصة',setJacket:'ملابس بيلي',on:'شغّال',off:'مطفي',storyBtn:'طور القصة',exit:'القائمة',day:'نهار',night:'ليل',jacketOn:'البس الجاكيت',jacketOff:'اشلح الجاكيت',arc1:'الارك الأول: الولد المخطوف',
     storyHint:'WASD مشي · الأسهم تلف الكاميرا · Space تفادي (اضغط مطوّل للجري) · Q تثبيت · E علاج',noKnife:'ما عندك سكين لسا',fullHp:'صحتك كاملة',noHeal:'خلص العلاج',
     gotKnife:'لقيتي سكين! F تطلعها أو ترجعها',gotHeal:'+1 علاج',sideStreet:'شارع جانبي',youFell:'سقطتي',arcDone:'خلص الارك الأول',arcDoneSub:'بيلي رجّعت ولدها من بيتشينيو. الارك الثاني جاي.',heals:'علاج',knife:'سكين',locked:'مثبّت',
     padLock:'تثبيت',padHeal:'علاج',padKnife:'سكين',rageUnlocked:'البار صار أصفر: تقدر تعصّب!',ko:'ضربة قاضية!',counter:'ضربة مضادة!',
@@ -1964,14 +2326,14 @@ const STR={
     winSub:'{a} غلبت {b} {x} مقابل {y}',loseSub:'{a} غلبت {b} {x} مقابل {y}. جرّب مرة ثانية!',
     stDmg:'الضرر اللي سويته',stCombo:'أطول كومبو',stHits:'ضربات وصلت',rematch:'نزال ثاني',changeFighters:'غيّر المقاتلات',
     controls:'الأزرار في الكيبورد',jumpShort:'نط',kPunchL:'لكمة يسار',kPunchR:'لكمة يمين',kKickL:'ركلة يسار',kKickR:'ركلة يمين',kJump:'نطة',kRage:'غضب',kMove:'حركة وصد',kSide:'سايد ستيب',kMouse:'الماوس: يسار يد، يمين رجل',kHide:'إخفاء',
-    main:'الرئيسية',padH:'يد',padK:'رجل',padP:'صد',queenRage:'غضب الملكة!',kataraRage:'كاتارا طقّعت! 💨',kPunch:'يد',kKick:'رجل',kBlock:'صد',combos:'كومبوهات',
+    main:'الرئيسية',padH:'يد',padK:'رجل',padP:'صد',padT:'مسك',padC:'انحناء',kCrouch:'انحناء',kThrow:'مسك ورمي',kDepth:'تحرك للداخل/الخارج',thrown:'رمية!',throwBreak:'فكّت المسكة!',queenRage:'غضب الملكة!',kataraRage:'كاتارا طقّعت! 💨',kPunch:'يد',kKick:'رجل',kBlock:'صد',combos:'كومبوهات',
     fwd:'قدّام',bk:'ورا',up:'فوق',dn:'تحت',or:'أو',high:'عالية',mid:'متوسطة',low:'منخفضة'},
   en:{tagline:'A 3D fighter in the Tekken style. Pick your fighter and step into the ring.',play:'Play',howto:'How to play',
     howtoIntro:'First to win two rounds takes the match. Each fighter has two health bars, green over yellow. Once the green is gone and the bar turns yellow you can rage: press Rage once per round. Double-tap forward to dash and run, double-tap back to hop away. Sidestep to dodge straight attacks; round kicks track you.',
     loading:'Loading the factory...',loadFail:'The factory could not load; you can still play on a plain floor',
     pick1:'Choose your fighter',pick2:'Choose your opponent',step1:'Step 1 of 2',step2:'Step 2 of 2',next:'Next',fightBtn:'Fight!',back:'Back',random:'Random',
     difficulty:'CPU difficulty',easy:'Easy',normal:'Normal',hard:'Hard',specials:'Special moves',
-    rage:'RAGE',rageReady:'READY',pause:'Pause',resume:'Resume',rageArt:'Rage Art!',rageNotReady:'Rage unlocks when your green bar is gone',dlgNext:'Press H or tap ▸',fighting:'Fighting',settings:'Settings',mode25:'Classic 2.5D',mode25d:'Face-to-face Tekken-style fights, side-on camera.',mode3:'3D Arena',mode3d:'Free-roaming fights like Story mode: camera behind your fighter, lock-on, rolls and sprinting.',setLang:'Language',setSound:'Sound',setTime:'Story time of day',setJacket:"Billi's jacket",on:'On',off:'Off',storyBtn:'Story mode',exit:'Menu',day:'Day',night:'Night',jacketOn:'Jacket on',jacketOff:'Jacket off',arc1:'Arc 1: The Taken Boy',
+    rage:'RAGE',rageReady:'READY',pause:'Pause',resume:'Resume',rageArt:'Rage Art!',rageNotReady:'Rage unlocks when your green bar is gone',dlgNext:'Press H or tap ▸',fighting:'Fighting',outfit:'Outfit',of_none:'None',of_jacket:'Jacket',of_leather:'Leather set',of_dress:'Dress',settings:'Settings',mode25:'Classic 2.5D',mode25d:'Face-to-face Tekken-style fights, side-on camera.',mode3:'3D Arena',mode3d:'Free-roaming fights like Story mode: camera behind your fighter, lock-on, rolls and sprinting.',setLang:'Language',setSound:'Sound',setGfx:'Graphics',q_low:'Low',q_med:'Medium',q_high:'High',setMusic:'Music',setTime:'Story time of day',setJacket:"Billi's outfit",on:'On',off:'Off',storyBtn:'Story mode',exit:'Menu',day:'Day',night:'Night',jacketOn:'Jacket on',jacketOff:'Jacket off',arc1:'Arc 1: The Taken Boy',
     storyHint:'WASD walk · Arrows turn camera · Space dodge (hold to run) · Q lock on · E heal',noKnife:'No knife yet',fullHp:'Health is full',noHeal:'Out of heals',
     gotKnife:'Found a knife! F to draw or sheathe it',gotHeal:'+1 heal',youFell:'You fell',arcDone:'Arc 1 complete',arcDoneSub:'Billi got her son back from Bitchinho. Arc 2 is coming.',heals:'Heals',knife:'Knife',locked:'Locked',
     padLock:'Lock',padHeal:'Heal',padKnife:'Knife',rageUnlocked:'Yellow bar: you can rage now!',ko:'K.O.!',counter:'Counter hit!',
@@ -1979,7 +2341,7 @@ const STR={
     winSub:'{a} beat {b} {x}–{y}',loseSub:'{a} beat {b} {x}–{y}. Try again!',
     stDmg:'Damage dealt',stCombo:'Longest combo',stHits:'Hits landed',rematch:'Rematch',changeFighters:'Change fighters',
     controls:'Keyboard controls',jumpShort:'Jump',kPunchL:'Left punch',kPunchR:'Right punch',kKickL:'Left kick',kKickR:'Right kick',kJump:'Jump',kRage:'Rage',kMove:'Move & block',kSide:'Sidestep',kMouse:'Mouse: left punch, right kick',kHide:'hide',
-    main:'Main',padH:'Hand',padK:'Kick',padP:'Block',queenRage:"Queen's Fury!",kataraRage:"Katara's Toxic Fart! 💨",kPunch:'Punch',kKick:'Kick',kBlock:'Block',combos:'Combos',
+    main:'Main',padH:'Hand',padK:'Kick',padP:'Block',padT:'Throw',padC:'Crouch',kCrouch:'Crouch',kThrow:'Grab & throw',kDepth:'Move in/out',thrown:'THROW!',throwBreak:'Throw broken!',queenRage:"Queen's Fury!",kataraRage:"Katara's Toxic Fart! 💨",kPunch:'Punch',kKick:'Kick',kBlock:'Block',combos:'Combos',
     fwd:'Fwd',bk:'Back',up:'Up',dn:'Down',or:'or',high:'High',mid:'Mid',low:'Low'}
 };
 let lang='en';try{lang=localStorage.getItem('billi-lang')||'en'}catch(e){}
@@ -2004,7 +2366,7 @@ function helpRows(){
 }
 function keyLegend(full){
   const k=(key,lab)=>`<span class="k"><kbd>${key}</kbd><b>${L(lab)}</b></span>`;
-  return k('H','kPunch')+k('K','kKick')+k('P','kBlock')+'<span class="sep"></span>'+k('Space','kJump')+k('O','kRage')+'<span class="sep"></span>'+k('← →','kMove')+k('↑ ↓','kSide')
+  return k('H','kPunch')+k('K','kKick')+k('P','kBlock')+'<span class="sep"></span>'+k('Space','kJump')+k('O','kRage')+'<span class="sep"></span>'+k('← →','kMove')+k('↑ ↓','kDepth')+k('C','kCrouch')+k('G','kThrow')
     +`<span class="k"><b>H H H H · H H H K · K K K</b></span>`+(full?`<span class="k"><b>${L('kMouse')}</b></span>`:`<span class="k"><kbd>Tab</kbd>${L('kHide')}</span>`);
 }
 function applyLang(){
@@ -2085,13 +2447,15 @@ $('fightBack').onclick=$('setBack').onclick=()=>mmShow('mmMain');
 $('start3dBtn').onclick=()=>{initAudio();fightMode='3d';openSelect()};
 // settings
 let soundOn=true;try{soundOn=localStorage.getItem('billi-sound')!=='0'}catch(e){}
-function syncSettings(){$('setLang').textContent=lang==='ar'?'عربي':'English';$('setSound').textContent=L(soundOn?'on':'off');$('setTime').textContent=L(storyDay?'day':'night');$('setJacket').textContent=L(jacketOn?'on':'off');if(master)master.gain.value=soundOn?1.1:0}
+function syncSettings(){$('setLang').textContent=lang==='ar'?'عربي':'English';$('setSound').textContent=L(soundOn?'on':'off');$('setGfx').textContent=L('q_'+gfxQ);$('setMusic').textContent=L(musicOn?'on':'off');$('setTime').textContent=L(storyDay?'day':'night');if(master)master.gain.value=soundOn?1.1:0}
 $('setLang').onclick=()=>{$('langBtn').click();syncSettings()};
+$('setGfx').onclick=()=>{setGfx(GFXQ[(GFXQ.indexOf(gfxQ)+1)%3]);syncSettings()};
+$('setMusic').onclick=()=>{musicOn=!musicOn;try{localStorage.setItem('billi-music',musicOn?'1':'0')}catch(e){}initAudio();syncSettings()};
 $('setSound').onclick=()=>{soundOn=!soundOn;try{localStorage.setItem('billi-sound',soundOn?'1':'0')}catch(e){}initAudio();syncSettings()};
 $('setTime').onclick=()=>{storyDay=!storyDay;try{localStorage.setItem('billi-day',storyDay?'1':'0')}catch(e){}applyDayNight();syncSettings()};
-$('setJacket').onclick=()=>{setJacket(!jacketOn);syncSettings()};
+
 $('dlg').onclick=()=>dlgAdvance();
-$('jkBtn').onclick=()=>setJacket(!jacketOn);
+$('jkBtn').onclick=()=>nextOutfit();
 $('dnBtn').onclick=()=>{storyDay=!storyDay;try{localStorage.setItem('billi-day',storyDay?'1':'0')}catch(e){};applyDayNight()};
 $('exitBtn').onclick=()=>{if(paused)togglePause();toMenu()};
 
