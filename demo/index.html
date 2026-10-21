@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>الساحة</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a game hub. Lobby = hero + join card over a live, dimmed arena; Room = full arena with a top bar and a side panel (players + chat). One committed dark "night arena" look. */
+:root{
+  color-scheme:dark;
+  --bg:#0d1015; --panel:#151a21; --panel2:#1b222b; --line:#28313c; --ink:#eef2f5; --muted:#8a96a5;
+  --amber:#ffb547; --amber-ink:#241500; --teal:#4fd1c5; --red:#ff6b5e;
+  --display:"Reem Kufi","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#arena{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+
+/* ---------- lobby ---------- */
+.lobby{position:fixed;inset:0;overflow:auto;display:grid;place-items:center;
+  padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:radial-gradient(120% 90% at 50% 30%,rgba(13,16,21,.72),rgba(13,16,21,.94) 70%)}
+.lobby-in{width:min(1040px,100%);display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+.hero h1{font:700 clamp(56px,9vw,104px)/1 var(--display);margin:0;letter-spacing:-.01em}
+.hero h1 .acc{color:var(--amber)}
+.hero p{color:#c4ccd6;font-size:18px;max-width:30ch;margin:18px 0 0;text-wrap:balance}
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;padding:0;list-style:none}
+.steps li{display:flex;align-items:center;gap:8px;background:rgba(27,34,43,.75);border:1px solid var(--line);border-radius:99px;padding:6px 14px 6px 8px;font-size:14px;color:#c4ccd6}
+.steps b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font:600 13px var(--mono)}
+
+.card{background:rgba(21,26,33,.92);border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:18px;box-shadow:0 24px 60px rgba(0,0,0,.45);backdrop-filter:blur(6px)}
+.field{display:grid;gap:8px}
+.label{font-size:13px;color:var(--muted)}
+.name-row{display:flex;gap:12px;align-items:center}
+.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:700 20px var(--display);color:#14181e;flex:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
+.input{width:100%;min-width:0;background:#0f1318;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px}
+.input::placeholder{color:#5b6573}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg) inset}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:12px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .12s}
+.btn:hover{background:#232b36}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--amber);color:var(--amber-ink);border-color:transparent}
+.btn.primary:hover{background:#ffc366}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.code-row{display:flex;gap:10px}
+.code-input{font:600 22px var(--mono);letter-spacing:.35em;text-align:center;text-transform:uppercase;direction:ltr}
+.rooms{display:grid;gap:8px}
+.room-item{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:start;width:100%}
+.room-item:hover{border-color:#3a4554}
+.room-item .t{flex:1;min-width:0}
+.room-item .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room-item .t small{color:var(--muted)}
+.seats{display:flex;gap:3px;direction:ltr}
+.seats i{width:6px;height:16px;border-radius:2px;background:#323c49}
+.seats i.f{background:var(--teal)}
+.empty{color:var(--muted);font-size:14px;padding:6px 2px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;padding:0}
+.mode{display:inline-flex;align-items:center;gap:6px}
+.mode i{width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.mode.live i{background:var(--teal)}
+.err{color:var(--red);font-size:14px;min-height:1.2em}
+.server{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:14px}
+.server .row{display:flex;gap:8px}
+.acct{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.acct-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.acct-state{font-size:13px;color:var(--teal)}
+.acct-state.off{color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn.small{padding:9px 10px;font-size:14px;font-weight:500}
+.xfer{display:grid;gap:4px;justify-items:center;background:var(--panel2);border:1px dashed #3a4554;border-radius:12px;padding:12px}
+.xcode{font:600 28px var(--mono);letter-spacing:.2em;direction:ltr;color:var(--amber)}
+.code-input.small{font-size:17px;letter-spacing:.2em}
+.lang{position:fixed;z-index:5;top:calc(14px + env(safe-area-inset-top,0px));inset-inline-end:max(14px,env(safe-area-inset-right,0px));background:rgba(21,26,33,.9);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-weight:600}
+.lang:hover{background:#232b36}
+
+/* ---------- room ---------- */
+.topbar{position:fixed;z-index:3;top:0;inset-inline:0;display:flex;align-items:center;gap:10px;pointer-events:none;
+  padding-top:calc(12px + env(safe-area-inset-top,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.topbar > *{pointer-events:auto}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(21,26,33,.9);border:1px solid var(--line);border-radius:12px;padding:8px 12px;backdrop-filter:blur(6px)}
+.chip .code{font:600 18px var(--mono);letter-spacing:.25em;direction:ltr}
+.chip .k{font-size:12px;color:var(--muted)}
+.icon-btn{white-space:nowrap;background:rgba(21,26,33,.9);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:600}
+.icon-btn:hover{background:#232b36}
+.grow{flex:1}
+.bars{display:inline-flex;gap:2px;align-items:flex-end;height:14px;direction:ltr}
+.bars i{width:4px;border-radius:1px;background:#3a4452}
+.bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:9px}.bars i:nth-child(3){height:14px}
+.ms{font:500 12px var(--mono);color:var(--muted);direction:ltr}
+.status{font-size:12px;color:var(--amber)}
+
+.side{position:fixed;z-index:2;top:calc(70px + env(safe-area-inset-top,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-start:max(12px,env(safe-area-inset-left,0px));
+  width:300px;display:grid;grid-template-rows:auto 1fr auto;gap:10px;background:rgba(21,26,33,.9);border:1px solid var(--line);border-radius:18px;padding:14px;backdrop-filter:blur(6px)}
+.side h2{font:600 13px var(--body);color:var(--muted);margin:0 0 8px}
+.players{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:34vh;overflow:auto}
+.players li{display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px}
+.players li.me{background:rgba(255,181,71,.08)}
+.players .avatar{width:34px;height:34px;font-size:15px}
+.players .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,181,71,.14);color:var(--amber)}
+.kick{background:none;border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:12px;color:var(--muted)}
+.kick:hover{color:var(--red);border-color:var(--red)}
+.chatlog{overflow:auto;display:flex;flex-direction:column;gap:8px;padding-inline-end:2px;min-height:0;border-top:1px solid var(--line);padding-top:10px}
+.msg{display:grid;gap:2px;max-width:92%}
+.msg b{font-size:12px;font-weight:600}
+.msg span{background:var(--panel2);border-radius:12px;padding:6px 10px;width:fit-content;overflow-wrap:anywhere}
+.msg.mine{justify-self:end}
+.msg.mine span{background:rgba(255,181,71,.16)}
+.msg.sys{color:var(--muted);font-size:13px;justify-self:center}
+.chatform{display:flex;gap:8px}
+.chatform .input{padding:10px 12px;font-size:15px}
+.chat-toggle{display:none}
+.toasts{position:fixed;z-index:4;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none}
+.toast{background:rgba(21,26,33,.95);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:14px;animation:up .25s ease-out}
+@keyframes up{from{opacity:0;transform:translateY(6px)}}
+.hint{position:fixed;z-index:2;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-end:max(16px,env(safe-area-inset-right,0px));font-size:13px;color:var(--muted);background:rgba(21,26,33,.8);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+
+@media (max-width:860px){
+  body{overflow:auto}
+  .lobby-in{grid-template-columns:1fr;gap:24px}
+  .hero p{font-size:16px}
+  .steps{margin-top:16px}
+  .chip .k{display:none}
+  .side{inset-inline:max(12px,env(safe-area-inset-left,0px));width:auto;top:auto;height:52vh}
+  .side.closed{display:none}
+  .chat-toggle{display:inline-flex}
+  .topbar{gap:6px}
+  .chip,.icon-btn{padding:7px 9px}
+  .chip .code{font-size:15px;letter-spacing:.15em}
+  .ms{display:none}
+  .wide{display:none}
+  .toasts{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}
+  .hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}.btn{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="arena" aria-label="الساحة"></canvas>
+
+<!-- ======================= LOBBY ======================= -->
+<section class="lobby" id="lobby">
+  <button class="lang" id="langLobby" data-t="otherLang"></button>
+  <div class="lobby-in">
+    <div class="hero">
+      <h1><span data-t="h1a">الساح</span><span class="acc" data-t="h1b">ة</span></h1>
+      <p data-t="tagline"></p>
+      <ol class="steps">
+        <li><b>1</b><span data-t="step1"></span></li>
+        <li><b>2</b><span data-t="step2"></span></li>
+        <li><b>3</b><span data-t="step3"></span></li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <span class="label" id="nameLbl" data-t="nameLbl"></span>
+        <div class="name-row">
+          <div class="avatar" id="myAvatar">؟</div>
+          <input class="input" id="name" maxlength="20" data-ph="namePh" aria-labelledby="nameLbl" autocomplete="nickname">
+        </div>
+        <div class="swatches" id="swatches" role="group" data-aria="pickColor"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="create" data-t="create"></button>
+        <button class="btn" id="quick" data-t="quick"></button>
+      </div>
+
+      <div class="or" data-t="orCode"></div>
+      <div class="code-row">
+        <input class="input code-input" id="code" maxlength="8" placeholder="•••••" data-aria="roomCode" autocomplete="off" spellcheck="false">
+        <button class="btn" id="join" data-t="join"></button>
+      </div>
+
+      <div class="field">
+        <span class="label" data-t="openRooms"></span>
+        <div class="rooms" id="rooms"><div class="empty">…</div></div>
+      </div>
+
+      <div class="err" id="err" role="alert"></div>
+
+      <div class="acct" id="acct">
+        <div class="acct-head">
+          <span class="label" data-t="account"></span>
+          <span class="acct-state" id="acctState"></span>
+        </div>
+        <div class="row2">
+          <button class="btn small" id="makeCode" data-t="makeCode"></button>
+          <button class="btn small" id="haveCode" data-t="haveCode"></button>
+        </div>
+        <div class="xfer" id="xferShow" hidden>
+          <span class="label" data-t="codeFor"></span>
+          <div class="xcode" id="xcode">----</div>
+          <span class="label" id="xexp"></span>
+        </div>
+        <div class="code-row" id="xferIn" hidden>
+          <input class="input code-input small" id="claim" maxlength="9" placeholder="XXXX-XXXX" data-aria="transferCode" autocomplete="off" spellcheck="false">
+          <button class="btn" id="claimBtn" data-t="useCode"></button>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span class="mode" id="modeTag"><i></i><span id="modeText"></span></span>
+        <button class="link" id="serverToggle" data-t="serverSettings"></button>
+      </div>
+      <div class="server" id="serverBox" hidden>
+        <label class="label" for="server" data-t="serverLbl"></label>
+        <div class="row">
+          <input class="input" id="server" dir="ltr" placeholder="https://game-rooms.xxxx.workers.dev">
+          <button class="btn" id="check" data-t="check"></button>
+        </div>
+        <span class="label" id="serverState" data-t="noServer"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ROOM ======================= -->
+<div id="roomUi" hidden>
+  <div class="topbar">
+    <div class="chip"><span class="k" data-t="code"></span><span class="code" id="roomCode">-----</span></div>
+    <button class="icon-btn" id="copy"><span data-t="copy"></span><span class="wide" data-t="copyLink"></span></button>
+    <span class="grow"></span>
+    <div class="chip"><span class="bars" id="bars"><i></i><i></i><i></i></span><span class="ms" id="ping">-- ms</span><span class="status" id="status"></span></div>
+    <button class="icon-btn" id="langRoom" data-t="otherLang"></button>
+    <button class="icon-btn chat-toggle" id="chatToggle" data-t="chat"></button>
+    <button class="icon-btn" id="leave" data-t="leave"></button>
+  </div>
+
+  <aside class="side closed" id="side">
+    <div>
+      <h2 id="pCount"></h2>
+      <ul class="players" id="players"></ul>
+    </div>
+    <div class="chatlog" id="chatlog" aria-live="polite"></div>
+    <form class="chatform" id="chatForm">
+      <input class="input" id="chat" maxlength="120" data-ph="chatPh" autocomplete="off" data-aria="message">
+      <button class="btn primary" data-aria="send">↵</button>
+    </form>
+  </aside>
+  <div class="hint" data-t="hint"></div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script src="net.js"></script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const GAME = "playground";
+const COLORS = ["#ff8a5b","#ffc857","#7bd389","#4fd1c5","#5aa9ff","#a78bfa","#f472b6","#e5e7eb"];
+const WW = 1000, WH = 640;                       // the shared world: same on every screen
+const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+
+/* ------------------------------------------------------------------ languages */
+const I18N={
+ ar:{dir:"rtl",title:"الساحة",h1a:"الساح",h1b:"ة",otherLang:"English",
+  tagline:"العب مع أصحابك أونلاين من المتصفح. سوّ غرفة، أرسل الكود، وخلاص.",step1:"اكتب اسمك",step2:"سوّ غرفة",step3:"أرسل الكود لأصحابك",
+  nameLbl:"اسمك ولونك",namePh:"مثلاً: بيلي",pickColor:"اختر لونك",color:"لون",create:"غرفة جديدة",quick:"دخول سريع",orCode:"أو ادخل بكود",
+  roomCode:"كود الغرفة",join:"دخول",openRooms:"غرف مفتوحة الحين",serverSettings:"إعدادات السيرفر",serverLbl:"رابط سيرفرك (من npx wrangler deploy)",
+  check:"فحص",noServer:"بدون رابط تشتغل الصفحة بلاعبين وهميين للتجربة.",checking:"أفحص…",serverOk:"السيرفر شغّال ✓ (نسخة {v})",
+  notRooms:"الرابط رد بس مو سيرفر الغرف",noReply:"ما رد. تأكد من الرابط ومن إنك سويت deploy.",modeLive:"متصل بسيرفرك",modeDemo:"وضع التجربة: لاعبين وهميين",
+  player:"لاعب",nameFirst:"اكتب اسمك أول",typeCode:"اكتب كود الغرفة",full:"الغرفة مليانة",locked:"الغرفة مقفلة",cantJoin:"ما قدرت أدخل: تأكد من الكود ومن رابط السيرفر",
+  roomOf:"غرفة {n}",serverDown:"السيرفر ما رد",noRooms:"ما فيه غرف مفتوحة. سوّ وحدة!",seats:"{n} من {m}",demoRoom1:"غرفة كاتارا",demoRoom2:"تحدي الجسر",
+  code:"الكود",copy:"نسخ",copyLink:" الرابط",chat:"الدردشة",leave:"خروج",players:"اللاعبين · {n}",chatPh:"اكتب رسالة…",message:"رسالة",send:"إرسال",
+  hint:"تمشي بـ WASD أو الأسهم · Enter للدردشة",joinedRoom:"دخلت الغرفة {c}",demoNote:"وضع التجربة: اللاعبين هنا وهميين",joined:"{n} دخل",left:"{n} طلع",kicked:"{n} انطرد",
+  youHost:"صرت المضيف",reconnecting:"يعيد الاتصال…",youKicked:"المضيف طلّعك من الغرفة",copied:"انسخ الرابط، أرسله لأصحابك",codeIs:"الكود: {c}",you:" (أنت)",host:"المضيف",kick:"طرد",
+  nameThenJoin:"اكتب اسمك واضغط دخول",bots:["كاتارا","نافاخا","بابلو"],lobbyBots:["بيلي","كاتارا","نافاخا","بابلو","بيتشينيو"],
+  lines:["هلا والله","مين يتحدى؟","وين الجسر؟","تعالوا هنا","😂","جاهزين؟","انتبهوا لنافاخا"],
+  account:"حسابك",acctLive:"محفوظ في السيرفر ✓",acctPlays:"محفوظ في السيرفر ✓ · لعبت {n} مرة",acctLocal:"محفوظ في هذا الجهاز بس",acctErr:"ما قدرت أوصل للحساب",
+  makeCode:"كود لجهاز ثاني",haveCode:"عندي كود",codeFor:"اكتب هذا الكود في جهازك الثاني:",expires:"يشتغل مرة وحدة، لين {t}",
+  transferCode:"كود النقل",useCode:"استخدم",claimed:"رجع حسابك ✓",badCode:"الكود غلط أو انتهى",slowCode:"محاولات كثيرة، جرّب بعد ساعة",
+  needServer:"كود النقل يحتاج سيرفرك. حط الرابط في إعدادات السيرفر."},
+ en:{dir:"ltr",title:"The Arena",h1a:"Aren",h1b:"a",otherLang:"عربي",
+  tagline:"Play online with friends, right in the browser. Make a room, send the code, done.",step1:"Pick a name",step2:"Make a room",step3:"Send the code",
+  nameLbl:"Your name and color",namePh:"e.g. Billi",pickColor:"Pick your color",color:"Color",create:"New room",quick:"Quick join",orCode:"or join with a code",
+  roomCode:"Room code",join:"Join",openRooms:"Open rooms",serverSettings:"Server settings",serverLbl:"Your server link (from npx wrangler deploy)",
+  check:"Check",noServer:"Without a link, the page runs with practice bots.",checking:"Checking…",serverOk:"Server is up ✓ (version {v})",
+  notRooms:"That link answered, but it isn't the rooms server",noReply:"No answer. Check the link and that you ran deploy.",modeLive:"Connected to your server",modeDemo:"Practice mode: bots",
+  player:"Player",nameFirst:"Type your name first",typeCode:"Type the room code",full:"That room is full",locked:"That room is locked",cantJoin:"Couldn't join. Check the code and the server link.",
+  roomOf:"{n}'s room",serverDown:"The server didn't answer",noRooms:"No open rooms yet. Make one!",seats:"{n} of {m}",demoRoom1:"Katara's room",demoRoom2:"Bridge challenge",
+  code:"Code",copy:"Copy",copyLink:" link",chat:"Chat",leave:"Leave",players:"Players · {n}",chatPh:"Type a message…",message:"Message",send:"Send",
+  hint:"Move with WASD or arrows · Enter to chat",joinedRoom:"You joined room {c}",demoNote:"Practice mode: these players are bots",joined:"{n} joined",left:"{n} left",kicked:"{n} was kicked",
+  youHost:"You're the host now",reconnecting:"Reconnecting…",youKicked:"The host removed you",copied:"Link copied. Send it to your friends",codeIs:"Code: {c}",you:" (you)",host:"Host",kick:"Kick",
+  nameThenJoin:"Type your name, then press Join",bots:["Katara","Navaja","Pablo"],lobbyBots:["Billi","Katara","Navaja","Pablo","Bitchinho"],
+  lines:["hey!","who wants a fight?","where's the bridge?","over here","😂","ready?","watch out for Navaja"],
+  account:"Your account",acctLive:"Saved on the server ✓",acctPlays:"Saved on the server ✓ · games played: {n}",acctLocal:"Saved on this device only",acctErr:"Couldn't reach your account",
+  makeCode:"Code for another device",haveCode:"I have a code",codeFor:"Type this code on your other device:",expires:"Works once, until {t}",
+  transferCode:"Transfer code",useCode:"Use",claimed:"Your account is back ✓",badCode:"Wrong or expired code",slowCode:"Too many tries, wait an hour",
+  needServer:"Transfer codes need your server. Add its link in Server settings."}};
+let LANG=(()=>{try{return localStorage.getItem("arena-lang")}catch{return null}})()||((navigator.language||"").startsWith("ar")?"ar":"en");
+const t=(k,v={})=>{const s=(I18N[LANG]||I18N.en)[k]??I18N.en[k]??k; return typeof s==="string"?s.replace(/\{(\w+)\}/g,(_,x)=>v[x]??""):s;};
+function applyLang(){
+  const D=I18N[LANG]; document.documentElement.lang=LANG; document.documentElement.dir=D.dir; document.title=D.title;
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));
+  document.querySelectorAll("[data-aria]").forEach(e=>e.setAttribute("aria-label",t(e.dataset.aria)));
+  $("arena").setAttribute("aria-label",D.title);
+}
+function setLang(l){ LANG=l; try{localStorage.setItem("arena-lang",l)}catch{} applyLang(); paintMode(); if(!$("serverBox").hidden||true) $("serverState").textContent=t("noServer");
+  lobbyBots.forEach((b,i)=>b.name=t("lobbyBots")[i]); paintAcct(); if(room) drawPlayers(); else listRooms(); fit(); }
+
+const initial = n => (n || "؟").trim().charAt(0) || "؟";
+const colorOf = p => COLORS[(p && p.d && p.d.c) ?? 0] || COLORS[0];
+
+/* ------------------------------------------------------------------
+   Demo room: same API as GameNet rooms, with wandering bots.
+   Used when there's no server, so the page always works.
+------------------------------------------------------------------ */
+class DemoRoom {
+  constructor(opts){
+    this.handlers={}; this.players=new Map(); this.state={}; this.ping=0; this.status="online";
+    this.id="me"; this.code=opts.code||"DEMO1"; this.host="me";
+    this.players.set("me",{id:"me",name:opts.name,d:opts.data});
+    const bots=t("bots").map((n,i)=>[n,[6,1,4][i]]);
+    const lines=t("lines");
+    this.bots=[];
+    bots.forEach(([name,c],i)=>setTimeout(()=>{
+      if(this.closed) return;
+      const b={id:"bot"+i,name,d:{c},x:200+i*280,y:180+i*120,tx:500,ty:320,next:0,talk:4+Math.random()*8};
+      this.bots.push(b); this.players.set(b.id,{id:b.id,name,d:{c}}); this.emit("join",{id:b.id,name,d:{c}});
+    },700+i*1400));
+    let last=performance.now();
+    this.timer=setInterval(()=>{
+      const now=performance.now(), dt=(now-last)/1000; last=now;
+      this.ping=Math.round(18+Math.random()*14); this.emit("ping",this.ping);
+      for(const b of this.bots){
+        if((b.next-=dt)<=0){b.tx=80+Math.random()*(WW-160);b.ty=80+Math.random()*(WH-160);b.next=2+Math.random()*4}
+        const dx=b.tx-b.x,dy=b.ty-b.y,l=Math.hypot(dx,dy);
+        if(l>4){b.x+=dx/l*Math.min(l,170*dt);b.y+=dy/l*Math.min(l,170*dt)}
+        this.emit("msg",{x:Math.round(b.x),y:Math.round(b.y)},b.id);
+        if((b.talk-=dt)<=0){b.talk=7+Math.random()*12;this.emit("msg",{chat:lines[Math.floor(Math.random()*lines.length)]},b.id)}
+      }
+    },66);
+  }
+  on(e,f){(this.handlers[e]||=[]).push(f);return this}
+  emit(e,...a){for(const f of this.handlers[e]||[])f(...a)}
+  get isHost(){return true} get me(){return this.players.get("me")}
+  send(){return true} setMe(d){this.me.d=d}
+  kick(id){const i=this.bots.findIndex(b=>b.id===id);if(i<0)return;const p=this.players.get(id);this.bots.splice(i,1);this.players.delete(id);this.emit("leave",id,p,true)}
+  leave(){this.closed=true;clearInterval(this.timer);this.status="closed";this.emit("status","closed")}
+}
+
+/* ------------------------------------------------------------------ lobby */
+let myColor = +(store.get("arena-color") ?? Math.floor(Math.random()*COLORS.length));
+$("name").value = store.get("arena-name") || "";
+$("server").value = new URLSearchParams(location.search).get("server") || store.get("arena-server") || "";
+const params = new URLSearchParams(location.search);
+if (params.get("room")) $("code").value = params.get("room");
+
+function paintAvatar(){ const a=$("myAvatar"); a.style.background=COLORS[myColor]; a.textContent=initial($("name").value); }
+COLORS.forEach((c,i)=>{const b=document.createElement("button");b.className="sw";b.style.background=c;b.setAttribute("aria-label",t("color")+" "+(i+1));
+  b.setAttribute("aria-pressed",String(i===myColor));b.onclick=()=>{myColor=i;store.set("arena-color",i);for(const s of $("swatches").children)s.setAttribute("aria-pressed",String(s===b));paintAvatar()};$("swatches").append(b)});
+$("name").addEventListener("input",paintAvatar); paintAvatar();
+
+const server = () => $("server").value.trim();
+const live = () => !!server() && typeof GameNet !== "undefined";
+function paintMode(){ $("modeTag").classList.toggle("live",live()); $("modeText").textContent = live() ? t("modeLive") : t("modeDemo"); }
+paintMode();
+$("serverToggle").onclick = () => { $("serverBox").hidden = !$("serverBox").hidden; };
+$("server").addEventListener("change",()=>{store.set("arena-server",server());paintMode();listRooms();connectAccount()});
+$("check").onclick = async () => {
+  store.set("arena-server",server()); paintMode();
+  if(!server()){ $("serverState").textContent=t("noServer"); return; }
+  $("serverState").textContent=t("checking");
+  try{ const r=await fetch(server().replace(/\/+$/,"")+"/"); const j=await r.json();
+    $("serverState").textContent = j.ok ? t("serverOk",{v:j.version}) : t("notRooms");
+  }catch{ $("serverState").textContent=t("noReply"); }
+  listRooms(); connectAccount();
+};
+
+const opts = () => { const name=$("name").value.trim().slice(0,20)||t("player"); store.set("arena-name",name); return {server:server(),game:GAME,name,data:{c:myColor}}; };
+const showErr = m => { $("err").textContent = m || ""; };
+async function enter(kind, code){
+  showErr("");
+  if(!$("name").value.trim()){ showErr(t("nameFirst")); $("name").focus(); return; }
+  const btns=[...document.querySelectorAll("#lobby .btn")]; btns.forEach(b=>b.disabled=true);
+  try{
+    const o=opts();
+    let r;
+    if(!live()) r=new DemoRoom({...o,code: code || "DEMO"+(1+Math.floor(Math.random()*9))});
+    else if(kind==="quick") r=await GameNet.quick({...o,max:8});
+    else r=await GameNet.join({...o,code,max:8,public:true,label:t("roomOf",{n:o.name})});
+    openRoom(r);
+  }catch(e){
+    showErr(e.code==="full"?t("full"):e.code==="locked"?t("locked"):t("cantJoin"));
+  }finally{ btns.forEach(b=>b.disabled=false); }
+}
+$("create").onclick=()=>enter("create");
+$("quick").onclick=()=>enter("quick");
+$("join").onclick=()=>{ const c=$("code").value.trim().toUpperCase(); if(!c){showErr(t("typeCode"));$("code").focus();return} enter("join",c); };
+$("code").addEventListener("keydown",e=>{if(e.key==="Enter")$("join").click()});
+
+function seats(n,max){const s=document.createElement("span");s.className="seats";for(let i=0;i<Math.min(max,8);i++){const b=document.createElement("i");if(i<n)b.className="f";s.append(b)}return s}
+async function listRooms(){
+  const box=$("rooms"); let rooms=[];
+  if(live()){ try{ rooms=await GameNet.list(server(),GAME); }catch{ box.replaceChildren(Object.assign(document.createElement("div"),{className:"empty",textContent:t("serverDown")})); return; } }
+  else rooms=[{code:"DEMO1",label:t("demoRoom1"),players:3,max:8},{code:"DEMO2",label:t("demoRoom2"),players:2,max:4}];
+  box.replaceChildren();
+  if(!rooms.length){ box.append(Object.assign(document.createElement("div"),{className:"empty",textContent:t("noRooms")})); return; }
+  for(const r of rooms.slice(0,5)){
+    const b=document.createElement("button"); b.className="room-item";
+    const tt=document.createElement("span"); tt.className="t";
+    const bt=document.createElement("b"); bt.textContent=r.label||(t("code")+" "+r.code);
+    const sm=document.createElement("small"); sm.textContent=`${t("seats",{n:r.players,m:r.max})} · ${r.code}`;
+    tt.append(bt,sm); b.append(tt,seats(r.players,r.max)); b.onclick=()=>enter("join",r.code); box.append(b);
+  }
+}
+listRooms(); setInterval(()=>{ if(!room) listRooms(); },10000);
+
+/* ------------------------------------------------------------------ account + cloud save */
+let acct=null, profile={plays:0};
+const PROFILE_GAME=GAME;
+function paintAcct(){
+  const st=$("acctState");
+  if(!live()){ st.textContent=t("acctLocal"); st.className="acct-state off"; return; }
+  if(!acct){ st.textContent=t("acctErr"); st.className="acct-state off"; return; }
+  st.textContent=profile.plays?t("acctPlays",{n:profile.plays}):t("acctLive"); st.className="acct-state";
+}
+function applyProfile(p){
+  if(!p) return; profile={plays:0,...p};
+  if(p.name){ $("name").value=p.name; store.set("arena-name",p.name); }
+  if(p.color!=null){ myColor=p.color; store.set("arena-color",p.color); for(const [i,b] of [...$("swatches").children].entries()) b.setAttribute("aria-pressed",String(i===myColor)); }
+  paintAvatar(); paintAcct();
+}
+async function connectAccount(){
+  acct=null;
+  if(!live()){ try{ applyProfile(JSON.parse(localStorage.getItem("arena-profile"))); }catch{} paintAcct(); return; }
+  try{ acct=await GameNet.account(server()); applyProfile(await acct.load(PROFILE_GAME)); }catch{ acct=null; }
+  paintAcct();
+}
+let saveTimer=0;
+function saveProfile(now){
+  profile={...profile,name:$("name").value.trim().slice(0,20),color:myColor};
+  clearTimeout(saveTimer);
+  const go=()=>{ if(acct) acct.save(PROFILE_GAME,profile).catch(()=>{}); else try{localStorage.setItem("arena-profile",JSON.stringify(profile))}catch{} };
+  now?go():saveTimer=setTimeout(go,800);
+}
+$("name").addEventListener("input",()=>saveProfile());
+$("swatches").addEventListener("click",()=>saveProfile());
+$("makeCode").onclick=async()=>{
+  $("xferIn").hidden=true;
+  if(!live()||!acct){ showErr(t("needServer")); return; }
+  try{ const {code,expires}=await acct.transferCode(); $("xcode").textContent=code;
+    $("xexp").textContent=t("expires",{t:new Date(expires).toLocaleString(LANG==="ar"?"ar-SA":"en-GB",{weekday:"short",hour:"2-digit",minute:"2-digit"})}); $("xferShow").hidden=false; showErr(""); }
+  catch{ showErr(t("acctErr")); }
+};
+$("haveCode").onclick=()=>{ $("xferShow").hidden=true; if(!live()){ showErr(t("needServer")); return; } $("xferIn").hidden=false; $("claim").focus(); };
+$("claimBtn").onclick=async()=>{
+  const c=$("claim").value.trim(); if(!c) return;
+  try{ acct=await GameNet.claim(server(),c); applyProfile(await acct.load(PROFILE_GAME)); $("xferIn").hidden=true; $("claim").value=""; showErr(""); toast(t("claimed")); }
+  catch(e){ showErr(e.status===429?t("slowCode"):t("badCode")); }
+};
+$("claim").addEventListener("keydown",e=>{if(e.key==="Enter")$("claimBtn").click()});
+
+/* ------------------------------------------------------------------ room */
+let room=null;
+const actors=new Map();                       // id -> {x,y,tx,ty,trail:[],say,sayT}
+const me={x:WW/2,y:WH/2,dir:0};
+
+function openRoom(r){
+  room=r; actors.clear();
+  me.x=WW/2+(Math.random()-.5)*200; me.y=WH/2+(Math.random()-.5)*120;
+  for(const p of room.players.values()) if(p.id!==room.id) actors.set(p.id,{x:WW/2,y:WH/2,tx:WW/2,ty:WH/2,trail:[]});
+  $("lobby").hidden=true; $("roomUi").hidden=false; $("roomCode").textContent=room.code;
+  profile.plays=(profile.plays||0)+1; profile.lastRoom=room.code; saveProfile(true);
+  if(room instanceof DemoRoom===false) history.replaceState(null,"","?room="+room.code+(server()?"&server="+encodeURIComponent(server()):""));
+  $("chatlog").replaceChildren(); sys(live()?t("joinedRoom",{c:room.code}):t("demoNote"));
+  room.on("join",p=>{actors.set(p.id,{x:WW/2,y:WH/2,tx:WW/2,ty:WH/2,trail:[]});toast(t("joined",{n:p.name}));sys(t("joined",{n:p.name}));drawPlayers();room.send({x:Math.round(me.x),y:Math.round(me.y)},p.id)});
+  room.on("leave",(id,p,kicked)=>{actors.delete(id);const n=p?p.name:t("player");const msg=t(kicked?"kicked":"left",{n});toast(msg);sys(msg);drawPlayers()});
+  room.on("host",()=>{drawPlayers();if(room.isHost)toast(t("youHost"))});
+  room.on("player",drawPlayers);
+  room.on("msg",(d,from)=>{
+    const a=actors.get(from); if(!a) return;
+    if(typeof d.x==="number"){a.tx=d.x;a.ty=d.y}
+    if(d.chat){ const p=room.players.get(from); say(a,d.chat); addMsg(p,d.chat,false); }
+  });
+  room.on("ping",paintPing);
+  room.on("status",s=>{ $("status").textContent=s==="reconnecting"?t("reconnecting"):""; if(s==="closed") closeRoom(); });
+  room.on("error",e=>{ if(e.code==="kicked") toast(t("youKicked")); });
+  drawPlayers(); paintPing(room.ping); room.send({x:Math.round(me.x),y:Math.round(me.y)});
+  if(innerWidth>860) $("side").classList.remove("closed");
+}
+function closeRoom(){ room=null; actors.clear(); $("lobby").hidden=false; $("roomUi").hidden=true; history.replaceState(null,"",location.pathname+(server()?"?server="+encodeURIComponent(server()):"")); listRooms(); paintAcct(); }
+$("leave").onclick=()=>room&&room.leave();
+$("chatToggle").onclick=()=>$("side").classList.toggle("closed");
+$("copy").onclick=async()=>{ const url=location.origin+location.pathname+"?room="+room.code+(server()?"&server="+encodeURIComponent(server()):"");
+  try{await navigator.clipboard.writeText(url);toast(t("copied"))}catch{toast(t("codeIs",{c:room.code}))} };
+
+function paintPing(ms){ $("ping").textContent=(ms||"--")+" ms"; const good=ms<80?3:ms<160?2:1, col=ms<80?"var(--teal)":ms<160?"var(--amber)":"var(--red)";
+  [...$("bars").children].forEach((b,i)=>b.style.background=i<good?col:""); }
+function drawPlayers(){
+  const ul=$("players"); ul.replaceChildren(); $("pCount").textContent=t("players",{n:room.players.size});
+  const list=[...room.players.values()].sort((a,b)=>(b.id===room.id)-(a.id===room.id));
+  for(const p of list){
+    const li=document.createElement("li"); if(p.id===room.id) li.className="me";
+    const av=document.createElement("span"); av.className="avatar"; av.style.background=colorOf(p); av.textContent=initial(p.name);
+    const n=document.createElement("span"); n.className="n"; n.textContent=p.name+(p.id===room.id?t("you"):"");
+    li.append(av,n);
+    if(p.id===room.host){const t=document.createElement("span");t.className="tag";t.textContent=I18N[LANG].host;li.append(t)}
+    if(room.isHost&&p.id!==room.id){const k=document.createElement("button");k.className="kick";k.textContent=t("kick");k.onclick=()=>room.kick(p.id);li.append(k)}
+    ul.append(li);
+  }
+}
+function addMsg(p,text,mine){ const m=document.createElement("div"); m.className="msg"+(mine?" mine":"");
+  const b=document.createElement("b"); b.textContent=p?p.name:"؟"; b.style.color=colorOf(p);
+  const s=document.createElement("span"); s.textContent=text; m.append(b,s); $("chatlog").append(m); $("chatlog").scrollTop=1e9; }
+function sys(text){ const m=document.createElement("div"); m.className="msg sys"; m.textContent=text; $("chatlog").append(m); $("chatlog").scrollTop=1e9; }
+function toast(t){ const d=document.createElement("div"); d.className="toast"; d.textContent=t; $("toasts").append(d); setTimeout(()=>d.remove(),2600); while($("toasts").children.length>3)$("toasts").firstChild.remove(); }
+function say(a,t){ a.say=t; a.sayT=3.5; }
+$("chatForm").onsubmit=e=>{ e.preventDefault(); const t=$("chat").value.trim(); if(!t||!room) return; room.send({chat:t}); addMsg(room.me,t,true); say(me,t); $("chat").value=""; };
+addEventListener("keydown",e=>{ if(!room) return; if(e.key==="Enter"&&document.activeElement!==$("chat")){ e.preventDefault(); $("side").classList.remove("closed"); $("chat").focus(); } if(e.key==="Escape") $("chat").blur(); });
+
+/* ------------------------------------------------------------------ arena renderer */
+const cv=$("arena"), cx=cv.getContext("2d"); let W=0,H=0,S=1,OX=0,OY=0,DPR=1;
+function fit(){ DPR=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR;
+  const pad= W>860 && room ? 340 : 0;                 // keep the arena clear of the side panel on desktop
+  S=Math.min((W-pad-32)/WW,(H-110)/WH); OX=(W-pad-WW*S)/2+(document.documentElement.dir==="rtl"?0:pad); OY=70+(H-90-WH*S)/2; }
+addEventListener("resize",fit); fit();
+const keys=new Set();
+addEventListener("keydown",e=>{ if(document.activeElement&&document.activeElement.tagName==="INPUT") return; keys.add(e.key.toLowerCase()); if(e.key.startsWith("Arrow")&&room) e.preventDefault(); });
+addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+let finger=null;
+cv.addEventListener("pointerdown",e=>{ if(room){finger=e;cv.setPointerCapture(e.pointerId)} });
+cv.addEventListener("pointermove",e=>{ if(finger) finger=e; });
+cv.addEventListener("pointerup",()=>finger=null); cv.addEventListener("pointercancel",()=>finger=null);
+
+function rr(x,y,w,h,r){ cx.beginPath(); cx.moveTo(x+r,y); cx.arcTo(x+w,y,x+w,y+h,r); cx.arcTo(x+w,y+h,x,y+h,r); cx.arcTo(x,y+h,x,y,r); cx.arcTo(x,y,x+w,y,r); cx.closePath(); }
+function crown(x,y,s){ cx.beginPath(); cx.moveTo(x-6*s,y+3*s); cx.lineTo(x-6*s,y-3*s); cx.lineTo(x-3*s,y); cx.lineTo(x,y-5*s); cx.lineTo(x+3*s,y); cx.lineTo(x+6*s,y-3*s); cx.lineTo(x+6*s,y+3*s); cx.closePath(); cx.fillStyle="#ffb547"; cx.fill(); }
+function drawFloor(t){
+  cx.save(); rr(0,0,WW,WH,28);
+  const g=cx.createRadialGradient(WW/2,WH/2,60,WW/2,WH/2,WW*.7); g.addColorStop(0,"#1a222c"); g.addColorStop(1,"#11161c");
+  cx.fillStyle=g; cx.fill(); cx.clip();
+  cx.strokeStyle="rgba(255,255,255,.035)"; cx.lineWidth=1;
+  for(let x=40;x<WW;x+=40){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,WH);cx.stroke()}
+  for(let y=40;y<WH;y+=40){cx.beginPath();cx.moveTo(0,y);cx.lineTo(WW,y);cx.stroke()}
+  cx.strokeStyle="rgba(255,181,71,.10)"; cx.lineWidth=3; cx.beginPath(); cx.arc(WW/2,WH/2,120+Math.sin(t*.8)*3,0,7); cx.stroke();
+  cx.beginPath(); cx.moveTo(WW/2,0); cx.lineTo(WW/2,WH); cx.strokeStyle="rgba(255,181,71,.06)"; cx.stroke();
+  cx.restore();
+  rr(0,0,WW,WH,28); cx.strokeStyle="rgba(255,255,255,.10)"; cx.lineWidth=2; cx.stroke();
+}
+function drawActor(a,p,mine,t){
+  const col=colorOf(p), R=18;
+  for(let i=0;i<a.trail.length;i++){ const q=a.trail[i]; cx.fillStyle=col; cx.globalAlpha=(i/a.trail.length)*.18; cx.beginPath(); cx.arc(q[0],q[1],R*(.35+.4*i/a.trail.length),0,7); cx.fill(); }
+  cx.globalAlpha=1;
+  cx.fillStyle="rgba(0,0,0,.4)"; cx.beginPath(); cx.ellipse(a.x,a.y+R*.85,R*.95,R*.35,0,0,7); cx.fill();
+  const g=cx.createRadialGradient(a.x-R*.35,a.y-R*.45,2,a.x,a.y,R); g.addColorStop(0,"#ffffff"); g.addColorStop(.18,col); g.addColorStop(1,col);
+  cx.fillStyle=g; cx.beginPath(); cx.arc(a.x,a.y,R,0,7); cx.fill();
+  if(mine){ cx.strokeStyle="#fff"; cx.lineWidth=3; cx.stroke(); cx.strokeStyle="rgba(255,255,255,.25)"; cx.lineWidth=2; cx.beginPath(); cx.arc(a.x,a.y,R+7+Math.sin(t*4)*1.5,0,7); cx.stroke(); }
+  cx.fillStyle="rgba(15,18,23,.85)"; cx.font="700 17px 'Reem Kufi',sans-serif"; cx.textAlign="center"; cx.textBaseline="middle"; cx.fillText(initial(p&&p.name),a.x,a.y+1);
+  // name tag
+  const name=(p&&p.name)||""; cx.font="600 14px 'IBM Plex Sans Arabic',sans-serif"; const host=room&&p&&p.id===room.host;
+  const tw=cx.measureText(name).width+(host?18:0)+16, ty=a.y-R-22;
+  rr(a.x-tw/2,ty-11,tw,22,11); cx.fillStyle="rgba(13,16,21,.85)"; cx.fill();
+  cx.fillStyle="#eef2f5"; cx.fillText(name,a.x+(host?-9:0),ty+1);
+  if(host) crown(a.x+tw/2-14,ty,1);
+  // speech bubble
+  if(a.say&&a.sayT>0){ cx.globalAlpha=Math.min(1,a.sayT); cx.font="500 14px 'IBM Plex Sans Arabic',sans-serif";
+    const bw=Math.min(240,cx.measureText(a.say).width+22), by=ty-38;
+    rr(a.x-bw/2,by-14,bw,28,10); cx.fillStyle="#eef2f5"; cx.fill();
+    cx.beginPath(); cx.moveTo(a.x-6,by+13); cx.lineTo(a.x,by+20); cx.lineTo(a.x+6,by+13); cx.fill();
+    cx.fillStyle="#14181e"; cx.fillText(a.say.length>34?a.say.slice(0,33)+"…":a.say,a.x,by+1); cx.globalAlpha=1; }
+}
+let last=performance.now(), sendT=0, lastSent="";
+const lobbyBots=[0,1,2,3,4].map(i=>({x:150+i*170,y:200+(i%2)*200,tx:500,ty:320,next:0,c:[0,3,4,6,1][i],trail:[],name:t("lobbyBots")[i]}));
+function frame(t){
+  const dt=Math.min(.05,(t-last)/1000); last=t; const ts=t/1000;
+  fit();
+  cx.setTransform(DPR,0,0,DPR,0,0); cx.fillStyle="#0d1015"; cx.fillRect(0,0,W,H);
+  cx.translate(OX,OY); cx.scale(S,S); drawFloor(ts);
+  if(!room){            // lobby: bots wander behind the card
+    for(const b of lobbyBots){ if((b.next-=dt)<=0){b.tx=80+Math.random()*(WW-160);b.ty=80+Math.random()*(WH-160);b.next=2+Math.random()*3}
+      const dx=b.tx-b.x,dy=b.ty-b.y,l=Math.hypot(dx,dy); if(l>3){b.x+=dx/l*Math.min(l,120*dt);b.y+=dy/l*Math.min(l,120*dt)}
+      b.trail.push([b.x,b.y]); if(b.trail.length>12)b.trail.shift(); drawActor(b,{name:b.name,d:{c:b.c}},false,ts); }
+  } else {
+    let ax=(keys.has("d")||keys.has("arrowright")?1:0)-(keys.has("a")||keys.has("arrowleft")?1:0);
+    let ay=(keys.has("s")||keys.has("arrowdown")?1:0)-(keys.has("w")||keys.has("arrowup")?1:0);
+    if(finger){ const fx=(finger.clientX-OX)/S, fy=(finger.clientY-OY)/S, dx=fx-me.x, dy=fy-me.y, l=Math.hypot(dx,dy); if(l>8){ax=dx/l;ay=dy/l}
+      cx.strokeStyle="rgba(255,181,71,.5)"; cx.lineWidth=2; cx.setLineDash([6,6]); cx.beginPath(); cx.moveTo(me.x,me.y); cx.lineTo(fx,fy); cx.stroke(); cx.setLineDash([]); }
+    const l=Math.hypot(ax,ay)||1; me.x=Math.max(22,Math.min(WW-22,me.x+ax/l*300*dt)); me.y=Math.max(22,Math.min(WH-22,me.y+ay/l*300*dt));
+    if(!me.trail) me.trail=[]; me.trail.push([me.x,me.y]); if(me.trail.length>12) me.trail.shift();
+    sendT+=dt; if(sendT>1/15){ sendT=0; const s=Math.round(me.x)+","+Math.round(me.y); if(s!==lastSent){ lastSent=s; room.send({x:Math.round(me.x),y:Math.round(me.y)}); } }
+    const k=1-Math.pow(.0008,dt);
+    for(const [id,a] of actors){ a.x+=(a.tx-a.x)*k; a.y+=(a.ty-a.y)*k; a.trail.push([a.x,a.y]); if(a.trail.length>12)a.trail.shift(); if(a.sayT>0)a.sayT-=dt; drawActor(a,room.players.get(id),false,ts); }
+    if(me.sayT>0) me.sayT-=dt;
+    drawActor(me,room.me,true,ts);
+  }
+  requestAnimationFrame(frame);
+}
+$("langLobby").onclick=$("langRoom").onclick=()=>setLang(LANG==="ar"?"en":"ar");
+applyLang(); paintMode(); listRooms(); connectAccount();
+requestAnimationFrame(frame);
+if(params.get("room")&&$("name").value) $("join").click();
+else if(params.get("room")) { $("name").focus(); showErr(t("nameThenJoin")); }
+})();
+</script>
+</body>
+</html>
