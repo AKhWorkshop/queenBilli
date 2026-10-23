@@ -1,0 +1,4 @@
+All sounds here are CC0 (public domain).
+wind, birds, crickets, stream: Freesound recordings by felix.blume (wind 711106, birds 414098, crickets 476672) and IceVFX (stream 722875), cut as loops by funcoder/omarchy-ambient.
+car, moto, skid, impact: Kenney Starter Kit Racing (skid by Landeplage).
+ui-*: uisfx 0.4.0, "soft" pack.
