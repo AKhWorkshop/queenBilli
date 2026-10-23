@@ -32,6 +32,8 @@ new_sqlite_classes = ["Account", "Codes"]
 # Who may connect. "*" = any site. For more safety put your sites, comma separated:
 # ALLOWED_ORIGINS = "https://yourname.github.io,http://localhost:8000"
 ALLOWED_ORIGINS = "*"
+# the repository the admin saves to (the key itself, GITHUB_TOKEN, stays a Secret in Cloudflare)
+GITHUB_REPO = "AKhWorkshop/queenBilli"
 
 # Game files (public/<game>/) are served by this same Worker; any path that
 # is not a file goes to src/index.js (rooms, accounts, saves).

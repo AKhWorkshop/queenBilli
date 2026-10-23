@@ -34,7 +34,7 @@
 // =====================================================================
 import { DurableObject } from "cloudflare:workers";
 
-const VERSION = "2.1.0";
+const VERSION = "2.3.0";
 const ADMIN_ID = "aadmin0000000000";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I
 const LIMITS = {
@@ -265,7 +265,7 @@ export class Account extends DurableObject {
 }
 
 // one for everybody: transfer codes and wrong-guess counters
-const SITE_DEFAULT = { title: "ألعابي", title_en: "My games", accent: "#e0559a", bg: "#0e0b14", card: "#1a1524",
+const SITE_DEFAULT = { title: "ألعابي", title_en: "My games", accent: "#2446F5", bg: "#F4F2ED", card: "#FFFFFF",
   games: [{ id: "billi", name: "الملكة بيلي", name_en: "Queen Billi", desc: "قصة وقتال", desc_en: "Story and fighting", path: "billi/", online: true }] };
 export class Codes extends DurableObject {
   async userGet(u) { return (await this.ctx.storage.get("u:" + u)) || null; }
@@ -339,6 +339,7 @@ export class Room extends DurableObject {
     const { 0: client, 1: server } = new WebSocketPair();
     const fail = (code, msg) => { server.accept(); this.send(server, { t: "error", code, m: msg }); server.close(4000, code); return new Response(null, { status: 101, webSocket: client }); };
 
+    if (!this.meta && q.get("exist") === "1") return fail("noroom", "room not found");   // joining by a typed code: never make a new room from it
     if (!this.meta) {
       this.meta = { game: req.headers.get("X-Game"), code: req.headers.get("X-Code"), created: Date.now(), host: null,
         max: Math.min(LIMITS.maxPlayers, Math.max(2, +q.get("max") || 8)), public: q.get("public") === "1",

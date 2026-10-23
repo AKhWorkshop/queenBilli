@@ -61,7 +61,7 @@
       const o = this.opts, q = new URLSearchParams({ name: o.name || "Player" });
       if (o.data != null) q.set("data", JSON.stringify(o.data));
       if (o.max) q.set("max", o.max); if (o.public) q.set("public", "1");
-      if (o.label) q.set("label", o.label); if (o.stateBy) q.set("stateBy", o.stateBy);
+      if (o.label) q.set("label", o.label); if (o.stateBy) q.set("stateBy", o.stateBy); if (o.exist && !this.id) q.set("exist", "1");
       if (this.token) q.set("token", this.token);
       return `${ws(o.server)}/room/${encodeURIComponent(o.game)}/${this.code}?${q}`;
     }
@@ -207,12 +207,12 @@
       if (!opts.server || !opts.game) throw new Error("server and game are required");
       if (!/^[a-z0-9_-]{1,32}$/i.test(opts.game)) throw new Error("game name: letters, numbers, - and _ only (max 32)");
       const code = (opts.code || (await GameNet.newCode(opts.server, opts.game))).toUpperCase();
-      return new Room({ ...opts, code })._connect();
+      return new Room({ ...opts, code, exist: !!opts.code && !opts.create })._connect();   // a typed code must name a room that is already open
     },
     /** Join any public room with space, or open a new public one. */
     async quick(opts) {
       const { code } = await getJSON(`${http(opts.server)}/quick/${encodeURIComponent(opts.game)}?max=${opts.max || 8}`);
-      return GameNet.join({ ...opts, code, public: true });
+      return GameNet.join({ ...opts, code, public: true, create: true });
     },
     async newCode(server, game) { return (await getJSON(`${http(server)}/new/${encodeURIComponent(game)}`)).code; },
     async list(server, game) { return (await getJSON(`${http(server)}/lobby/${encodeURIComponent(game)}`)).rooms; },
