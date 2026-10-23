@@ -160,6 +160,12 @@
       const r = await this._c("/save/" + game, { method: "PUT", body });
       this._ver = { ...this._ver, [game]: r.v }; return r;
     }
+    get user() { return this.cred.user || ""; }
+    get admin() { return !!this.cred.admin; }
+    changePassword(old, pass) { return this._c("/auth/password", { method: "POST", body: { old, pass } }); }
+    setSite(site) { return this._c("/site", { method: "PUT", body: site }); }
+    /** admin: one commit to the game's GitHub repo. files: [{path:"public/...", b64 | text | del:true}] */
+    commit(files, message) { return this._c("/admin/commit", { method: "POST", body: { files, message } }); }
     remove(game) { store.del("gamenet-save:" + game); return this._c("/save/" + game, { method: "DELETE" }); }
     /** A one-time code to open this account on another device. {code, expires} */
     transferCode() { return this._c("/transfer", { method: "POST" }); }
@@ -170,7 +176,14 @@
   }
 
   const GameNet = {
-    version: "1.1.0",
+    version: "2.0.0",
+    /** Sign in with a name and password (2.0). The account is remembered on this device. */
+    async login(server, user, pass) { const cred = await call(server, "/auth/login", { method: "POST", body: { user, pass } }); store.set(keyFor(server), cred); return new Account(server, cred); },
+    async register(server, user, pass) { const cred = await call(server, "/auth/register", { method: "POST", body: { user, pass } }); store.set(keyFor(server), cred); return new Account(server, cred); },
+    /** The signed-in account on this device, or null (never makes a new one). */
+    signedIn(server) { const cred = store.get(keyFor(server)); return cred && cred.user ? new Account(server, cred) : null; },
+    signOut(server) { store.del(keyFor(server)); },
+    site(server) { return call(server, "/site"); },
     /** This device's account on that server; created the first time. */
     async account(server) {
       let cred = store.get(keyFor(server));

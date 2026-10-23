@@ -123,3 +123,19 @@ ALLOWED_ORIGINS = "https://اسمك.github.io"
 npx wrangler dev
 ```
 السيرفر يشتغل على `http://127.0.0.1:8787`، والاختبار: `node test/test.mjs` و `node test/accounts.mjs`
+
+## 2.0 — الحسابات والأدمن (22 أكتوبر)
+- الحساب: اسم وباسورد بس (`/auth/register`, `/auth/login`). الحسابات القديمة اللي بدون اسم تكمل تشتغل للحفظ.
+- حساب **admin**: الدخول بالاسم `admin` وباسورد = السر `ADMIN_PASS`.
+- الأدمن يعدل شكل الموقع وقائمة الألعاب من الصفحة الرئيسية، ويعدل داخل بيلي (الملابس، صور الحوار، صور القائمة) من «لوحة الأدمن» بقائمة اللعبة.
+- «احفظ للكل» يسوي commit على GitHub عن طريق السيرفر (`/admin/commit`)، وكلاودفلير يبني الموقع من جديد لحاله.
+
+### الأسرار (مرة وحدة) — Cloudflare → Workers → game-rooms → Settings → Variables and Secrets → Add → Secret
+| الاسم | القيمة |
+|---|---|
+| `ADMIN_PASS` | باسورد الأدمن (قوي) |
+| `GITHUB_TOKEN` | توكن GitHub (Fine-grained: الريبو queenBilli بس، صلاحية Contents: Read and write) |
+| `GITHUB_REPO` | `AKhWorkshop/queenBilli` |
+| `GITHUB_BRANCH` | (اختياري) اسم الفرع، الافتراضي فرع الريبو الأساسي |
+
+ملفات الأدمن تنحفظ في `public/billi/admin/` — لا تحذف هالمجلد لما ترفع نسخة جديدة.

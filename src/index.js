@@ -21,10 +21,21 @@
 //    POST   /transfer              a one-time code, valid 24 h              (auth)
 //    POST   /transfer/claim        {code} → {id, token} on this device
 //  auth = header  Authorization: Bearer <id>.<token>
+//
+//  2.0: a name and a simple password (no e-mail)
+//    POST   /auth/register         {user, pass} → {id, token, user}
+//    POST   /auth/login            {user, pass} → {id, token, user, admin}
+//    POST   /auth/password         {old, pass}                               (auth)
+//  the account called "admin" signs in with the secret ADMIN_PASS (npx wrangler secret put ADMIN_PASS)
+//    GET    /site                  the site's look and its list of games (public)
+//    PUT    /site                  {title, accent, bg, games:[{id,name,desc,path,online}]}   (admin)
+//    POST   /admin/commit          {message, files:[{path, b64 | text | del}]} → one commit on GitHub (admin)
+//                                  needs the secrets GITHUB_TOKEN and GITHUB_REPO ("owner/repo"); only paths under public/
 // =====================================================================
 import { DurableObject } from "cloudflare:workers";
 
-const VERSION = "1.1.0";
+const VERSION = "2.0.0";
+const ADMIN_ID = "aadmin0000000000";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I
 const LIMITS = {
   messageBytes: 16 * 1024,      // biggest single message
@@ -65,7 +76,7 @@ export default {
 
     const [route, game, codeRaw] = url.pathname.split("/").filter(Boolean);
     if (!route) return json({ ok: true, service: "game-rooms", version: VERSION }, headers);
-    if (route === "account" || route === "save" || route === "transfer") {
+    if (route === "account" || route === "save" || route === "transfer" || route === "auth" || route === "site" || route === "admin") {
       try { return await accountRoutes(req, env, url, route, game, headers); }
       catch (e) { return json({ error: e.message || "server error" }, headers, e.status || 500); }
     }
@@ -116,6 +127,35 @@ async function newDevice(acc, id) {
   const token = rand36(32); await acc.addToken(await sha(token)); return { id, token };
 }
 
+// passwords: PBKDF2-SHA256, 100 000 rounds, a salt per user
+async function pbk(pass, salt) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveBits"]);
+  const b = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, k, 256);
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+async function same(a, b) { const [x, y] = await Promise.all([sha(a), sha(b)]); let d = 0; for (let i = 0; i < x.length; i++) d |= x.charCodeAt(i) ^ y.charCodeAt(i); return d === 0; }
+// one commit with every file (GitHub's git data API); the site rebuilds itself from the repo
+async function ghCommit(env, files, message) {
+  if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) throw fail(503, "GITHUB_TOKEN / GITHUB_REPO secrets are not set");
+  if (!files.length || files.length > 50) throw fail(400, "1 to 50 files");
+  for (const f of files) if (!/^public\/[\w\-./]+$/.test(f.path || "") || f.path.includes("..")) throw fail(400, "bad path " + f.path);
+  const H = { authorization: "Bearer " + env.GITHUB_TOKEN, "user-agent": "game-rooms", accept: "application/vnd.github+json", "content-type": "application/json" };
+  const gh = async (p, o = {}) => { const r = await fetch("https://api.github.com/repos/" + env.GITHUB_REPO + p, { ...o, headers: H, body: o.body && JSON.stringify(o.body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw fail(502, "GitHub: " + (j.message || r.status)); return j; };
+  const branch = env.GITHUB_BRANCH || (await gh("")).default_branch || "main";
+  const ref = await gh("/git/ref/heads/" + branch), head = ref.object.sha, base = (await gh("/git/commits/" + head)).tree.sha;
+  const tree = [];
+  for (const f of files) {
+    if (f.del) { tree.push({ path: f.path, mode: "100644", type: "blob", sha: null }); continue; }
+    const content = f.b64 != null ? String(f.b64) : btoa(unescape(encodeURIComponent(String(f.text ?? ""))));
+    const blob = await gh("/git/blobs", { method: "POST", body: { content, encoding: "base64" } });
+    tree.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+  }
+  const t = await gh("/git/trees", { method: "POST", body: { base_tree: base, tree } });
+  const c = await gh("/git/commits", { method: "POST", body: { message: String(message).slice(0, 200), tree: t.sha, parents: [head] } });
+  await gh("/git/refs/heads/" + branch, { method: "PATCH", body: { sha: c.sha } });
+  return { ok: true, commit: c.sha, files: files.length };
+}
+
 async function accountRoutes(req, env, url, route, sub, headers) {
   const M = req.method;
   if (route === "account" && !sub && M === "POST") {
@@ -131,9 +171,50 @@ async function accountRoutes(req, env, url, route, sub, headers) {
     if (r.error) throw fail(404, "wrong or expired code");
     return json(await newDevice(accountStub(env, r.a), r.a), headers);
   }
+  if (route === "auth" && (sub === "register" || sub === "login") && M === "POST") {
+    const { user, pass } = await readJSON(req, 1000);
+    const u = String(user || "").trim().toLowerCase(), pw = String(pass || "");
+    const ip = req.headers.get("CF-Connecting-IP") || "local";
+    if (!(await codesStub(env).tryIp("login:" + ip, 30))) throw fail(429, "too many tries, wait an hour");
+    if (u === "admin") {
+      if (sub === "register") throw fail(409, "name taken");
+      if (!env.ADMIN_PASS || !(await same(pw, env.ADMIN_PASS))) throw fail(401, "wrong name or password");
+      const acc = accountStub(env, ADMIN_ID); await acc.ensure("admin");
+      return json({ ...(await newDevice(acc, ADMIN_ID)), user: "admin", admin: true }, headers);
+    }
+    if (!/^[\p{L}\p{N}_.-]{3,20}$/u.test(u)) throw fail(400, "name: 3-20 letters or numbers");
+    const C = codesStub(env), rec = await C.userGet(u);
+    if (sub === "register") {
+      if (pw.length < 4 || pw.length > 100) throw fail(400, "password: at least 4 characters");
+      if (rec) throw fail(409, "name taken");
+      const id = "a" + rand36(15), acc = accountStub(env, id), salt = rand36(16);
+      await acc.create(); await acc.setName(u);
+      if (!(await C.userSet(u, { a: id, s: salt, h: await pbk(pw, salt) }, true))) throw fail(409, "name taken");
+      return json({ ...(await newDevice(acc, id)), user: u }, headers, 201);
+    }
+    if (!rec || rec.h !== (await pbk(pw, rec.s))) throw fail(401, "wrong name or password");
+    return json({ ...(await newDevice(accountStub(env, rec.a), rec.a)), user: u, admin: false }, headers);
+  }
+  if (route === "site" && M === "GET") return json(await codesStub(env).site(), headers);
   const me = await auth(req, env);
+  const isAdmin = me.id === ADMIN_ID;
+  if (route === "auth" && sub === "password" && M === "POST") {
+    if (isAdmin) throw fail(400, "the admin password is the ADMIN_PASS secret");
+    const { old, pass } = await readJSON(req, 1000), name = (await me.acc.info()).name, C = codesStub(env), rec = await C.userGet(name);
+    if (!rec || rec.a !== me.id || rec.h !== (await pbk(String(old || ""), rec.s))) throw fail(401, "wrong password");
+    if (String(pass || "").length < 4) throw fail(400, "password: at least 4 characters");
+    const salt = rand36(16); await C.userSet(name, { a: me.id, s: salt, h: await pbk(String(pass), salt) }); return json({ ok: true }, headers);
+  }
+  if (route === "site" && M === "PUT") {
+    if (!isAdmin) throw fail(403, "admin only");
+    const b = await readJSON(req, 64 * 1024); return json(await codesStub(env).setSite(b), headers);
+  }
+  if (route === "admin" && sub === "commit" && M === "POST") {
+    if (!isAdmin) throw fail(403, "admin only");
+    const b = await readJSON(req, 60 * 1024 * 1024); return json(await ghCommit(env, b.files || [], b.message || "admin edit"), headers);
+  }
   if (route === "account") {
-    if (!sub && M === "GET") return json({ id: me.id, ...(await me.acc.info()) }, headers);
+    if (!sub && M === "GET") return json({ id: me.id, admin: isAdmin, ...(await me.acc.info()) }, headers);
     if (!sub && M === "PUT") { const { name } = await readJSON(req, 500); await me.acc.setName(cleanName(name)); return json({ ok: true }, headers); }
     if (sub === "reset" && M === "POST") { await me.acc.reset(me.hash); return json({ ok: true }, headers); }
   }
@@ -162,6 +243,7 @@ export class Account extends DurableObject {
     this._m = { created: Date.now(), name: "", tokens: [], games: {} };
     await this.ctx.storage.put("meta", this._m);
   }
+  async ensure(name) { if (!(await this.meta())) { this._m = { created: Date.now(), name, tokens: [], games: {} }; await this.ctx.storage.put("meta", this._m); } }
   async check(hash) { const m = await this.meta(); return !!m && m.tokens.some(t => t.h === hash); }
   async addToken(hash) {
     const m = await this.meta(); m.tokens.push({ h: hash, at: Date.now() });
@@ -183,7 +265,20 @@ export class Account extends DurableObject {
 }
 
 // one for everybody: transfer codes and wrong-guess counters
+const SITE_DEFAULT = { title: "ألعابي", accent: "#e0559a", bg: "#0e0b14", card: "#1a1524",
+  games: [{ id: "billi", name: "الملكة بيلي", desc: "قصة وقتال", path: "billi/", online: false }] };
 export class Codes extends DurableObject {
+  async userGet(u) { return (await this.ctx.storage.get("u:" + u)) || null; }
+  async userSet(u, rec, onlyNew) { if (onlyNew && (await this.ctx.storage.get("u:" + u))) return false; await this.ctx.storage.put("u:" + u, rec); return true; }
+  async site() { return (await this.ctx.storage.get("site")) || SITE_DEFAULT; }
+  async setSite(b) {
+    const col = c => /^#[0-9a-f]{6}$/i.test(c || "") ? c : null, cur = await this.site();
+    const games = Array.isArray(b.games) ? b.games.slice(0, 50).map(g => ({ id: String(g.id || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 32), name: String(g.name || "").slice(0, 60),
+      desc: String(g.desc || "").slice(0, 120), path: String(g.path || "").replace(/[^\w\-./]/g, "").slice(0, 80), online: !!g.online, img: String(g.img || "").slice(0, 200) })).filter(g => g.id) : cur.games;
+    const s = { title: String(b.title ?? cur.title).slice(0, 60), accent: col(b.accent) || cur.accent, bg: col(b.bg) || cur.bg, card: col(b.card) || cur.card || SITE_DEFAULT.card, games };
+    await this.ctx.storage.put("site", s); return s;
+  }
+  async tryIp(k, max) { const now = Date.now(); let t = await this.ctx.storage.get("ip:" + k); if (!t || t.until < now) t = { n: 0, until: now + 3600_000 }; if (t.n >= max) return false; t.n++; await this.ctx.storage.put("ip:" + k, t); return true; }
   async create(accountId) {
     const old = await this.ctx.storage.get("a:" + accountId);
     if (old) await this.ctx.storage.delete("c:" + old);

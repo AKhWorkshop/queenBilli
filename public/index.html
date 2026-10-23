@@ -8,54 +8,137 @@
 :root{--bg:#0e0b14;--card:#1a1524;--line:#2e2640;--tx:#f1ecf8;--mut:#a397b8;--acc:#e0559a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;min-height:100dvh}
-main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
-h1{font-size:28px;margin:8px 0 20px}
-h2{font-size:18px;margin:0 0 12px}
-.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px}
-.game{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;color:inherit;text-decoration:none}
-.game:hover{border-color:var(--acc)}
-.game b{font-size:20px;display:block}
-.game span{color:var(--mut);font-size:14px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 56px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 18px;flex-wrap:wrap}
+h1{font-size:28px;margin:0}
+h2{font-size:18px;margin:0 0 10px}
+.who{color:var(--mut);font-size:14px;display:flex;gap:8px;align-items:center}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:22px}
+.game{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.game b{font-size:20px}
+.game span{color:var(--mut);font-size:14px;flex:1}
+.game .row{margin-top:6px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
-input{flex:1;min-width:140px;background:#0b0911;border:1px solid var(--line);border-radius:10px;color:var(--tx);padding:10px 12px;font:inherit}
-button{background:var(--acc);border:0;border-radius:10px;color:#fff;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
-button.sec{background:#2e2640}
+input,select{flex:1;min-width:120px;background:#0b0911;border:1px solid var(--line);border-radius:10px;color:var(--tx);padding:10px 12px;font:inherit}
+input[type=color]{flex:0 0 52px;min-width:52px;height:42px;padding:3px}
+button,a.btn{background:var(--acc);border:0;border-radius:10px;color:#fff;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+button.sec,a.sec{background:#2e2640}
+button.sm{padding:6px 10px;font-size:14px}
 .mut{color:var(--mut);font-size:14px}
-.code{font:700 22px/1 ui-monospace,monospace;letter-spacing:2px;direction:ltr;display:inline-block}
+.err{color:#ffb08a;font-size:14px;min-height:1.2em}
+.code{font:700 24px/1 ui-monospace,monospace;letter-spacing:3px;direction:ltr;display:inline-block}
+.list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0b0911;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+#chat{height:180px;overflow:auto;background:#0b0911;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:14px}
+#chat div b{color:var(--acc)}
+.grow{flex:1}
+.ge{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#0b0911;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px}
+.ge input{min-width:0}
+.ge label{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--mut)}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main>
-<h1>ألعابي</h1>
-<div class="games">
-  <a class="game" href="billi/"><b>الملكة بيلي</b><span>قصة وقتال</span></a>
+<header><h1 id="title">ألعابي</h1><div class="who" id="who" hidden><span id="whoName"></span><button class="sec sm" id="out">تسجيل خروج</button></div></header>
+
+<!-- sign in -->
+<div class="box" id="signBox" hidden>
+  <h2>ادخل حسابك</h2>
+  <div class="mut">اسم وباسورد بس. ما نحتاج إيميل.</div>
+  <div class="row"><input id="u" maxlength="20" placeholder="الاسم" autocomplete="username" dir="auto"><input id="p" type="password" maxlength="100" placeholder="الباسورد" autocomplete="current-password"></div>
+  <div class="row"><button id="login">دخول</button><button class="sec" id="reg">حساب جديد</button></div>
+  <div class="err" id="signErr"></div>
 </div>
 
-<div class="box">
-  <h2>حسابي</h2>
-  <div class="mut" id="st">جاري التحميل…</div>
-  <div class="row"><input id="nm" maxlength="24" placeholder="اسمك"><button id="sv">حفظ الاسم</button></div>
-</div>
+<!-- games -->
+<div id="home" hidden>
+  <div class="games" id="games"></div>
 
-<div class="box">
-  <h2>نقل الحساب لجهاز ثاني</h2>
-  <div class="mut">اطلع كود من هذا الجهاز واكتبه في الجهاز الثاني. الكود يشتغل مرة وحدة خلال 24 ساعة.</div>
-  <div class="row"><button class="sec" id="mk">اطلع كود</button><span class="code" id="cd"></span></div>
-  <div class="row"><input id="cl" placeholder="اكتب الكود هنا" dir="ltr"><button id="go">ادخل بالكود</button></div>
+  <div class="box" id="roomsBox">
+    <h2>الغرف</h2>
+    <div class="mut">سوّ غرفة وأعط رقمها لأصحابك، أو ادخل غرفة برقمها.</div>
+    <div class="row"><select id="rg"></select><button id="mkRoom">غرفة جديدة</button></div>
+    <div class="row"><input id="rc" maxlength="12" placeholder="رقم الغرفة" dir="ltr"><button class="sec" id="joinRoom">ادخل</button></div>
+    <div class="err" id="roomErr"></div>
+    <div class="mut" style="margin-top:10px">الغرف العامة:</div><div class="list" id="pub"></div>
+  </div>
+
+  <div class="box" id="roomView" hidden>
+    <div class="row" style="margin-top:0"><h2 class="grow" style="margin:0">غرفة <span class="code" id="rvCode"></span></h2><a class="btn" id="rvPlay">افتح اللعبة</a><button class="sec" id="rvLeave">اطلع</button></div>
+    <div class="mut" id="rvInfo"></div>
+    <div class="list" id="rvPlayers"></div>
+    <div id="chat" style="margin-top:10px"></div>
+    <div class="row"><input id="msg" maxlength="300" placeholder="اكتب رسالة" dir="auto"><button id="send">أرسل</button></div>
+  </div>
+
+  <div class="box">
+    <h2>حسابي</h2>
+    <div class="row"><input id="op" type="password" placeholder="الباسورد الحالي"><input id="np" type="password" placeholder="الباسورد الجديد"><button class="sec" id="chg">غيّر الباسورد</button></div>
+    <div class="err" id="accErr"></div>
+  </div>
+
+  <!-- admin -->
+  <div class="box" id="adminBox" hidden>
+    <h2>لوحة الأدمن · الموقع</h2>
+    <div class="row"><input id="aTitle" maxlength="60" placeholder="اسم الموقع" dir="auto"></div>
+    <div class="row"><label class="mut">اللون الأساسي</label><input type="color" id="aAcc"><label class="mut">الخلفية</label><input type="color" id="aBg"><label class="mut">البطاقات</label><input type="color" id="aCard"></div>
+    <div class="mut" style="margin-top:12px">الألعاب:</div><div id="aGames"></div>
+    <div class="row"><button class="sec" id="aAdd">+ لعبة</button><button id="aSave">احفظ الموقع</button></div>
+    <div class="err" id="aErr"></div>
+    <div class="mut">تعديلات داخل اللعبة (ملابس بيلي، صور الشخصيات) من داخل اللعبة نفسها: قائمة اللعبة ← «لوحة الأدمن». تنحفظ على GitHub والموقع يتحدث خلال دقيقة أو دقيقتين.</div>
+  </div>
 </div>
 </main>
 <script src="net.js"></script>
 <script>
-const S=location.origin,$=id=>document.getElementById(id);let acc;
-async function load(){
-  try{acc=await GameNet.account(S);const i=await acc.info();$('nm').value=i.name||'';$('st').textContent='حسابك جاهز على هذا الجهاز.'}
-  catch(e){$('st').textContent='ما قدرت أوصل للسيرفر: '+e.message}
-}
-$('sv').onclick=async()=>{try{await acc.setName($('nm').value.trim());$('st').textContent='تم حفظ الاسم.'}catch(e){$('st').textContent=e.message}};
-$('mk').onclick=async()=>{try{const r=await acc.transferCode();$('cd').textContent=r.code}catch(e){$('cd').textContent=e.message}};
-$('go').onclick=async()=>{const c=$('cl').value.trim();if(!c)return;try{await GameNet.claim(S,c);$('cl').value='';await load();$('st').textContent='تم نقل الحساب لهذا الجهاز.'}catch(e){$('st').textContent=e.message}};
-load();
+const S=location.origin,$=id=>document.getElementById(id);let acc=null,site=null,room=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ERR={'name taken':'الاسم مأخوذ','wrong name or password':'الاسم أو الباسورد غلط','password: at least 4 characters':'الباسورد 4 حروف على الأقل','name: 3-20 letters or numbers':'الاسم من 3 إلى 20 حرف أو رقم','too many tries, wait an hour':'محاولات كثيرة، انتظر ساعة','wrong password':'الباسورد الحالي غلط','admin only':'للأدمن بس','room is full':'الغرفة مليانة','room is locked':'الغرفة مقفولة','could not connect':'ما قدرت أتصل'};
+const msgOf=e=>ERR[e.message]||e.message;
+function paint(){const c=site||{};document.documentElement.style.setProperty('--acc',c.accent||'#e0559a');document.documentElement.style.setProperty('--bg',c.bg||'#0e0b14');document.documentElement.style.setProperty('--card',c.card||'#1a1524');
+  $('title').textContent=c.title||'ألعابي';document.title=c.title||'ألعابي';
+  $('games').innerHTML=(c.games||[]).map(g=>`<div class="game"><b>${esc(g.name)}</b><span>${esc(g.desc)}</span><div class="row"><a class="btn" href="${esc(g.path)}">العب</a></div></div>`).join('');
+  $('rg').innerHTML=(c.games||[]).map(g=>`<option value="${esc(g.id)}">${esc(g.name)}</option>`).join('')}
+async function boot(){
+  try{site=await GameNet.site(S)}catch(e){site=null}paint();
+  acc=GameNet.signedIn(S);
+  if(acc){try{const i=await acc.info();acc.cred.admin=!!i.admin}catch(e){if(e.status===401){GameNet.signOut(S);acc=null}}}
+  show()}
+function show(){const inn=!!acc;$('signBox').hidden=inn;$('home').hidden=!inn;$('who').hidden=!inn;if(!inn)return;
+  $('whoName').textContent='أهلًا '+acc.user;$('adminBox').hidden=!acc.admin;if(acc.admin)adminFill();listRooms()}
+async function sign(kind){$('signErr').textContent='';const u=$('u').value.trim(),p=$('p').value;if(!u||!p){$('signErr').textContent='اكتب الاسم والباسورد';return}
+  try{acc=await GameNet[kind](S,u,p);if(kind==='login'){const i=await acc.info();acc.cred.admin=!!i.admin}$('p').value='';show()}catch(e){$('signErr').textContent=msgOf(e)}}
+$('login').onclick=()=>sign('login');$('reg').onclick=()=>sign('register');$('p').onkeydown=e=>{if(e.key==='Enter')sign('login')};
+$('out').onclick=()=>{if(room)room.leave();room=null;GameNet.signOut(S);acc=null;$('roomView').hidden=true;show()};
+$('chg').onclick=async()=>{$('accErr').textContent='';try{await acc.changePassword($('op').value,$('np').value);$('op').value=$('np').value='';$('accErr').textContent='تم تغيير الباسورد ✓'}catch(e){$('accErr').textContent=msgOf(e)}};
+// rooms
+async function listRooms(){const g=$('rg').value;if(!g)return;try{const L=await GameNet.list(S,g);$('pub').innerHTML=L.length?L.map(r=>`<div class="item"><span>${esc(r.label||r.host||'غرفة')} · ${r.players}/${r.max}</span><button class="sec sm" data-c="${esc(r.code)}">ادخل</button></div>`).join(''):'<div class="mut">ما فيه غرف عامة الحين.</div>';
+  for(const b of $('pub').querySelectorAll('button'))b.onclick=()=>enter(b.dataset.c)}catch(e){$('pub').textContent=''}}
+$('rg').onchange=listRooms;setInterval(()=>{if(acc&&!room)listRooms()},15000);
+async function enter(code){$('roomErr').textContent='';if(room){room.leave();room=null}const g=$('rg').value;
+  try{room=await GameNet.join({server:S,game:g,code,name:acc.user,max:8,public:!code});}catch(e){$('roomErr').textContent=msgOf(e);return}
+  $('roomsBox').hidden=true;$('roomView').hidden=false;$('rvCode').textContent=room.code;$('chat').innerHTML='';
+  const gm=(site.games||[]).find(x=>x.id===g);$('rvPlay').href=(gm?gm.path:g+'/')+'?room='+room.code;$('rvInfo').textContent=gm?gm.name:'';
+  const draw=()=>{$('rvPlayers').innerHTML=[...room.players.values()].map(p=>`<div class="item"><span>${esc(p.name)}${p.id===room.host?' · المضيف':''}${p.id===room.id?' (أنت)':''}</span></div>`).join('')};
+  const line=(who,t)=>{const d=document.createElement('div');d.innerHTML=`<b>${esc(who)}:</b> ${esc(t)}`;$('chat').appendChild(d);$('chat').scrollTop=1e9};
+  room.on('join',p=>{draw();line('•',p.name+' دخل')}).on('leave',(id,p)=>{draw();line('•',(p?p.name:'لاعب')+' طلع')}).on('host',draw)
+    .on('msg',(d,from)=>{if(d&&d.chat){const p=room.players.get(from);line(p?p.name:'?',d.chat)}}).on('status',s=>{if(s==='closed'){$('rvInfo').textContent='انقطع الاتصال'}});
+  draw();line('•','رقم الغرفة '+room.code+' · أعطه أصحابك')}
+$('mkRoom').onclick=()=>enter(null);$('joinRoom').onclick=()=>{const c=$('rc').value.trim().toUpperCase();if(c)enter(c)};
+$('send').onclick=()=>{const t=$('msg').value.trim();if(!t||!room)return;room.send({chat:t});const d=document.createElement('div');d.innerHTML=`<b>${esc(acc.user)}:</b> ${esc(t)}`;$('chat').appendChild(d);$('chat').scrollTop=1e9;$('msg').value=''};
+$('msg').onkeydown=e=>{if(e.key==='Enter')$('send').click()};
+$('rvLeave').onclick=()=>{if(room)room.leave();room=null;$('roomView').hidden=true;$('roomsBox').hidden=false;listRooms()};
+// admin: the site's look and games
+let AG=[];
+function adminFill(){const c=site||{};$('aTitle').value=c.title||'';$('aAcc').value=c.accent||'#e0559a';$('aBg').value=c.bg||'#0e0b14';$('aCard').value=c.card||'#1a1524';AG=JSON.parse(JSON.stringify(c.games||[]));drawAG()}
+function drawAG(){$('aGames').innerHTML=AG.map((g,i)=>`<div class="ge"><input data-i="${i}" data-k="name" value="${esc(g.name)}" placeholder="الاسم" dir="auto"><input data-i="${i}" data-k="id" value="${esc(g.id)}" placeholder="المعرف (billi)" dir="ltr"><input data-i="${i}" data-k="desc" value="${esc(g.desc)}" placeholder="الوصف" dir="auto"><input data-i="${i}" data-k="path" value="${esc(g.path)}" placeholder="المسار (billi/)" dir="ltr"><label><input type="checkbox" data-i="${i}" data-k="online" ${g.online?'checked':''} style="flex:0;min-width:0"> فيها أونلاين</label><button class="sec sm" data-del="${i}">احذف</button></div>`).join('');
+  for(const el of $('aGames').querySelectorAll('input'))el.oninput=el.onchange=()=>{const g=AG[+el.dataset.i];g[el.dataset.k]=el.type==='checkbox'?el.checked:el.value};
+  for(const b of $('aGames').querySelectorAll('[data-del]'))b.onclick=()=>{AG.splice(+b.dataset.del,1);drawAG()}}
+$('aAdd').onclick=()=>{AG.push({id:'',name:'',desc:'',path:'',online:false});drawAG()};
+$('aSave').onclick=async()=>{$('aErr').textContent='';try{site=await acc.setSite({title:$('aTitle').value,accent:$('aAcc').value,bg:$('aBg').value,card:$('aCard').value,games:AG});paint();adminFill();$('aErr').textContent='تم الحفظ ✓'}catch(e){$('aErr').textContent=msgOf(e)}};
+boot();
 </script>
 </body>
 </html>
