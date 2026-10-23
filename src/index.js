@@ -34,7 +34,7 @@
 // =====================================================================
 import { DurableObject } from "cloudflare:workers";
 
-const VERSION = "2.0.0";
+const VERSION = "2.1.0";
 const ADMIN_ID = "aadmin0000000000";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I
 const LIMITS = {
@@ -265,17 +265,17 @@ export class Account extends DurableObject {
 }
 
 // one for everybody: transfer codes and wrong-guess counters
-const SITE_DEFAULT = { title: "ألعابي", accent: "#e0559a", bg: "#0e0b14", card: "#1a1524",
-  games: [{ id: "billi", name: "الملكة بيلي", desc: "قصة وقتال", path: "billi/", online: false }] };
+const SITE_DEFAULT = { title: "ألعابي", title_en: "My games", accent: "#e0559a", bg: "#0e0b14", card: "#1a1524",
+  games: [{ id: "billi", name: "الملكة بيلي", name_en: "Queen Billi", desc: "قصة وقتال", desc_en: "Story and fighting", path: "billi/", online: true }] };
 export class Codes extends DurableObject {
   async userGet(u) { return (await this.ctx.storage.get("u:" + u)) || null; }
   async userSet(u, rec, onlyNew) { if (onlyNew && (await this.ctx.storage.get("u:" + u))) return false; await this.ctx.storage.put("u:" + u, rec); return true; }
   async site() { return (await this.ctx.storage.get("site")) || SITE_DEFAULT; }
   async setSite(b) {
     const col = c => /^#[0-9a-f]{6}$/i.test(c || "") ? c : null, cur = await this.site();
-    const games = Array.isArray(b.games) ? b.games.slice(0, 50).map(g => ({ id: String(g.id || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 32), name: String(g.name || "").slice(0, 60),
-      desc: String(g.desc || "").slice(0, 120), path: String(g.path || "").replace(/[^\w\-./]/g, "").slice(0, 80), online: !!g.online, img: String(g.img || "").slice(0, 200) })).filter(g => g.id) : cur.games;
-    const s = { title: String(b.title ?? cur.title).slice(0, 60), accent: col(b.accent) || cur.accent, bg: col(b.bg) || cur.bg, card: col(b.card) || cur.card || SITE_DEFAULT.card, games };
+    const games = Array.isArray(b.games) ? b.games.slice(0, 50).map(g => ({ id: String(g.id || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 32), name: String(g.name || "").slice(0, 60), name_en: String(g.name_en || "").slice(0, 60),
+      desc: String(g.desc || "").slice(0, 120), desc_en: String(g.desc_en || "").slice(0, 120), path: String(g.path || "").replace(/[^\w\-./]/g, "").slice(0, 80), online: !!g.online, img: String(g.img || "").slice(0, 200) })).filter(g => g.id) : cur.games;
+    const s = { title: String(b.title ?? cur.title).slice(0, 60), title_en: String(b.title_en ?? cur.title_en ?? "").slice(0, 60), accent: col(b.accent) || cur.accent, bg: col(b.bg) || cur.bg, card: col(b.card) || cur.card || SITE_DEFAULT.card, games };
     await this.ctx.storage.put("site", s); return s;
   }
   async tryIp(k, max) { const now = Date.now(); let t = await this.ctx.storage.get("ip:" + k); if (!t || t.until < now) t = { n: 0, until: now + 3600_000 }; if (t.n >= max) return false; t.n++; await this.ctx.storage.put("ip:" + k, t); return true; }
