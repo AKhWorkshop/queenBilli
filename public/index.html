@@ -10,21 +10,21 @@
 /* the platform's own light look (separate from the games): paper ground, white cards, one accent the admin can change */
 :root{--paper:#F4F2ED;--surface:#FFFFFF;--field:#F7F6F2;--line:#E3DFD6;--line2:#D6D1C6;--ink:#16161D;--mute:#5F5C68;--acc:#2446F5;--ok:#0F7B57;--danger:#C2362B;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg,var(--paper));color:var(--ink);font:15px/1.55 "Readex Pro",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;min-height:100dvh}
+body{margin:0;background:var(--bg,var(--paper));color:var(--bgInk,var(--ink));font:15px/1.55 "Readex Pro",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;min-height:100dvh}
 [hidden]{display:none!important}
 a{color:var(--acc)}
-header{background:var(--surface);border-bottom:1px solid var(--line)}
+header{background:var(--surface);border-bottom:1px solid var(--line);color:var(--ink)}
 .hwrap{max-width:1160px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
 .logo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;width:30px;height:30px}.logo i{background:var(--ink);border-radius:4px}.logo i:first-child{background:var(--acc)}.logo i:last-child{border-radius:50%}
 #title{font-weight:700;font-size:22px;margin:0}
 .grow{flex:1}
 .who{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute)}
-.av{width:32px;height:32px;border-radius:50%;background:#E8ECFF;color:var(--acc);display:grid;place-items:center;font-weight:700;flex:none}
+.av{width:32px;height:32px;border-radius:50%;background:color-mix(in srgb,var(--acc) 16%,var(--surface));color:var(--acc);display:grid;place-items:center;font-weight:700;flex:none}
 main{max-width:1160px;margin:0 auto;padding:32px 24px 64px}
 h1,h2,h3{margin:0}
-.card{background:var(--card,var(--surface));border:1px solid var(--line);border-radius:18px;padding:24px}
-button,.btn{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--acc);color:#fff;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.card{color:var(--ink);background:var(--card,var(--surface));border:1px solid var(--line);border-radius:18px;padding:24px}
+button,.btn{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--acc);color:var(--accInk,#fff);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 button.out,.btn.out{background:var(--surface);color:var(--ink);border:1px solid var(--line2)}
 button.dark{background:var(--surface);color:var(--ink);border:1px solid var(--ink)}
 button.danger{background:var(--surface);color:var(--danger);border:1px solid var(--line2)}
@@ -60,7 +60,7 @@ input[type=color]{padding:3px;height:44px}
 #pub{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 #pub:empty{display:none}
 .pr{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface)}.pr+.pr{border-top:1px solid var(--line)}
-.pr .av{width:36px;height:36px;background:var(--paper);color:var(--ink);font-size:14px}.pr div{flex:1;min-width:0}.pr b{font-size:14px}.pr small{display:block;font-size:12px;color:var(--mute)}
+.pr .av{width:36px;height:36px;background:var(--field);color:var(--ink);font-size:14px}.pr div{flex:1;min-width:0}.pr b{font-size:14px}.pr small{display:block;font-size:12px;color:var(--mute)}
 .cnt{padding:2px 10px;border-radius:999px;background:#E9F5EF;color:var(--ok);font-size:12px;font-weight:600;direction:ltr}
 .noPub{padding:12px 14px;color:var(--mute);font-size:14px;background:var(--surface)}
 /* the room you are in */
@@ -71,27 +71,27 @@ input[type=color]{padding:3px;height:44px}
 .rvBody{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
 .rvPl{flex:1 1 200px;display:flex;flex-direction:column;gap:8px}.rvCh{flex:2 1 320px;min-width:0;display:flex;flex-direction:column;gap:8px}
 .rvPl h3,.rvCh h3{font-size:13px;font-weight:600;color:var(--mute)}
-.pl{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--field);border-radius:10px}.pl .av{width:30px;height:30px;font-size:13px}.pl.me .av{background:#E8ECFF}.pl:not(.me) .av{background:var(--surface);color:var(--ink)}
-.pl span:not(.av):not(.hostB){flex:1;font-size:14px;font-weight:600}.pl .av,.hostB{flex:none}.hostB{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--ink);color:#fff}
+.pl{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--field);border-radius:10px}.pl .av{width:30px;height:30px;font-size:13px}.pl.me .av{background:color-mix(in srgb,var(--acc) 16%,var(--surface))}.pl:not(.me) .av{background:var(--surface);color:var(--ink)}
+.pl span:not(.av):not(.hostB){flex:1;font-size:14px;font-weight:600}.pl .av,.hostB{flex:none}.hostB{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--surface)}
 #chat{height:170px;overflow:auto;background:var(--field);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px}
 #chat .sys{align-self:center;font-size:12px;color:var(--mute);text-align:center}
 #chat .bub{align-self:flex-start;max-width:80%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 12px}#chat .bub b{display:block;font-size:12px;color:var(--acc)}
-#chat .bub.mine{align-self:flex-end;background:#E8ECFF;border-color:#D3DAFF}
+#chat .bub.mine{align-self:flex-end;background:color-mix(in srgb,var(--acc) 14%,var(--surface));border-color:color-mix(in srgb,var(--acc) 30%,var(--surface))}
 .sendRow{display:flex;gap:8px}.sendRow input{flex:1}
 /* account */
 .side h2{font-size:18px;font-weight:700}
 #accBox{display:flex;flex-direction:column;gap:12px}#accBox input{background:var(--field)}
 /* admin: dark panel */
-#adminBox{background:var(--ink);color:var(--paper);border:0;display:flex;flex-direction:column;gap:14px}
-#adminBox label.f{color:#BEBAC6}#adminBox input{background:#22222B;border-color:#34343F;color:var(--paper)}
-.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--paper);color:var(--ink)}
+#adminBox{background:#16161D;color:#F4F2ED;border:0;display:flex;flex-direction:column;gap:14px}
+#adminBox label.f{color:#BEBAC6}#adminBox input{background:#22222B;border-color:#34343F;color:#F4F2ED}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#F4F2ED;color:#16161D}
 .admTop{display:flex;align-items:center;justify-content:space-between}
 .swatches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.swatches label{font-size:12px}
 #adminBox h3{font-size:13px;font-weight:600;color:#BEBAC6;margin-top:4px}
 .ge{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#22222B;border-radius:10px;padding:10px}
 .ge input{min-height:38px;font-size:13px;background:#16161D}.ge label{display:flex;gap:6px;align-items:center;font-size:13px;color:#BEBAC6}.ge input[type=checkbox]{width:auto;min-height:0}
-.ge button{background:transparent;border:1px solid #34343F;color:var(--paper);min-height:36px;font-size:13px}
-.admBtns{display:flex;gap:8px}.admBtns #aAdd{background:transparent;border:1px dashed #5A5A66;color:var(--paper)}.admBtns #aSave{flex:1;background:var(--paper);color:var(--ink)}
+.ge button{background:transparent;border:1px solid #34343F;color:#F4F2ED;min-height:36px;font-size:13px}
+.admBtns{display:flex;gap:8px}.admBtns #aAdd{background:transparent;border:1px dashed #5A5A66;color:#F4F2ED}.admBtns #aSave{flex:1;background:#F4F2ED;color:#16161D}
 #adminBox .err{color:#FFB4A9}#adminBox .note{margin:0;font-size:12px;line-height:1.6;color:#BEBAC6}
 @media (max-width:560px){.hwrap{padding:12px 16px}main{padding:24px 16px 48px}.card{padding:18px}#signBox{padding:22px;margin-top:24px}.secT{font-size:24px}}
 </style>
@@ -189,20 +189,32 @@ const TX={
   gName:['الاسم','Name'],gNameEn:['الاسم بالإنقليزي','Name in English'],gId:['المعرف (billi)','Id (billi)'],gDesc:['الوصف','Description'],gDescEn:['الوصف بالإنقليزي','Description in English'],gPath:['المسار (billi/)','Path (billi/)'],gImg:['صورة (اختياري)','Picture (optional)'],gOnline:[' فيها أونلاين',' has online play'],del:['احذف','Delete'],
   myGames:['ألعابي','My games']};
 const T=k=>(TX[k]||[k,k])[LANG==='ar'?0:1];
-const ERR={'name taken':['الاسم مأخوذ','That name is taken'],'wrong name or password':['الاسم أو الباسورد غلط','Wrong name or password'],'password: at least 4 characters':['الباسورد 4 حروف على الأقل','The password needs at least 4 characters'],'name: 3-20 letters or numbers':['الاسم من 3 إلى 20 حرف أو رقم','The name is 3 to 20 letters or numbers'],'too many tries, wait an hour':['محاولات كثيرة، انتظر ساعة','Too many tries, wait an hour'],'wrong password':['الباسورد الحالي غلط','The current password is wrong'],'admin only':['للأدمن بس','Admin only'],'room is full':['الغرفة مليانة','The room is full'],'room not found':['ما فيه غرفة بهذا الرقم','No room with that code'],'room is locked':['الغرفة مقفولة','The room is locked'],'could not connect':['ما قدرت أتصل','Could not connect']};
+const ERR={'name taken':['الاسم مأخوذ','That name is taken'],'wrong name or password':['الاسم أو الباسورد غلط','Wrong name or password'],'password: at least 4 characters':['الباسورد 4 حروف على الأقل','The password needs at least 4 characters'],'name: 3-20 letters or numbers':['الاسم من 3 إلى 20 حرف أو رقم','The name is 3 to 20 letters or numbers'],'too many tries, wait an hour':['محاولات كثيرة، انتظر ساعة','Too many tries, wait an hour'],'wrong password':['الباسورد الحالي غلط','The current password is wrong'],'admin only':['للأدمن بس','Admin only'],'room is full':['الغرفة مليانة','The room is full'],'room not found':['ما فيه غرفة بهذا الرقم','No room with that code'],'room is locked':['الغرفة مقفولة','The room is locked'],'could not connect':['ما قدرت أتصل','Could not connect'],'not signed in':['سجّل دخولك أول','Sign in first'],'the admin password is the ADMIN_PASS secret':['باسورد الأدمن هو ADMIN_PASS في Cloudflare','The admin password is the ADMIN_PASS secret in Cloudflare'],'wrong or expired code':['الرمز غلط أو انتهى','Wrong or expired code'],'too big':['كبير زيادة','Too big'],'bad room code':['رقم الغرفة غلط','Bad room code'],'not found':['مو موجود','Not found'],'origin not allowed':['هذا الموقع ممنوع','This site is not allowed'],'GITHUB_TOKEN / GITHUB_REPO secrets are not set':['ناقص GITHUB_TOKEN أو GITHUB_REPO في Cloudflare','GITHUB_TOKEN / GITHUB_REPO are not set in Cloudflare']};
 const msgOf=e=>{const m=ERR[e.message];return m?m[LANG==='ar'?0:1]:e.message};
-const gTx=(g,k)=>LANG==='en'&&g[k+'_en']?g[k+'_en']:g[k];   // a game's name / description in the chosen language (falls back to the Arabic one)
+/* a game's name / description in the chosen language. With no English written yet, a known game uses its own English name */
+const KNOWN_EN={billi:{name:'Queen Billi',desc:'Story and fighting'}},AR_EN={'ألعابي':'My games'};
+const gTx=(g,k)=>{if(LANG!=='en')return g[k]||'';return g[k+'_en']||(KNOWN_EN[g.id]||{})[k]||AR_EN[g[k]]||g[k]||''};
 const initial=n=>String(n||'?').trim().charAt(0).toUpperCase();
-/* the page is light now: an old dark background or card colour saved by the admin is not used (the default light one is) */
-const lightOr=(c,d)=>{const m=/^#([0-9a-f]{6})$/i.exec(c||'');if(!m)return d;const v=parseInt(m[1],16),l=(.299*(v>>16)+.587*(v>>8&255)+.114*(v&255))/255;return l>.6?c:d};
+/* the admin's colours are always used. The text colour follows each colour (dark text on a light colour, light text on a dark one).
+   Only the very first defaults of the old dark page (never chosen by anyone) are swapped for the new light ones. */
+const OLD_DEF={bg:'#0e0b14',card:'#1a1524',accent:'#e0559a'};
+const hexOk=c=>/^#[0-9a-f]{6}$/i.test(c||'');
+const lum=c=>{const v=parseInt(c.slice(1),16);return(.299*(v>>16)+.587*(v>>8&255)+.114*(v&255))/255};
+const mix=(a,b,t)=>{const A=parseInt(a.slice(1),16),B=parseInt(b.slice(1),16),f=(x,y)=>Math.round(x+(y-x)*t);return'#'+[f(A>>16,B>>16),f(A>>8&255,B>>8&255),f(A&255,B&255)].map(x=>x.toString(16).padStart(2,'0')).join('')};
+const pick=(c,k,d)=>hexOk(c)&&c.toLowerCase()!==OLD_DEF[k]?c:d;
 const GAME_PIC={billi:'billi/a2/ui/cover_punch.webp'};
 function applyLang(){document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
   for(const el of document.querySelectorAll('[data-t]'))el.textContent=T(el.dataset.t);
   for(const el of document.querySelectorAll('[data-tp]'))el.placeholder=T(el.dataset.tp);
   $('rvCopy').setAttribute('aria-label',T('copy'));$('lang').textContent=LANG==='ar'?'English':'عربي';paint();if(acc)$('whoName').textContent=T('hi')+acc.user;if(acc&&acc.admin)drawAG()}
 $('lang').onclick=()=>{LANG=LANG==='ar'?'en':'ar';try{localStorage.setItem('billi-lang',LANG)}catch(e){}applyLang();if(acc&&!room)listRooms()};
-function paint(){const c=site||{},R_=document.documentElement.style;R_.setProperty('--acc',c.accent&&/^#[0-9a-f]{6}$/i.test(c.accent)&&c.accent!=='#e0559a'?c.accent:'#2446F5');R_.setProperty('--bg',lightOr(c.bg,'#F4F2ED'));R_.setProperty('--card',lightOr(c.card,'#FFFFFF'));
-  const ttl=(LANG==='en'&&c.title_en)||c.title||T('myGames');$('title').textContent=ttl;document.title=ttl;
+function paint(){const c=site||{},R_=document.documentElement.style;const acc=pick(c.accent,'accent','#2446F5'),bg=pick(c.bg,'bg','#F4F2ED'),cd=pick(c.card,'card','#FFFFFF'),dk=lum(cd)<.5,bgDk=lum(bg)<.5;
+  R_.setProperty('--acc',acc);R_.setProperty('--bg',bg);R_.setProperty('--card',cd);R_.setProperty('--surface',cd);
+  R_.setProperty('--field',mix(cd,dk?'#ffffff':'#000000',.04));R_.setProperty('--ink',dk?'#F2F3F7':'#16161D');R_.setProperty('--mute',dk?'#B4B9C9':'#5F5C68');
+  R_.setProperty('--line',mix(cd,dk?'#ffffff':'#000000',dk?.14:.1));R_.setProperty('--line2',mix(cd,dk?'#ffffff':'#000000',dk?.22:.16));
+  R_.setProperty('--bgInk',bgDk?'#F2F3F7':'#16161D');R_.setProperty('--bgMute',bgDk?'#C9CCD6':'#5F5C68');R_.setProperty('--accInk',lum(acc)>.6?'#16161D':'#FFFFFF');
+  document.documentElement.style.colorScheme=dk?'dark':'light';
+  const ttl=LANG==='en'?(c.title_en||AR_EN[c.title]||(/[\u0600-\u06FF]/.test(c.title||'')?'My games':c.title)||'My games'):(c.title||T('myGames'));$('title').textContent=ttl;document.title=ttl;
   $('games').innerHTML=(c.games||[]).map(g=>{const pic=g.img||GAME_PIC[g.id]||'';return`<article class="game"><div class="pic">${pic?`<img src="${esc(pic)}" alt="">`:''}${g.online?`<span class="pill"><i></i>${T('online')}</span>`:''}</div><div class="gb"><div><b>${esc(gTx(g,'name'))}</b><span>${esc(gTx(g,'desc'))}</span></div><a class="btn" href="${esc(g.path)}">${T('play')}</a></div></article>`}).join('');
   const sel=$('rg').value;$('rg').innerHTML=(c.games||[]).map(g=>`<option value="${esc(g.id)}">${esc(gTx(g,'name'))}</option>`).join('');if(sel)$('rg').value=sel}
 async function boot(){
@@ -240,13 +252,13 @@ $('rvCopy').onclick=()=>{const c=$('rvCode').textContent;try{navigator.clipboard
 $('rvLeave').onclick=()=>{if(room)room.leave();room=null;$('roomView').hidden=true;$('roomsBox').hidden=false;listRooms()};
 // admin: the site's look and games (each game can have an English name and description, and a picture)
 let AG=[];
-function adminFill(){const c=site||{};$('aTitle').value=c.title||'';$('aTitleEn').value=c.title_en||'';$('aAcc').value=c.accent&&c.accent!=='#e0559a'?c.accent:'#2446F5';$('aBg').value=lightOr(c.bg,'#F4F2ED');$('aCard').value=lightOr(c.card,'#FFFFFF');AG=JSON.parse(JSON.stringify(c.games||[]));drawAG()}
+function adminFill(){const c=site||{};$('aTitle').value=c.title||'';$('aTitleEn').value=c.title_en||AR_EN[c.title]||'';$('aAcc').value=pick(c.accent,'accent','#2446F5');$('aBg').value=pick(c.bg,'bg','#F4F2ED');$('aCard').value=pick(c.card,'card','#FFFFFF');AG=JSON.parse(JSON.stringify(c.games||[]));for(const g of AG){const k=KNOWN_EN[g.id];if(k){if(!g.name_en)g.name_en=k.name;if(!g.desc_en)g.desc_en=k.desc}}drawAG()}
 function drawAG(){const inp=(i,k,v,tp,dir)=>`<input data-i="${i}" data-k="${k}" value="${esc(v)}" placeholder="${T(tp)}" aria-label="${T(tp)}" dir="${dir}">`;
   $('aGames').innerHTML=AG.map((g,i)=>`<div class="ge">${inp(i,'name',g.name,'gName','auto')}${inp(i,'name_en',g.name_en,'gNameEn','ltr')}${inp(i,'desc',g.desc,'gDesc','auto')}${inp(i,'desc_en',g.desc_en,'gDescEn','ltr')}${inp(i,'id',g.id,'gId','ltr')}${inp(i,'path',g.path,'gPath','ltr')}${inp(i,'img',g.img,'gImg','ltr')}<label><input type="checkbox" data-i="${i}" data-k="online" ${g.online?'checked':''}>${T('gOnline')}</label><button type="button" data-del="${i}">${T('del')}</button></div>`).join('');
   for(const el of $('aGames').querySelectorAll('input'))el.oninput=el.onchange=()=>{const g=AG[+el.dataset.i];g[el.dataset.k]=el.type==='checkbox'?el.checked:el.value};
   for(const b of $('aGames').querySelectorAll('[data-del]'))b.onclick=()=>{AG.splice(+b.dataset.del,1);drawAG()}}
 $('aAdd').onclick=()=>{AG.push({id:'',name:'',name_en:'',desc:'',desc_en:'',path:'',img:'',online:false});drawAG()};
-$('aSave').onclick=async()=>{$('aErr').textContent='';try{site=await acc.setSite({title:$('aTitle').value,title_en:$('aTitleEn').value,accent:$('aAcc').value,bg:$('aBg').value,card:$('aCard').value,games:AG});paint();adminFill();$('aErr').textContent=T('saved')}catch(e){$('aErr').textContent=msgOf(e)}};
+$('aSave').onclick=async()=>{$('aErr').textContent='';$('aErr').style.color='';try{site=await acc.setSite({title:$('aTitle').value,title_en:$('aTitleEn').value,accent:$('aAcc').value,bg:$('aBg').value,card:$('aCard').value,games:AG});paint();adminFill();$('aErr').textContent=T('saved');$('aErr').style.color='#7EE2B0'}catch(e){$('aErr').textContent=msgOf(e)}};
 boot();
 </script>
 </body>
