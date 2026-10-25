@@ -1,5 +1,6 @@
 <meta charset="utf-8">
 <title>الملكة بيلي · Queen Billi</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
@@ -593,6 +594,21 @@ kbd{border-radius:0;border-color:var(--line)}
   #loadScr .lsDots{transform:scale(var(--uiz,1));transform-origin:0 100%}
   #loadScr .lsVer{transform:scale(var(--uiz,1));transform-origin:0 100%}
 }
+
+/* inventory: two buttons on each card */
+.invBtns{display:flex;gap:6px}.invBtns button{flex:1}.invBtns .invDrop{background:transparent!important;border:1px solid var(--line,#2A2E3D)!important;color:var(--muted,#B4B9C9)!important}
+/* the card of a fighter who just opened */
+#unlockCard{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:rgba(7,8,12,.78);backdrop-filter:blur(4px)}#unlockCard[hidden]{display:none}
+#unlockCard .ucIn{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px;max-width:min(320px,90vw);text-align:center;animation:ucIn .5s cubic-bezier(.2,1.4,.4,1)}
+#unlockCard .ucTop{font:800 14px var(--f-display);letter-spacing:2px;color:var(--hazard,#F5D90A)}#unlockCard .ucCard{width:220px}#unlockCard .ucCard .icard{width:100%}
+#unlockCard .ucNm{font:800 26px var(--f-display);color:#F2F3F7}#unlockCard .ucSub{font-size:13px;color:#B4B9C9}#unlockCard .btn{min-width:160px}
+@keyframes ucIn{from{transform:scale(.6) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+
+/* online room: the two modes */
+.netModes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.netModes button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;min-height:86px;border:2px solid var(--line,#2A2E3D);background:var(--asphalt,#12141B);color:var(--ink,#F2F3F7);text-align:start;cursor:pointer;font:inherit}
+.netModes button span{font-size:20px}.netModes button b{font:800 16px var(--f-display)}.netModes button small{font-size:12px;color:var(--muted,#B4B9C9)}.netModes button.on{border-color:var(--hazard,#F5D90A);background:rgba(245,217,10,.12)}.netModes button:disabled{cursor:default;opacity:.9}
+
+#pauseMenu .pm,#bagMenu .pm,#invMenu .pm{box-sizing:border-box}
 </style>
 
 <div class="app" id="app">
@@ -823,7 +839,7 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const STEP=1/60;
 
 /* Version: 0.minor.patch while the game is in testing (big change or new feature: minor, small fix: patch) */
-const VERSION='0.27.0';
+const VERSION='0.28.0';
 /* ================= Input ================= */
 // every action and its keys; the player can change them in the settings (saved in this browser)
 const BIND_DEF={up:['KeyW'],down:['KeyS'],left:['KeyA'],right:['KeyD'],run:['ShiftLeft','ShiftRight'],jump:['Space'],roll:['ControlLeft','ControlRight'],
@@ -3085,7 +3101,7 @@ function renderPortrait(who){
 }
 function targetPoseInto(a){const tp=targetPose(a,0);for(const k of KEYS_P)a.cur[k]=tp[k];applyPose(a.rig,a.cur,0);if(a.skin)driveSkin(a);if(a.rigged)driveRigged(a)}
 function dlgAdvance(){const D=ST.dlg;if(!D)return;if(D.t<D.full.length){D.t=D.full.length;$('dlgText').textContent=D.full;return}
-  D.i++;if(D.i>=D.lines.length){$('dlg').hidden=true;$('app').classList.remove('talking');const d=D.done;ST.dlg=null;d&&d();return}showDlgLine();sfx('pickup')}
+  D.i++;if(D.i>=D.lines.length){$('dlg').hidden=true;$('app').classList.remove('talking');const d=D.done;ST.dlg=null;d&&d();return}showDlgLine();dlgClick()}
 function dlgTick(){const D=ST.dlg;if($('dlgCanvas').hidden===false&&(tick&7)===0)renderPortrait(D.lines[D.i][0]);if(D.t<D.full.length){D.t=Math.min(D.full.length,D.t+.9);$('dlgText').textContent=D.full.slice(0,Math.floor(D.t))}
   for(const k of['h','k','jump','block'])if(tick-(pin.buf[k]??-99)<=1){pin.buf[k]=-99;dlgAdvance();break}}
 function storyKnows(m){if(ST.mode==='arena')return true;if(CH.on)return m==='jab'||m==='highkick'||/^knife_/.test(m)&&ST.hasKnife||chKnown().has(m);for(let i=0;i<=Math.min(ST.cleared+1,TIERS.length-1);i++)if(TIERS[i].includes(m))return true;return false}
@@ -4000,6 +4016,25 @@ function invUse(idx,w){const P=ST.player;if(!P)return;
   if(it.shield){if((P.shield||0)>=100){banner(lang==='ar'?'الدرع مليان':'Shield is full','sm',50);return}INV.items.splice(idx,1);P.shield=Math.min(100,(P.shield||0)+it.shield);sfx('heal');spark(P.x,1.2,P.z,0x5bd8ff,14);banner('+'+it.shield+(lang==='ar'?' درع':' shield'),'sm',60);return}
   if(id==='herb'){if(ST.katara&&ST.katara.wounded&&Math.hypot(ST.katara.x-P.x,ST.katara.z-P.z)<2.8)chTryCure();
     else banner(lang==='ar'?'العشب لكاتارا':'The herb is for Katara','sm',70)}}
+// throwing something away: it drops on the ground in front of her and can be picked up again
+function invDrop(idx,w){const P=ST.player,L_=w?INV.weapons:INV.items,id=L_[idx];if(!id||!P)return;L_.splice(idx,1);
+  if(w){if(P.gun===id)equipGun(P,null);if((id==='knife'||id==='axe')&&P.knife&&P.blade===id){equipKnife(P,false,id)}ST.hasKnife=INV.weapons.some(x=>x==='knife'||x==='axe');gunHud(P)}
+  const x=P.x+(P.ax||0)*.9,z=P.z+(P.az||1)*.9;let o;
+  if(id==='axe'){const T=R.T;o=new T.Group();const ax=axeMesh();ax.rotation.z=Math.PI/2.3;ax.position.set(-.3,.06,0);o.add(ax);o.add(chRing(0xffd27a));CH.items.push({kind:'axe',m:o,dropped:true})}
+  else{o=chItem(id,.2);const it=CH.items[CH.items.length-1];if(it&&it.m===o)it.dropped=true}
+  o.position.set(x,0,z);if(ST.props)ST.props.add(o);sfx('whoosh');banner((lang==='ar'?'رميت ':'Dropped ')+((ITEM[id]&&ITEM[id][lang])||id),'sm',70);syncPad()}
+// the card of a fighter who just opened, in the middle of the screen (the game waits)
+function unlockCard(k){if(phase!=='story'&&phase!=='fight'){banner((lang==='ar'?'مقاتلة جديدة انفتحت: ':'New fighter unlocked: ')+((DLG_NAME[k]||CHARS[k]&&CHARS[k].name||{})[lang]||k),'gold sm',220);return}
+  if(ST.dlg){setTimeout(()=>unlockCard(k),1500);return}
+  let U=$('unlockCard');if(!U){U=document.createElement('div');U.id='unlockCard';document.body.appendChild(U)}const ar=lang==='ar',nm=(DLG_NAME[k]||CHARS[k]&&CHARS[k].name||{ar:k,en:k})[lang];
+  const card=CARDS['ch_'+k]?cardHTML('ch_'+k):`<div class="icard"><div class="ic-in"><div class="ic-f"><div class="ic-nm">${nm}</div></div></div></div>`;
+  U.innerHTML=`<div class="ucIn"><div class="ucTop">${ar?'مقاتلة جديدة انفتحت':'New fighter unlocked'}</div><div class="ucCard">${card}</div><div class="ucNm">${nm}</div><div class="ucSub">${ar?'تلقاها في شاشة القتال':'Find her in Fighting'}</div><button type="button" class="btn" id="ucOk">${ar?'تمام':'OK'}</button></div>`;
+  U.hidden=false;const was=paused;paused=true;sfx('pickup');
+  $('ucOk').onclick=()=>{U.hidden=true;if(!was){paused=false;last=performance.now()}}}
+// a soft, quiet click for each line of a dialogue
+function dlgClick(){try{if(!ac||!master||(typeof soundOn!=='undefined'&&!soundOn))return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
+  o.type='triangle';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(700,t+.035);f.type='lowpass';f.frequency.value=2600;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+.045);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+.06)}catch(e){}}
 // treating Katara takes the herb and a bandage
 function chTryCure(){const hi=INV.items.indexOf('herb'),bi=INV.items.indexOf('bandage'),ar=lang==='ar';
   if(hi<0||bi<0){banner(hi<0&&bi<0?(ar?'تحتاج عشب علاجي وضمادة':'You need a healing herb and a bandage'):hi<0?(ar?'ناقصك العشب العلاجي':'You still need the healing herb'):(ar?'ناقصك ضمادة':'You still need a bandage'),'sm',120);return}
@@ -4021,7 +4056,7 @@ document.addEventListener('click',e=>{const c=e.target.closest('.icard');if(!c||
 function invDraw(){const ar=lang==='ar',P=ST.player,B=invBag();
   // bag slots fill first (weapons and items each), anything beyond them is in her hands
   const bw=INV.weapons.slice(0,B.weapons),bi=INV.items.slice(0,B.items),hw=INV.weapons.slice(B.weapons).map((id,i)=>['w',B.weapons+i,id]),hi=INV.items.slice(B.items).map((id,i)=>['i',B.items+i,id]);
-  const btn=(w,i,id)=>{const on=w&&P&&((id==='knife'||id==='axe')?P.knife&&P.blade===id:P.gun===id);return`<button type="button" data-u="${w?'w':'i'}${i}">${on?(ar?'إرجاع':'Put away'):(ar?'استخدام':'Use')}</button>`};
+  const btn=(w,i,id)=>{const on=w&&P&&((id==='knife'||id==='axe')?P.knife&&P.blade===id:P.gun===id);return`<span class="invBtns"><button type="button" data-u="${w?'w':'i'}${i}">${on?(ar?'إرجاع':'Put away'):(ar?'استخدام':'Use')}</button><button type="button" class="invDrop" data-d="${w?'w':'i'}${i}">${ar?'ارمِ':'Drop'}</button></span>`};
   const slot=(w,i,id)=>id?cardHTML(id,{on:w&&P&&(P.gun===id||P.knife&&P.blade===id),btn:btn(w,i,id)}):`<div class="icard e"><div class="ic-in"><div class="ic-f"><div class="ic-nm">${ar?'فاضي':'Empty'}</div></div></div></div>`;
   const hands=[...hw,...hi];
   let h=`<h4>${ar?'اليدين':'Hands'} · ${hands.length}/${B.hands}${INV.bag==='small'?(ar?' (يد ماسكة الشنطة)':' (one hand holds the bag)'):''}</h4><div class="invG">`+Array.from({length:B.hands},(_,k)=>hands[k]?slot(hands[k][0]==='w',hands[k][1],hands[k][2]):slot(0,0,null)).join('')+'</div>';
@@ -4196,6 +4231,7 @@ function chCure(){const P=ST.player,K=ST.katara;setState(P,'heal');P.healAmt=0;s
       // Katara goes to the tree house; Billi takes the bike
       K.leaving=1;K.dest=[TREEHOUSE.x+.9,TREEHOUSE.z+2.5];chSet('bike');banner(lang==='ar'?'اركب الدراجة · E':'Get on the bike · E','sm',200)})},900)},900)}
 function chPickUp(it){const ar=lang==='ar';
+  if(it.dropped){if(invAdd(it.kind)){it.m.visible=false;if(it.kind==='knife'||it.kind==='axe')ST.hasKnife=true}return}
   if(it.kind==='axe'){if(invAdd('axe')){it.m.visible=false;ST.hasKnife=true;equipGun(ST.player,null);equipKnife(ST.player,true,'axe');sfx('pickup');chSet('wood');chXP(10);banner(ar?'الفأس معك · اضربي الشجرة ('+KL('h')+')':'You have the axe · hit a tree ('+KL('h')+')','gold sm',220)}return}
   const WN=W2?4:5;if(it.kind==='wood'){it.m.visible=false;CH.wood++;sfx('pickup');chXP(3);banner((ar?'حطب ':'Firewood ')+CH.wood+'/'+WN,'gold sm',70);
     if(CH.wood>=WN){chSet('home');CH.todT=1;CH.todR=.00075;setTimeout(()=>{if(CH.s==='home')banner(ar?'الشمس تغيب... ارجع للبيت':'The sun is going down... head home','sm',200)},1200)}return}
@@ -4428,7 +4464,8 @@ function chW2Beats(P,live){const H=FOREST.house,ar=lang==='ar';
     if(d<6.5||inQ||k.gone){removeActor(k);CH.npcs=CH.npcs.filter(n=>n.a!==k);CH.pinkMan=null;sfx('whoosh');banner(ar?'اختفى؟!':'He is gone?!','red',140);chSet('qaa');chGangSpawn()}}
   if(CH.s==='qaa'&&CH.gang&&!ST.dlg&&!CH.lock&&Math.hypot(P.x-QA_PINK[0],P.z-QA_PINK[1])<9){chSet('gang');if(CH.ride)chDismount();const an=CH.gang.find(a=>a.id==='anastasia');CH.face=an?[an.x,an.z]:null;startDlg('g1',()=>{CH.face=null;chGangFight()})}
   // the gang: two of them must go down; Anastasia can't be beaten yet
-  if(CH.s==='gang'&&ST.active){const an=ST.foes.find(e=>e.id==='anastasia');if(an&&an.hp<35)an.hp=35;const down=ST.foes.filter(e=>e.hp<=0&&e.id!=='anastasia').length;if(down>=2&&!CH.caught)chCaught()}
+  if(CH.s==='gang'&&!CH.caught&&P&&(ST.active||CH.ambush)){const fs=ST.foes.filter(Boolean),an=fs.find(e=>e.id==='anastasia');if(an&&an.hp<35)an.hp=35;
+    if(P.hp<=0)chCaught();else if(!CH.ambush&&fs.length&&fs.every(e=>e.id==='anastasia'||e.hp<=0))chAmbush()}
   // the streets fill with people once she is in the city
   if(P.z>RIVER.z1-60&&W2)chPeds(P)}
 function chW2Cleared(i){const P=ST.player,ar=lang==='ar';CH.ring=null;const f=CH.onClear;CH.onClear=null;if(f)f(i)}
@@ -4484,9 +4521,13 @@ function chTrashBin(){if(CH.bin)return;const T=R.T,g=new T.Group(),[bx,bz]=TRASH
   const sh=new T.Shape();sh.moveTo(-.16,0);sh.lineTo(.16,0);sh.lineTo(.16,.24);sh.lineTo(.28,.18);sh.lineTo(.34,.3);sh.lineTo(.17,.4);sh.lineTo(.06,.4);sh.quadraticCurveTo(0,.34,-.06,.4);sh.lineTo(-.17,.4);sh.lineTo(-.34,.3);sh.lineTo(-.28,.18);sh.lineTo(-.16,.24);sh.closePath();
   const tee=new T.Mesh(new T.ExtrudeGeometry(sh,{depth:.006,bevelEnabled:false}),new T.MeshStandardMaterial({color:0xff4fa0,roughness:.9,side:T.DoubleSide}));tee.scale.setScalar(1.05);tee.position.set(.04,.93,.06);tee.rotation.set(-1.38,0,.5);g.add(tee);
   g.position.set(bx,0,bz);g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});ST.props.add(g);CH.bin=g}
-function chCaught(){CH.caught=true;CH.lock=true;const P=ST.player;R.shake=.3;sfx('heavy');banner(ar_('أمسكوها!','They grab her!'),'red',120);
+// she beat all of them: one of the ones on the floor gets up behind her and hits her on the head
+function chAmbush(){const P=ST.player,fs=ST.foes.filter(Boolean),e=fs.find(x=>x.id!=='anastasia'&&x.hp<=0)||fs.find(x=>x.id!=='anastasia');if(!e){chCaught();return}CH.ambush=true;
+  e.hp=40;e.trail=40;setState(e,'idle');e.y=0;e.x=P.x-P.ax*1.1;e.z=P.z-P.az*1.1;e.ax=P.ax;e.az=P.az;e.targets=null;e.noFace=true;
+  setTimeout(()=>{if(phase!=='story'||CH.caught)return;R.shake=.35;sfx('heavy');sfx('bone');spark(P.x,1.6,P.z,0xfff0d0,18);hitstop=Math.max(hitstop,10);P.hp=0;P.trail=0;setState(P,'ko');chCaught()},900)}
+function chCaught(){CH.caught=true;CH.lock=true;const P=ST.player;R.shake=.3;sfx('heavy');banner(ar_('فقدت الوعي…','She blacks out…'),'red',160);
   setTimeout(()=>{chFade(true,900);setTimeout(()=>{if(phase!=='story')return;
-    for(const e of[...ST.foes])removeActor(e);ST.foes=[];ST.active=false;ST.lock=null;CH.ring=null;chUnlock('ppkP');
+    for(const e of[...ST.foes])removeActor(e);ST.foes=[];ST.active=false;ST.lock=null;CH.ring=null;CH.ambush=false;ST.deadT=0;chUnlock('ppkP');
     // she wakes in the morning, in Marana's yard in the quarter
     const M=MARANA_AT;Object.assign(P,{x:M[0],z:M[1]-3.5,ax:0,az:1,hp:Math.max(P.hp,120),y:0,state:'idle'});CH.tod=CH.todT=0;chApplyTOD(0);ST.cam.yaw=0;
     const mar=spawnActor('marana',150,true);Object.assign(mar,{x:M[0],z:M[1]+2.4,ax:0,az:-1,relaxed:true,noFace:true,targets:null});CH.mar=mar;chFamily();
@@ -4821,13 +4862,13 @@ function storyTick(){
   // entering the next fight zone
   const nz=ST.cleared+1;if(!W2&&!arena&&!ST.active&&nz<ZONES.length&&ST.zone<nz&&P.z>ZONES[nz].z-6&&(!CH.on||chMayFight(nz)))storyEngage(nz);
   if(!arena&&ST.active&&live.length===0&&ST.waveQ&&ST.waveQ.length&&ST.foes.every(e=>e.state==='ko'&&e.y<=0)){const w=ST.waveQ.shift(),e=ST.spawnOne(w),P=ST.player;Object.assign(e,{x:P.x+(P.x>0?-2.5:2.5),z:P.z+3.5,ax:0,az:-1});banner(lang==='ar'?'واحد ثاني!':'Another one!','gold sm',60)}
-  else if(!arena&&ST.active&&live.length===0&&ST.foes.every(e=>e.state==='ko'&&e.y<=0)){storyClear(ST.zone);ST.lock=null}
+  else if(!arena&&ST.active&&live.length===0&&ST.foes.every(e=>e.state==='ko'&&e.y<=0)&&!(CH.on&&CH.s==='gang'&&!CH.caught)){storyClear(ST.zone);ST.lock=null}
   // fallen enemies fade away
   for(const e of[...ST.foes])if(e.hp<=0&&e.state==='ko'){e.koT=(e.koT||0)+1;if(e.koT>150&&!ST.active){removeActor(e);ST.foes=ST.foes.filter(x=>x!==e)}}
   // pick up the knife
   if(!CH.on&&ST.knifeItem.visible&&Math.hypot(P.x-ST.knifeItem.position.x,P.z-ST.knifeItem.position.z)<.9){ST.knifeItem.visible=false;ST.hasKnife=true;equipKnife(P,true);sfx('pickup');banner(L('gotKnife'),'gold sm',200)}
   // death
-  if(!arena&&P.hp<=0&&P.state==='ko'){ST.deadT++;if(ST.deadT===40)banner(L('youFell'),'red',140);if(ST.deadT>=170)storyRespawn()}
+  if(!arena&&P.hp<=0&&P.state==='ko'&&!(CH.caught&&CH.s==='gang')){ST.deadT++;if(ST.deadT===40)banner(L('youFell'),'red',140);if(ST.deadT>=170)storyRespawn()}
   if(CH.on&&!arena)chTick(P,live);
   // combo counter + focus target for the HUD
   if(!['hit','air','down'].some(s=>live.some(e=>e.state===s)))P.combo=0;
@@ -5085,7 +5126,7 @@ const ORDER=['billi','katara','marana','plaid','gent','pablo','son','bitchinho',
 const STORY_LOCK=['marana','shevitta','anastasia'],RO_KEY='billi-roster';let RO_UNL=[];try{RO_UNL=JSON.parse(localStorage.getItem(RO_KEY)||'[]')}catch(e){}
 // Marana, Shevitta and Anastasia open once Billi fights them in the story
 function rosterUnlock(k){if(ROSTER_OPEN.includes(k))return;ROSTER_OPEN.push(k);ROSTER_OPEN.sort((a,b)=>ROSTER_KNOWN.indexOf(a)-ROSTER_KNOWN.indexOf(b));RO_UNL.push(k);try{localStorage.setItem(RO_KEY,JSON.stringify(RO_UNL))}catch(e){}
-  const n=(DLG_NAME[k]||{})[lang==='ar'?'ar':'en']||k;setTimeout(()=>banner((lang==='ar'?'مقاتلة جديدة انفتحت: ':'New fighter unlocked: ')+n,'gold sm',220),2400)}
+  setTimeout(()=>unlockCard(k),2400)}
 const ROSTER_KNOWN=['billi','katara','son','marana','plaid','gent','pablo','bitchinho','malika','shevitta','paoker','anastasia'],ROSTER_OPEN=ROSTER_KNOWN.filter(k=>!STORY_LOCK.includes(k)||RO_UNL.includes(k)),
   _RO=0,ROSTER_N=20;
 const isOpen=k=>ROSTER_OPEN.includes(k);
@@ -5166,6 +5207,7 @@ $('selRandom').onclick=()=>{const k=ROSTER_OPEN[Math.floor(Math.random()*ROSTER_
 
 function togglePause(){if(NET.on&&NET.mode==='fight')return;
   paused=!paused;$('pauseBtn').textContent=L(paused?'resume':'pause');
+  {let b=$('pmRoom');if(!b){b=document.createElement('button');b.className='btn ghost';b.id='pmRoom';b.type='button';$('pmHome').before(b);b.onclick=()=>{if(paused)togglePause();toMenu();mmShow('mmNet');netDraw()}}b.textContent=nT('الغرفة (غيّر الطور وابدأ من جديد)','The room (change the mode, start again)');b.hidden=!(NET.on&&NET.room&&NET.room.isHost)}
   if(paused){showPause('pmMain');ac&&ac.suspend();if(document.pointerLockElement&&document.exitPointerLock)document.exitPointerLock()}else{closePause();$('banner').innerHTML='';ac&&ac.resume();last=performance.now()}
 }
 $('pauseBtn').onclick=togglePause;
@@ -5180,7 +5222,7 @@ function movesHtml(){const P=phase==='story'?ST.player:p1;if(!P)return'';const c
   return row(L('dmg_punch'),'H')+row(L('dmg_kick'),'K')+row(nm(c.s1),'→ + K')+row(nm(c.s2),'← + H')+(c.fh?row(nm(c.fh),'→ + H'):'')+(c.power?row(nm(c.power),'H H H H'):'')+(c.launch?row(nm(c.launch),'H H H K'):'')+row(nm(c.kfin||'kfin'),'K K K')+(c.rage?row(nm(c.rage),'O / Y'):'')
    +row(L('kThrow'),'G')+row(L('kSwap'),'R')+row(L('kBag'),'B')+row(L('kWmode'),'X + H / K')+row(L('padP'),'P')}
 $('storyHud').addEventListener('pointerdown',e=>{const u=e.target.closest('[data-u]');if(!u||!CH.on)return;e.preventDefault();e.stopPropagation();const k=u.dataset.u;if(k==='inv'){if(CH.free)openBag();else openInv()}else invUse(+k.slice(1),k[0]==='w')});
-$('invList').addEventListener('click',e=>{const u=e.target.closest('[data-u]');if(!u)return;const k=u.dataset.u,w=k[0]==='w',i=+k.slice(1),heal=!w&&INV.items[i]&&ITEM[INV.items[i]].heal;if(heal||!w&&INV.items[i]==='herb')closeInv();invUse(i,w);if(!$('invMenu').hidden)invDraw()});
+$('invList').addEventListener('click',e=>{const dr=e.target.closest('[data-d]');if(dr){const k=dr.dataset.d;invDrop(+k.slice(1),k[0]==='w');invDraw();return}const u=e.target.closest('[data-u]');if(!u)return;const k=u.dataset.u,w=k[0]==='w',i=+k.slice(1),heal=!w&&INV.items[i]&&ITEM[INV.items[i]].heal;if(heal||!w&&INV.items[i]==='herb')closeInv();invUse(i,w);if(!$('invMenu').hidden)invDraw()});
 $('invDone').onclick=()=>closeInv();
 $('actBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(CH.on)chInteract()});
 $('pmResume').onclick=()=>togglePause();$('mmap').onclick=()=>toggleMap();$('bagDone').onclick=()=>closeBag();
@@ -5682,8 +5724,8 @@ function netEnsureUI(){if($('mmNet'))return;const b=document.createElement('butt
   const d=document.createElement('div');d.className='mm';d.id='mmNet';d.hidden=true;$('mmMain').parentNode.insertBefore(d,$('mmMain').nextSibling)}
 const NET_SEL='background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;color:#fff;padding:8px;font:inherit';
 function netSetForm(S,host){const o=(k,v,t)=>`<option value="${v}" ${String(S[k])===String(v)?'selected':''}>${t}</option>`,sel=(k,opts)=>`<select data-k="${k}" ${host?'':'disabled'} style="${NET_SEL}">${opts.map(([v,t])=>o(k,v,t)).join('')}</select>`,row=(t,x)=>`<div class="setrow"><span>${t}</span>${x}</div>`;
-  let h=row(nT('الطور','Mode'),sel('mode',[['free',nT('تمشي حر','Free roam')],['fight',nT('قتال 1 ضد 1','Fight 1 v 1')]]))+row(nT('قوة الشخصيات','Fighter stats'),sel('stats',[['n','Normal'],['c','Custom']]));
-  if(S.mode==='free')h+=row(nT('اللعب','Play'),sel('pvp',[[0,nT('تمشي بس','Just walk')],[1,nT('مضاربة','Fighting')]]))+row(nT('الأسلحة','Weapons'),sel('wpn',[['none',nT('بدون','None')],['melee',nT('سكين وفأس بس','Knife & axe')],['all',nT('كلها','All')]]))+
+  let h=row(nT('قوة الشخصيات','Fighter stats'),sel('stats',[['n','Normal'],['c','Custom']]));
+  if(S.mode==='free')h+=row(nT('ضرب بين اللاعبين','Players can hit each other'),sel('pvp',[[0,nT('لا','No')],[1,nT('نعم','Yes')]]))+row(nT('الأسلحة','Weapons'),sel('wpn',[['none',nT('بدون','None')],['melee',nT('سكين وفأس بس','Knife & axe')],['all',nT('كلها','All')]]))+
     row(nT('الوقت','Time'),sel('time',[[0,nT('بدون حد','No limit')],[5,'5 '+nT('دقايق','min')],[10,'10 '+nT('دقايق','min')],[15,'15 '+nT('دقيقة','min')]]))+row(nT('فرق','Teams'),sel('teams',[[0,nT('كل واحد لحاله','Everyone alone')],[1,nT('فريقين','Two teams')]]))+
     row(nT('بوتات','Bots'),sel('bots',[[0,'0'],[1,'1'],[2,'2'],[3,'3'],[4,'4']]))+row(nT('البوتات مع','Bots fight'),sel('botSide',[['enemy',nT('ضد الكل','Against everyone')],['A',nT('مع الفريق الأحمر','With the red team')],['B',nT('مع الفريق الأزرق','With the blue team')]]));
   return h}
@@ -5700,10 +5742,12 @@ function netDraw(){const M=$('mmNet');if(!M||M.hidden)return;const R_=NET.room;
     <div style="display:flex;flex-direction:column;gap:4px">${pl.map((p,i)=>`<div class="setrow"><span>${p.id===R_.host?'👑 ':''}${(p.name||'').replace(/</g,'')}${p.id===R_.id?nT(' (أنت)',' (you)'):''}</span><span style="opacity:.8">${p.d&&p.d.ch?CHARS[p.d.ch].name[lang]:''}${teams&&p.d?(p.d.team==='B'?' · 🔵':' · 🔴'):''}${S.mode==='fight'&&i>1?nT(' · يتفرج',' · watching'):''}</span></div>`).join('')}</div>
     <div class="setrow"><span>${nT('شخصيتك','Your fighter')}</span><select id="netCh" style="${NET_SEL}">${ROSTER_OPEN.map(k=>`<option value="${k}" ${md.ch===k?'selected':''}>${CHARS[k].name[lang]}</option>`).join('')}</select></div>
     ${teams?`<div class="setrow"><span>${nT('فريقك','Your team')}</span><select id="netTeam" style="${NET_SEL}"><option value="A" ${md.team!=='B'?'selected':''}>${nT('الأحمر','Red')}</option><option value="B" ${md.team==='B'?'selected':''}>${nT('الأزرق','Blue')}</option></select></div>`:''}
+    <div class="netModes">${[['free','🗺',nT('تمشية حرة','Free roam'),nT('لين 5 لاعبين','up to 5 players')],['fight','⚔',nT('قتال 1 ضد 1','Fight 1 v 1'),nT('لاعبين، والباقي يتفرج','two players, the rest watch')]].map(([m,ic,t,d])=>`<button type="button" data-mode="${m}" class="${S.mode===m?'on':''}" ${host?'':'disabled'}><span>${ic}</span><b>${t}</b><small>${d}</small></button>`).join('')}</div>
     <div id="netSet">${netSetForm(S,host)}</div>
     ${host?`<button class="btn" id="netGo">${nT('ابدأ','Start')}</button>`:`<div class="lbl" style="opacity:.8">${nT('ننتظر صاحب الغرفة يبدأ','Waiting for the room owner to start')}</div>`}
     <div id="netErr" style="color:#ffb08a;min-height:1.2em;font-size:14px"></div><button class="btn ghost sm" id="netLeave">${nT('اطلع من الغرفة','Leave the room')}</button>`;
   $('netCh').onchange=()=>netMe({ch:$('netCh').value});if($('netTeam'))$('netTeam').onchange=()=>netMe({team:$('netTeam').value});
+  for(const b of M.querySelectorAll('[data-mode]'))b.onclick=()=>{if(!host)return;const s=Object.assign({},NET_DEF,R_.state.s||{});s.mode=b.dataset.mode;R_.setState({s});netDraw()};
   for(const el of $('netSet').querySelectorAll('select'))el.onchange=()=>{const s=Object.assign({},NET_DEF,R_.state.s||{});s[el.dataset.k]=el.value;R_.setState({s});netDraw()};
   if($('netGo'))$('netGo').onclick=()=>{const S2=Object.assign({},NET_DEF,R_.state.s||{});if(S2.mode==='fight'&&R_.players.size<2){$('netErr').textContent=nT('القتال يحتاج لاعبين','A fight needs two players');return}if(S2.mode==='free'&&R_.players.size>5){$('netErr').textContent=nT('التمشية الحرة لخمسة لاعبين بالكثير','Free roam is for 5 players at most');return}R_.setState({go:{t:Date.now(),seed:(Math.random()*2**31)|0,n:(R_.state.go&&R_.state.go.n||0)+1}});netStart()};
   $('netLeave').onclick=()=>netLeave()}
@@ -5712,8 +5756,8 @@ async function netJoin(code){const er=t=>{if($('netErr'))$('netErr').textContent
   try{const GN=await netLib();er(nT('جاري الاتصال…','Connecting…'));
     const room=await GN.join({server:location.origin,game:'billi',code:code||undefined,name:nm,data:{ch:ROSTER_OPEN.includes('billi')?'billi':ROSTER_OPEN[0],team:'A'},max:8,public:!code&&false});
     NET.room=room;NET.on=true;if(room.isHost&&!room.state.s)room.setState({s:Object.assign({},NET_DEF)});setTimeout(rtcMeet,300);
-    room.on('join',p=>{netDraw();rtcMeet();netBadge()}).on('leave',(id)=>{rtcClose(id);netDrop(id);netDraw();netBadge()}).on('player',()=>netDraw()).on('host',()=>netDraw()).on('state',p=>{if(p.go)netStart();if(p.s)netDraw()}).on('msg',(d,from)=>netMsg(d,from)).on('status',s=>{if(s==='closed'){netLeave(true);banner(nT('انقطع الاتصال','Disconnected'),'red sm',120)}});
-    netDraw();netBadge()}catch(e){const m=String(e.message||e),T_={'room not found':['ما فيه غرفة بهذا الرقم','No room with that code'],'room is full':['الغرفة مليانة','The room is full'],'room is locked':['الغرفة مقفولة','The room is locked'],'could not connect':['ما قدرت أتصل بالسيرفر','Could not reach the server'],'connection timed out':['السيرفر ما رد','The server did not answer']}[m];er(T_?nT(T_[0],T_[1]):m)}}
+    room.on('join',p=>{netDraw();rtcMeet();netBadge();if(phase!=='menu')banner((p&&p.name||nT('لاعب','A player'))+nT(' دخل الغرفة',' joined the room'),'gold sm',160)}).on('leave',(id)=>{rtcClose(id);netDrop(id);netDraw();netBadge()}).on('player',()=>netDraw()).on('host',()=>netDraw()).on('state',p=>{if(p.go)netStart();if(p.s)netDraw()}).on('msg',(d,from)=>netMsg(d,from)).on('status',s=>{if(s==='closed'){netLeave(true);banner(nT('انقطع الاتصال','Disconnected'),'red sm',120)}});
+    netDraw();netBadge();if(room.state.go&&Object.assign({},NET_DEF,room.state.s||{}).mode==='free'&&!room.isHost)setTimeout(()=>{NET.started=null;netStart()},400)}catch(e){const m=String(e.message||e),T_={'room not found':['ما فيه غرفة بهذا الرقم','No room with that code'],'room is full':['الغرفة مليانة','The room is full'],'room is locked':['الغرفة مقفولة','The room is locked'],'could not connect':['ما قدرت أتصل بالسيرفر','Could not reach the server'],'connection timed out':['السيرفر ما رد','The server did not answer']}[m];er(T_?nT(T_[0],T_[1]):m)}}
 function netLeave(quiet){rtcCloseAll();setTimeout(netBadge,0);const R_=NET.room;NET.room=null;NET.on=false;NET.mode=null;if(R_&&!quiet)try{R_.leave()}catch(e){}for(const a of NET.rem.values())try{removeActor(a)}catch(e){}NET.rem.clear();
   if(phase==='story'||phase==='fight'||phase==='intro'||phase==='ko'||phase==='round'||phase==='end')toMenu();netDraw()}
 // ---- starting
