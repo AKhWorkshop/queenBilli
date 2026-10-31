@@ -598,6 +598,7 @@ kbd{border-radius:0;border-color:var(--line)}
 /* inventory: two buttons on each card */
 .invBtns{display:flex;gap:6px}.invBtns button{flex:1}.invBtns .invDrop{background:transparent!important;border:1px solid var(--line,#2A2E3D)!important;color:var(--muted,#B4B9C9)!important}
 /* the card of a fighter who just opened */
+#ammoBox{position:fixed;left:calc(50% + 46px);top:calc(50% + 26px);z-index:16;pointer-events:none;font:800 20px var(--f-display);color:#fff;text-shadow:0 1px 3px #000,0 0 2px #000;font-variant-numeric:tabular-nums;white-space:nowrap}#ammoBox i{font-style:normal;font-size:14px;opacity:.8}#ammoBox.low{color:#ffc04d}#ammoBox.out{color:#ff5a4a}
 #hitX{position:fixed;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;z-index:17;pointer-events:none;opacity:0}#hitX i{position:absolute;left:50%;top:50%;width:10px;height:2px;background:#fff;box-shadow:0 0 2px #000;transform-origin:0 50%}#hitX i:nth-child(1){transform:rotate(45deg) translateX(5px)}#hitX i:nth-child(2){transform:rotate(135deg) translateX(5px)}#hitX i:nth-child(3){transform:rotate(225deg) translateX(5px)}#hitX i:nth-child(4){transform:rotate(315deg) translateX(5px)}#hitX.hd i{background:#ff3a3a}#hitX.on{animation:hitX .22s ease-out}@keyframes hitX{0%{opacity:1;transform:scale(1.35)}100%{opacity:0;transform:scale(1)}}
 #sbBoard{position:absolute;inset:0;z-index:75;display:flex;justify-content:center;align-items:stretch;background:rgba(7,8,12,.84);backdrop-filter:blur(3px);padding:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}#sbBoard[hidden]{display:none}
 #sbBoard .sbIn{display:flex;flex-direction:column;gap:10px;width:min(1100px,100%);min-height:0}
@@ -613,6 +614,8 @@ kbd{border-radius:0;border-color:var(--line)}
 #sbBoard .sbPpl{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
 #sbBoard .sbP{display:flex;flex-direction:column;gap:4px;padding:0;border:1px solid #3a3740;border-radius:10px;overflow:hidden;background:#15141b;color:#fff;cursor:pointer;font:700 12px var(--f-body)}
 #sbBoard .sbP img,#sbBoard .sbP .sbSil{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:radial-gradient(circle at 50% 35%,#3a3940,#151419)}#sbBoard .sbP b{padding:2px 6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sbBoard .sbRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}#sbBoard .sbRow>b{font:700 13px var(--f-body);color:#c9c4d6}
+#sbBoard .sbPm{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 10px}#sbBoard .sbPm button{min-height:28px;padding:2px 8px;border-radius:999px;border:1px solid #3a3740;background:transparent;color:#ddd;font:600 11px var(--f-body);cursor:pointer}#sbBoard .sbPm button.on{background:#2dd4cf;color:#06201f;border-color:transparent}
 #sbBoard .sbNo{margin:0;color:#ffb08a;font-size:14px}
 #sbBoard .sbMine{flex:none;display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-top:1px solid #2c2a33;padding-top:8px;font-size:13px;color:#b4b9c9;max-height:28vh;overflow-y:auto}
 #sbBoard .sbChip{min-height:34px;padding:4px 10px;border-radius:999px;border:1px solid #3a3740;background:rgba(255,255,255,.05);color:#fff;font:600 12px var(--f-body);cursor:pointer}
@@ -636,6 +639,7 @@ kbd{border-radius:0;border-color:var(--line)}
   <div id="outfitPanel" hidden><div class="opHead"><button class="lang" id="opBack" type="button">◀</button><b id="opTitle"></b><button class="btn ghost sm" id="opDone" type="button"></button></div><div class="opBody" id="opBody"></div></div>
   <div id="outfitBar" hidden><button class="lang" id="lookPrev" type="button" hidden>◀</button><div><div class="lbl" data-i18n="outfitMenu"></div><b id="lookName"></b></div><button class="lang" id="lookNext" type="button" hidden>▶</button><span class="wearRow"><button class="lang" id="w_hat" type="button"></button><button class="lang" id="w_hair" type="button"></button><button class="lang" id="w_top" type="button"></button><button class="lang" id="w_jacket" type="button"></button><button class="lang" id="w_bottom" type="button"></button><button class="lang" id="w_shoes" type="button"></button></span><button class="btn ghost sm" id="outfitBack" data-i18n="back"></button></div>
   <div id="gunHud" hidden style="position:absolute;right:18px;top:92px;z-index:20;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.55);color:#ffd27a;font-weight:800;font-size:15px"></div>
+  <div id="ammoBox" hidden></div>
   <div id="hitX" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div id="xhair" hidden style="position:fixed;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;z-index:16;pointer-events:none;border:2px solid rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.5)"><i style="position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;background:#ff4040;border-radius:50%"></i></div>
   <div id="scope" hidden style="position:fixed;inset:0;z-index:16;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 0,transparent 33vmin,#000 33.5vmin)"><i style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.85)"></i><i style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(0,0,0,.85)"></i><b style="position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:#ff3030"></b></div>
@@ -860,7 +864,7 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const STEP=1/60;
 
 /* Version: 0.minor.patch while the game is in testing (big change or new feature: minor, small fix: patch) */
-const VERSION='0.31.0';
+const VERSION='0.32.0';
 /* ================= Input ================= */
 // every action and its keys; the player can change them in the settings (saved in this browser)
 const BIND_DEF={up:['KeyW'],down:['KeyS'],left:['KeyA'],right:['KeyD'],run:['ShiftLeft','ShiftRight'],jump:['Space'],roll:['ControlLeft','ControlRight'],
@@ -1198,6 +1202,14 @@ const MOVES={
     hits:[{f:6,len:3,dmg:5,lvl:'high',range:1.05,hs:22,bs:10,push:.04,snd:'slap'},{f:14,len:3,dmg:8,lvl:'high',range:1.08,hs:40,bs:14,push:.1,crumple:true,snd:'slap'}]},
   kt_knee:{travel:[3,13,3.4],s:13,a:5,r:22,keys:[[0,GUARD],[6,SP.kDip],[13,SP.knee],[18,SP.knee],[28,{...POSE.crouch,hipY:-.2}],[40,GUARD]],hits:[{f:13,len:5,dmg:13,lvl:'mid',range:1.25,bs:18,push:.4,knock:'hard'}]},
   kt_axe:{travel:[1,10,1.4],s:16,a:4,r:24,keys:[[0,POSE.jab],[8,{...SP.axUp,rootY:.12}],[16,SP.axDown],[20,SP.axDown],[44,GUARD]],hits:[{f:16,len:4,dmg:15,lvl:'mid',range:1.4,bs:20,push:.3,knock:'trip',big:true}]},
+  // KATARA'S RAGE: grabs him, turns him round and slaps his backside twice, then shoves him over
+  katara_spank:{home:true,isRage:true,hold:true,spank:true,s:10,a:54,r:26,armor:10,travel:[1,9,1.7],
+    keys:[[0,POSE.rageWind],[8,G({lShX:-1.4,lEl:-.4,rShX:-1.3,rEl:-.5,lunge:.22})],
+      [14,G({lShX:-1.1,lEl:-.9,rShX:-2.7,rShZ:.3,rEl:-1.3,spY:.35,lunge:.12})],[20,G({lShX:-1.1,lEl:-.9,rShX:-.55,rShZ:.15,rEl:-.2,spY:-.45,spX:.35,hipY:-.08,lunge:.18})],
+      [28,G({lShX:-1.1,lEl:-.9,rShX:-2.7,rShZ:.3,rEl:-1.3,spY:.35,lunge:.12})],[36,G({lShX:-1.1,lEl:-.9,rShX:-.55,rShZ:.15,rEl:-.2,spY:-.5,spX:.4,hipY:-.1,lunge:.2})],
+      [44,G({lShX:-1.5,lEl:-.2,rShX:-1.5,rEl:-.2,lunge:.32,spX:.15})],[62,GUARD]],
+    hits:[{f:10,dmg:3,lvl:'mid',range:1.4,hs:56,bs:10,crumple:true,snd:'body'},{f:20,dmg:10,lvl:'mid',range:1.35,hs:44,bs:12,crumple:true,snd:'slap'},
+      {f:36,dmg:12,lvl:'mid',range:1.35,hs:34,bs:12,crumple:true,snd:'slap',big:true},{f:46,dmg:12,lvl:'mid',range:1.45,bs:14,push:.9,knock:'hard',big:true,snd:'bodyL'}]},
   katara_rage:{home:true,isRage:true,s:14,a:52,r:30,armor:30,travel:[2,10,2.6],gas:[14,66,60],keys:[[0,POSE.rageWind],[6,G({spin:1.4,hipY:-.1,lShZ:-.6,rShZ:.6,hdY:-.6})],
     [12,KF.bent],[14,{...KF.bent,hipY:-.26}],[18,KF.bent],[20,{...KF.bent,hipY:-.27,spX:.85}],[24,KF.bent],[26,{...KF.bent,hipY:-.26}],[30,KF.bent],[32,{...KF.bent,hipY:-.28,spX:.85}],[36,KF.bent],[38,{...KF.bent,hipY:-.26}],[42,KF.bent],[44,{...KF.bent,hipY:-.28,spX:.85}],[48,KF.bent],
     [54,KF.squat],[60,KF.blast],[64,KF.blast],[74,{...KF.bent,spX:.4,hipY:-.1}],[96,G({spin:TAU})]],
@@ -2158,6 +2170,48 @@ function aimCam(dt){
   c.lookAt(t0.lerp(ta,k));const fv=(GUN_AIM[gunKind(P.gun)]||GUN_AIM.pistol).fov;c.fov=c.fov+(fv-c.fov)*k;c.updateProjectionMatrix()}
 function tracerTick(dt){for(const t of TRC){if(t.life<=0)continue;t.life-=dt*14;t.m.material.opacity=Math.max(0,t.life);if(t.life<=0)t.m.visible=false}}
 function muzzle(f){const S=f.skin;if(S&&S.gunM){S.gunM.updateMatrixWorld(true);return S.gunTip.clone().applyMatrix4(S.gunM.matrixWorld)}return new R.T.Vector3(f.x+f.ax*.6,f.y+1.35,f.z+f.az*.6)}
+/* ---- bullets: what is in the gun (f.ammo) and what is left to reload from (f.resBy[gun]); no record = endless (story, fights) ---- */
+const gunRes=(f,g)=>{g=g||f.gun;const r=f.resBy&&f.resBy[g];return r==null?Infinity:r};
+// a gun picked up with a number of bullets (Infinity = endless): the magazine fills first, the rest is spare
+function gunTake(P,id,total){P.ammoBy=P.ammoBy||{};P.resBy=P.resBy||{};const mag=magSize(id);
+  if(total===Infinity||P.resBy[id]===Infinity){P.ammoBy[id]=mag;P.resBy[id]=Infinity}
+  else{const cur=(P.gun===id?P.ammo:(P.ammoBy[id]||0))+(P.resBy[id]||0)+total;P.ammoBy[id]=Math.min(mag,cur);P.resBy[id]=cur-P.ammoBy[id]}
+  if(P.gun===id)P.ammo=P.ammoBy[id];gunHud(P)}
+function gunLeft(P,id){P.ammoBy=P.ammoBy||{};const inGun=P.gun===id?P.ammo:(P.ammoBy[id]!=null?P.ammoBy[id]:magSize(id)),res=gunRes(P,id);return res===Infinity?Infinity:inGun+res}
+// the small counter beside the crosshair: in the gun | spare
+function ammoTick(){const el=$('ammoBox'),P=phase==='story'?ST.player:null;if(!el)return;if(!P||!P.gun||P.hp<=0){el.hidden=true;return}
+  const r=gunRes(P),a=P.ammo===Infinity?'∞':P.ammo,t=P.state==='reload'?(lang==='ar'?'تعبئة…':'Reloading…'):`${a} <i>| ${r===Infinity?'∞':r}</i>`;
+  if(el._t!==t){el._t=t;el.innerHTML=t}el.hidden=false;el.classList.toggle('low',P.ammo!==Infinity&&P.ammo<=Math.max(2,magSize(P.gun)*.2));el.classList.toggle('out',P.ammo<=0&&r<=0)}
+/* ---- what the bullets hit besides people: trees, cars, the house, street furniture (small objects only; buildings use their boxes) ---- */
+const SHOT_HIT={props:null,mesh:null,inst:null};
+const noShotUp=o=>{for(let p=o;p;p=p.parent)if(p.userData&&p.userData.noShot)return true;return false};
+const isVeh=o=>{for(let p=o;p;p=p.parent)if(p.userData&&(p.userData.kind==='car'||p.userData.kind==='bike'||p.userData.kind==='moto'))return p;return null};
+// the still things in the world, measured once: each mesh as a sphere, each instanced set (trees, bushes, rails) as one box per copy
+function shotTargets(){const T=R.T;if(SHOT_HIT.props===ST.props&&SHOT_HIT.mesh)return SHOT_HIT;const mesh=[],inst=[];
+  if(ST.props){ST.props.updateMatrixWorld(true);ST.props.traverse(o=>{if(!(o.isMesh||o.isInstancedMesh)||noShotUp(o)||isVeh(o))return;   /* hidden ones too: near trees swap their far stand-ins as she walks */const g=o.geometry;if(!g||!g.attributes.position)return;
+    if(o.isInstancedMesh){if(!g.boundingBox)g.computeBoundingBox();const bx=[],M=new T.Matrix4(),all=new T.Box3();for(let i=0;i<o.count;i++){o.getMatrixAt(i,M);M.premultiply(o.matrixWorld);const b=g.boundingBox.clone().applyMatrix4(M);bx.push(b);all.union(b)}inst.push({o,bx,all});return}
+    if(!g.boundingSphere)g.computeBoundingSphere();const tri=(g.index?g.index.count:g.attributes.position.count)/3;if(g.boundingSphere.radius>25||tri>60000)return;   // the big city blocks: their boxes do it
+    const c=g.boundingSphere.center.clone().applyMatrix4(o.matrixWorld),sc=o.matrixWorld.getMaxScaleOnAxis();mesh.push({o,c,r:g.boundingSphere.radius*sc})})}
+  SHOT_HIT.props=ST.props;SHOT_HIT.mesh=mesh;SHOT_HIT.inst=inst;return SHOT_HIT}
+const SHOT_RC={rc:null};
+function rayObjects(o,d,far){const T=R.T;if(!SHOT_RC.rc)SHOT_RC.rc=new T.Raycaster();const rc=SHOT_RC.rc;rc.set(o,d);rc.near=.3;rc.far=far;const S=shotTargets(),ray=rc.ray;
+  let best=null;const take=(dist,p,n,car)=>{if(dist>.3&&dist<far&&(!best||dist<best.dist))best={dist,p,n,car}};
+  // meshes near the line of the shot only, then their triangles
+  const cand=[];for(const m of S.mesh){const v=m.c.clone().sub(o),t=v.dot(d);if(t<-m.r||t>far+m.r)continue;if(v.lengthSq()-t*t<=m.r*m.r)cand.push(m.o)}
+  for(const c of[...(CH.cars||[]),...(CH.vehs||[])])if(c.parent)c.traverse(x=>{if(x.isMesh)cand.push(x)});
+  if(cand.length){try{const hs=rc.intersectObjects(cand,false);const h=hs.find(x=>x.object.visible);if(h){const n=h.face?h.face.normal.clone().transformDirection(h.object.matrixWorld):d.clone().negate();take(h.distance,h.point.clone(),n,isVeh(h.object))}}catch(e){}}
+  // instanced copies: the first box the shot enters
+  const hp=new T.Vector3();for(const I of S.inst){if(!ray.intersectsBox(I.all))continue;for(const b of I.bx){if(!ray.intersectBox(b,hp))continue;const dist=hp.distanceTo(o);if(best&&dist>=best.dist)continue;
+      const c=b.getCenter(new T.Vector3()),q=hp.clone().sub(c),sz=b.getSize(new T.Vector3()),ax=['x','y','z'].reduce((a,k)=>Math.abs(q[k])/sz[k]>Math.abs(q[a])/sz[a]?k:a,'x'),n=new T.Vector3();n[ax]=Math.sign(q[ax])||1;take(dist,hp.clone(),n,null)}}
+  return best}
+// a bullet mark on what was hit (a small dark disc facing out of the surface), the oldest is reused
+const HOLES=[];
+function bulletHole(p,n){const T=R.T;let h=HOLES.length<40?null:HOLES.reduce((a,b)=>a.t<b.t?a:b);
+  if(!h){h={m:new T.Mesh(new T.CircleGeometry(.035,10),new T.MeshBasicMaterial({color:0x141210,transparent:true,opacity:.85,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4})),t:0};h.m.userData.noShot=true;R.scene.add(h.m);HOLES.push(h)}
+  h.m.position.copy(p).addScaledVector(n,.01);h.m.lookAt(p.clone().add(n));h.t=performance.now();h.m.visible=true}
+// a hit car rocks a little
+function carJolt(c,d){const U=c.userData;if(!U||!U.body)return;U.jolt=1;U.joltD=[d.x,d.z]}
+function joltTick(dt){for(const c of[...(CH.cars||[]),...(CH.vehs||[])]){const U=c.userData;if(!U||!U.jolt)continue;U.jolt=Math.max(0,U.jolt-dt*5);const k=Math.sin(U.jolt*18)*U.jolt*.025;U.body.rotation.z=k;if(U.jolt<=0)U.body.rotation.z=0}}
 /* ================= Aiming (story, free roam, 3D fights): the shot is a ray from the camera through the crosshair =================
    It leaves the muzzle for the point the ray hits; spread grows with walking, running and jumping (the crosshair grows with it);
    head / body / legs zones; a hit marker, a tracer and sparks; light aim assist on touch screens; Q locks on with a gun. */
@@ -2172,7 +2226,9 @@ function gunSpread(P){const GA=GUN_AIM[gunKind(P.gun)]||GUN_AIM.pistol,ads=P.aim
   if(P.state==='crouch')s*=.7;
   return s+(P.aimRec||0)*.35}
 // the camera's ray through the middle of the screen, turned by a random amount inside the spread cone
-function aimRay(spread){const T=R.T,c=R.cam,o=c.position.clone(),d=c.getWorldDirection(new T.Vector3());
+// from the hip the camera looks at her, not ahead: the shot goes from the camera to a point 14 m ahead of her at chest height
+function hipPoint(P){const T=R.T,y=ST.cam.yaw;return new T.Vector3(P.x+Math.sin(y)*14,(P.y||0)+(P.floor||0)+1.3,P.z+Math.cos(y)*14)}
+function aimRay(spread,P){const T=R.T,c=R.cam,o=c.position.clone(),hip=P&&!(P.aiming&&R.aimK>.7)&&!ST.lock,d=hip?hipPoint(P).sub(o).normalize():c.getWorldDirection(new T.Vector3());
   if(spread>0){const up=new T.Vector3(0,1,0).applyQuaternion(c.quaternion),rt=new T.Vector3(1,0,0).applyQuaternion(c.quaternion),a=Math.random()*6.283,r=Math.sqrt(Math.random())*Math.tan(spread);
     d.addScaledVector(rt,Math.cos(a)*r).addScaledVector(up,Math.sin(a)*r).normalize()}
   return{o,d}}
@@ -2194,13 +2250,14 @@ function fireRay(f,G){const T=R.T,mz=muzzle(f),kind=gunKind(f.gun),GA=GUN_AIM[ki
   // she turns to where the camera looks when shooting from the hip
   if(!ads&&!ST.lock){const c=R.cam.getWorldDirection(new T.Vector3()),l=Math.hypot(c.x,c.z)||1;f.ax=c.x/l;f.az=c.z/l}
   const tg=(f.targets?f.targets():[]).filter(t=>t&&t!==f&&t.hp>0&&!['ko','getup'].includes(t.state));
-  for(let k=0;k<pel;k++){const{o,d}=aimRay(AIM.spread*(pel>1?1.6:1));
+  for(let k=0;k<pel;k++){const{o,d}=aimRay(AIM.spread*(pel>1?1.6:1),f);
     let hit=null;for(const t of tg){const h=rayActor(o,d,t);if(h&&h.dist<G.range*1.6&&(!hit||h.dist<hit.dist))hit=h}
     // touch screens: a shot that just misses someone near the crosshair still finds their body
     if(!hit&&AIM.touch){let bd=1e9;for(const t of tg){const c=new T.Vector3(t.x,(t.y||0)+1.2,t.z),v=c.clone().sub(o),dist=v.length();if(dist>G.range*1.6)continue;const ang=v.normalize().angleTo(d);if(ang<.05+AIM.spread&&dist<bd){bd=dist;hit={t,zone:'body',dist,p:c}}}}
-    const W_=rayWorld(o,d,hit?hit.dist:G.range*1.6);if(hit&&W_.p&&W_.dist<hit.dist-.2)hit=null;
+    const W_=rayWorld(o,d,hit?hit.dist:G.range*1.6),Ob=rayObjects(o,d,W_.dist);if(Ob&&Ob.dist<W_.dist){W_.p=Ob.p;W_.dist=Ob.dist;W_.n=Ob.n;W_.car=Ob.car}
+    if(hit&&W_.p&&W_.dist<hit.dist-.2)hit=null;
     const end=hit?hit.p:W_.p||o.clone().addScaledVector(d,G.range*1.6);tracer(mz,end);
-    if(!hit){if(W_.p)spark(end.x,end.y,end.z,0xd8d2c4,5);continue}
+    if(!hit){if(W_.p){const n=W_.n||(end.y<.05?new T.Vector3(0,1,0):d.clone().negate());spark(end.x,end.y,end.z,W_.car?0xffd27a:0xd8d2c4,W_.car?9:5);bulletHole(end,n);if(W_.car){carJolt(W_.car,d);sfx('block')}}continue}
     const t=hit.t,head=hit.zone==='head',fall=kind==='shotgun'?Math.max(.3,1-Math.max(0,hit.dist-2)/(G.range-2)*.7):1,mult=head?1:HIT_ZONES[hit.zone];
     const dm=(head?DMG[kind+'H']:DMG[kind])*mult*fall*(DMG_K[WPN.dmg]||1)/(pel>1?pel*.6:1);
     f.gunShot=true;const res=resolveHit(f,t,{dmg:dm,lvl:hit.zone==='legs'?'low':'mid',range:99,hs:G.knock?22:14,bs:0,push:G.knock?.9:.15,knock:G.knock&&fall>.6?'hard':undefined,big:dm>=40,snd:'body'},{home:true});f.gunShot=false;
@@ -2210,7 +2267,9 @@ function fireRay(f,G){const T=R.T,mz=muzzle(f),kind=gunKind(f.gun),GA=GUN_AIM[ki
 // every frame: the crosshair shows the spread; on touch screens the camera leans gently toward someone near it
 function aimTick(dt){const P=phase==='story'?ST.player:null,el=$('xhair');if(!P||!P.gun||!gunsOn()||P.hp<=0){if(el&&phase==='story')el.hidden=true;return}
   const tgt=gunSpread(P);AIM.spread+=(tgt-AIM.spread)*Math.min(1,dt*10);
-  if(el){const c=R.cam,px=Math.tan(AIM.spread)/Math.tan(c.fov*Math.PI/360)*innerHeight/2,sz=Math.max(14,Math.min(140,px*2+10));el.hidden=!!(R.aimK>.7&&P.gun.startsWith('sniper'));el.style.width=el.style.height=sz+'px';el.style.margin=(-sz/2)+'px 0 0 '+(-sz/2)+'px';el.style.opacity=R.aimK>.7?1:.55}
+  if(el){const c=R.cam,px=Math.tan(AIM.spread)/Math.tan(c.fov*Math.PI/360)*innerHeight/2,sz=Math.max(14,Math.min(140,px*2+10));el.hidden=!!(R.aimK>.7&&P.gun.startsWith('sniper'));el.style.width=el.style.height=sz+'px';el.style.margin=(-sz/2)+'px 0 0 '+(-sz/2)+'px';el.style.opacity=R.aimK>.7?1:.55;
+    let lx='50%',ly='50%';if(!(P.aiming&&R.aimK>.7)&&!ST.lock){const v=hipPoint(P).project(c);if(v.z<1){lx=((v.x+1)/2*innerWidth).toFixed(0)+'px';ly=((1-v.y)/2*innerHeight).toFixed(0)+'px'}}
+    el.style.left=lx;el.style.top=ly;const hx=$('hitX'),ab=$('ammoBox');if(hx){hx.style.left=lx;hx.style.top=ly}if(ab){ab.style.left='calc('+lx+' + 46px)';ab.style.top='calc('+ly+' + 26px)'}}
   if(AIM.touch&&P.aiming&&R.aimK>.7&&!ST.lock){const T=R.T,c=R.cam,o=c.position,d=c.getWorldDirection(new T.Vector3());let best=null,ba=.1;
     for(const t of(P.targets?P.targets():[])){if(!t||t.hp<=0)continue;const v=new T.Vector3(t.x-o.x,(t.y||0)+1.25-o.y,t.z-o.z),a=v.clone().normalize().angleTo(d);if(a<ba&&v.length()<30){ba=a;best=v}}
     if(best){const want=Math.atan2(best.x,best.z),cur=Math.atan2(d.x,d.z);let dy=want-cur;dy=Math.atan2(Math.sin(dy),Math.cos(dy));ST.cam.yaw+=dy*Math.min(1,dt*2.2)}}}
@@ -2218,7 +2277,8 @@ function aimTick(dt){const P=phase==='story'?ST.player:null,el=$('xhair');if(!P|
 function aimTwist(f){if(!f.aiming||!f.gun||!(R.aimK>.3)||phase!=='story'||f!==ST.player)return;const T=R.T,lk=ST.lock&&ST.lock.hp>0?ST.lock:null,pitch=(lk?Math.atan2((lk.y||0)+1.3-(f.y||0)-1.45,Math.hypot(lk.x-f.x,lk.z-f.z)||1):Math.atan2((f.aimY??1.3)-1.62,12))*R.aimK;   // where she aims, not where the camera sits
   const q=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-pitch*.8);f.rig.spine.quaternion.premultiply(q)}
 function fireGun(f,o){
-  const G=GUNS[f.gun];if(f.ammo<=0){sfx('gdry');setState(f,'reload');f.reloadT=G.mag>6?70:90;sfx(G.rl==='gk'?'gpump':G.rl==='gc'?'gcock':'greload');return}
+  const G=GUNS[f.gun];if(f.ammo<=0&&gunRes(f)<=0){sfx('gdry');f.gunCd=24;if(f===ST.player)banner(lang==='ar'?'خلص الرصاص':'Out of bullets','red sm',60);return}
+  if(f.ammo<=0){sfx('gdry');setState(f,'reload');f.reloadT=G.mag>6?70:90;sfx(G.rl==='gk'?'gpump':G.rl==='gc'?'gcock':'greload');return}
   if(f.ammo!==Infinity)f.ammo--;f.gunCd=G.rate;setState(f,'shoot');sfx(G.snd==='gp'?'gpistol':G.snd==='gr'?'grevolver':G.snd==='gs'?'gsmg':G.snd==='ga'?'grifle':G.snd==='gh'?'gshotgun':'gsniper');
   const mz=muzzle(f),T=R.T;impact(mz.x,mz.y,mz.z,'gun',f.ax,f.az);R.shake=Math.max(R.shake,G.knock?.12:.04);
   if(aimStory(f)){fireRay(f,G);return}
@@ -2502,7 +2562,7 @@ function updateFighter(f,o,I){
   const ground=!['air','jump','hop'].includes(f.state);
   if(ground){f.x+=f.vx*STEP;f.z+=f.vz*STEP;f.vx*=.82;f.vz*=.82}
   // auto-face the opponent unless committed to an attack
-  if(!f.noFace&&!['attack','air','down','ko','win','roll','thrown','throwA'].includes(f.state)){f.ax=ux;f.az=uz}
+  if(!f.noFace&&!(f.turnedT>tick)&&!['attack','air','down','ko','win','roll','thrown','throwA'].includes(f.state)){f.ax=ux;f.az=uz}   // turnedT: held facing away (Katara's spank)
   switch(f.state){
     case'hit':case'block':if(--f.stun<=0)setState(f,'idle');break;
     case'air':case'jump':
@@ -2540,8 +2600,8 @@ function updateFighter(f,o,I){
       if(f.st>=6&&LIVE()){const mv=pickMove(f,I,fwdHeld,backHeld);if(mv){startMove(f,mv,o);break}}
       if(f.st>=16)setState(f,'idle');break;}
     case'dazed':if(--f.daze<=0)setState(f,'idle');break;
-    case'shoot':if(f.gunCd>0)f.gunCd--;if(f.st>=Math.min(10,GUNS[f.gun]?GUNS[f.gun].rate:8))setState(f,'idle');break;
-    case'reload':if(--f.reloadT<=0){f.ammo=magSize(f.gun);setState(f,'idle');if(f===ST.player||f===p1)gunHud(f)}break;
+    case'shoot':if(f.gunCd>0)f.gunCd--;if(!f.isAI&&f.gun&&GUNS[f.gun]&&f.gunCd<=0&&(pressedF(f,'fire',10)||(GUNS[f.gun].auto&&f.holdFire))){consume(f,'fire');fireGun(f,o);break}if(f.st>=Math.min(10,GUNS[f.gun]?GUNS[f.gun].rate:8))setState(f,'idle');break;
+    case'reload':if(--f.reloadT<=0){const mag=magSize(f.gun),res=gunRes(f),take=res===Infinity?mag-f.ammo:Math.min(res,Math.max(0,mag-f.ammo));f.ammo+=take;if(res!==Infinity){f.resBy[f.gun]=res-take}setState(f,'idle');if(f===ST.player||f===p1)gunHud(f)}break;
     case'attack':{
       const m=MOVES[f.move];f.mf++;
       if(f.move==='billi_dance'){const u=toOpp(f,o);
@@ -2549,7 +2609,7 @@ function updateFighter(f,o,I){
         if(f.mf>=192&&f.mf<=200&&f.danceT===o&&u.d>.82){const k=Math.min(1,(u.d-.82)*.35);f.x+=u.ux*k;f.z+=u.uz*k}
         if(f.mf===234&&f.danceT===o&&o.hp>0&&['hit','dazed'].includes(o.state)&&u.d<1.5){
           f.victim=o;o.thrower=f;f.noBreak=true;setState(f,'throwA');setState(o,'thrown');o.vx=o.vz=0;hitstop=4;break}}
-      if(m.hold&&f.connected&&o.hp>0&&['hit','dazed'].includes(o.state)){const u=toOpp(f,o);o.x=f.x+u.ux*.72;o.z=f.z+u.uz*.72}
+      if(m.hold&&f.connected&&o.hp>0&&['hit','dazed'].includes(o.state)){const u=toOpp(f,o);o.x=f.x+u.ux*.72;o.z=f.z+u.uz*.72;if(m.spank){o.ax=u.ux;o.az=u.uz;o.turnedT=tick+3}}   // spank: he is turned round, his back to her
       if(m.gas&&f.mf>=m.gas[0]&&f.mf<=m.gas[1]&&f.mf%3===0){const big=f.mf>=m.gas[2];gas(f.x+f.ax*.22,.78,f.z+f.az*.22,f.ax,f.az,big?5:2,big)}
       if(m.travel&&f.mf>=m.travel[0]&&f.mf<m.travel[1]){const sp=m.travel[2]*(1-(f.mf-m.travel[0])/(m.travel[1]-m.travel[0]))*.9+.4;f.x+=f.ax*sp*STEP;f.z+=f.az*sp*STEP}
       m.hits.forEach((h,i)=>{
@@ -2578,7 +2638,7 @@ function updateFighter(f,o,I){
     case'ko':case'win':break;
     default:{
       if(!LIVE()){if(f.state!=='idle')setState(f,'idle');break}
-      if(f.gun&&gunsOn()){if(f.gunCd>0)f.gunCd--;const G=GUNS[f.gun],fk=f.isAI?'h':'fire';const want=pressedF(f,fk,4)||(G.auto&&f.holdFire);if(want&&!(f.gunCd>0)){consume(f,fk);fireGun(f,o);break}if(pressedF(f,fk,4))consume(f,fk)}
+      if(f.gun&&gunsOn()){if(f.gunCd>0)f.gunCd--;const G=GUNS[f.gun],fk=f.isAI?'h':'fire';const win=f.isAI?4:12,want=pressedF(f,fk,win)||(G.auto&&f.holdFire);if(want&&!(f.gunCd>0)){consume(f,fk);fireGun(f,o);break}}   // the player's click waits up to 12 ticks for the gun to be ready
       if(pressedF(f,'throw',4)){consume(f,'throw');setState(f,'grab');f.ax=ux;f.az=uz;sfx('whoosh');break}
       const mv=pickMove(f,I,fwdHeld,backHeld);
       if(mv){startMove(f,mv,o);break}
@@ -3050,7 +3110,7 @@ function render(dt,t){
   for(const r of R.rings){if(r.life<=0)continue;r.life-=dt*4;r.m.scale.setScalar(1+(1-r.life)*4);r.m.material.opacity=Math.max(0,r.life);r.m.lookAt(R.cam.position);if(r.life<=0)r.m.visible=false}
   if(!reduced){const pos=R.dust.geometry.attributes.position;for(let i=0;i<pos.count;i++){pos.setX(i,pos.getX(i)+Math.sin(t*.3+i)*dt*.08);pos.setY(i,pos.getY(i)+Math.cos(t*.4+i*1.7)*dt*.06)}pos.needsUpdate=true}
   const fl=R.fire();if(fl)fl.intensity=1.9+Math.sin(t*13)*.25+Math.sin(t*7.3)*.2;
-  aimCam(dt);aimTick(dt);gardenTick(dt);impTick(dt);tracerTick(dt);if((tick&7)===0){const P=phase==='story'?ST.player:p1;if(P)gunHud(P)}fxRender(t);
+  aimCam(dt);aimTick(dt);ammoTick();joltTick(dt);gardenTick(dt);impTick(dt);tracerTick(dt);if((tick&7)===0){const P=phase==='story'?ST.player:p1;if(P)gunHud(P)}fxRender(t);
   if(phase==='story'){storyHud();return}
   // HUD
   // two health layers: green (first 100) over yellow (last 100)
@@ -4110,10 +4170,11 @@ function invUse(idx,w){const P=ST.player;if(!P)return;
     else banner(lang==='ar'?'العشب لكاتارا':'The herb is for Katara','sm',70)}}
 // throwing something away: it drops on the ground in front of her and can be picked up again
 function invDrop(idx,w){const P=ST.player,L_=w?INV.weapons:INV.items,id=L_[idx];if(!id||!P)return;L_.splice(idx,1);
+  let left=null;if(w&&GUNS[id]){left=gunLeft(P,id);if(!INV.weapons.includes(id)){if(P.ammoBy)delete P.ammoBy[id];if(P.resBy)delete P.resBy[id]}else left=null}   // a second gun of the same kind keeps the bullets
   if(w){if(P.gun===id)equipGun(P,null);if((id==='knife'||id==='axe')&&P.knife&&P.blade===id){equipKnife(P,false,id)}ST.hasKnife=INV.weapons.some(x=>x==='knife'||x==='axe');gunHud(P)}
   const x=P.x+(P.ax||0)*.9,z=P.z+(P.az||1)*.9;let o;
   if(id==='axe'){const T=R.T;o=new T.Group();const ax=axeMesh();ax.rotation.z=Math.PI/2.3;ax.position.set(-.3,.06,0);o.add(ax);o.add(chRing(0xffd27a));CH.items.push({kind:'axe',m:o,dropped:true})}
-  else{o=chItem(id,.2);const it=CH.items[CH.items.length-1];if(it&&it.m===o)it.dropped=true}
+  else{o=chItem(id,.2);const it=CH.items[CH.items.length-1];if(it&&it.m===o){it.dropped=true;if(left!=null)it.ammo=left}}
   o.position.set(x,0,z);if(ST.props)ST.props.add(o);sfx('whoosh');banner((lang==='ar'?'رميت ':'Dropped ')+((ITEM[id]&&ITEM[id][lang])||id),'sm',70);syncPad()}
 // the card of a fighter who just opened, in the middle of the screen (the game waits)
 function unlockCard(k){if(phase!=='story'&&phase!=='fight'){banner((lang==='ar'?'مقاتلة جديدة انفتحت: ':'New fighter unlocked: ')+((DLG_NAME[k]||CHARS[k]&&CHARS[k].name||{})[lang]||k),'gold sm',220);return}
@@ -4175,11 +4236,13 @@ function chTarget(){const H=FOREST.house;if(CH.free)return null;if(W2){const t=c
 /* ---- props of the chapter ---- */
 // a pickup lying on the ground: its model (lazy) on a coloured ring; E picks it up
 const CH_RING={heal:0x6dff8a,shield:0x5bd8ff,bag:0xffd27a,firearm:0x9ec3ff,melee:0xffb27a,quest:0xc7a8ff};
-function chItem(k,len){const T=R.T,o=new T.Group(),c=CARDS[k];o.add(chRing(CH_RING[c&&c.t]||0xffffff));
-  const put=()=>{const m=item3D(k,len)||gunItem3D(k);if(!m)return false;m.rotation.set(0,Math.random()*6,0);m.position.y=.02;o.add(m);return true};
+function chItem(k,len){const T=R.T,o=new T.Group(),c=CARDS[k];o.userData.noShot=true;o.add(chRing(CH_RING[c&&c.t]||0xffffff));
+  const wpn=c&&(c.t==='melee'||c.t==='firearm');
+  const put=()=>{const m=item3D(k,len)||gunItem3D(k);if(!m)return false;if(wpn){const T=R.T,b=new T.Box3().setFromObject(m),sz=b.getSize(new T.Vector3()),s=Math.max(sz.x,sz.y,sz.z),k2=s<.45?.45/s:1;m.scale.multiplyScalar(k2);const hv=new T.Group();hv.add(m);m.position.y=0;hv.position.y=.75;o.add(hv);o.userData.hover=hv;o.userData.spin=true}else{m.rotation.set(0,Math.random()*6,0);m.position.y=.02;o.add(m)}return true};
+  if(wpn){const T=R.T,col=CH_RING[c.t]||0xffffff,bm=new T.Mesh(new T.CylinderGeometry(.06,.18,1.6,12,1,true),new T.MeshBasicMaterial({color:col,transparent:true,opacity:.22,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide,fog:false}));bm.position.y=.8;bm.userData.noShot=true;o.add(bm)}
   if(!put()){if(GUNS[k]){loadGuns();let n=0;const iv=setInterval(()=>{if(put()||++n>150)clearInterval(iv)},400)}else loadItems3D().then(put)}CH.items.push({kind:k,m:o});return o}
 // a gun lying on the ground (the hand-held model, flat on its side)
-function gunItem3D(k){const G=GUN_SRC&&GUN_SRC[k];if(!G)return null;const T=R.T,m=new T.Mesh(G.geo,G.mat),o=new T.Group();m.rotation.x=Math.PI/2;m.position.y=.04;m.castShadow=true;o.add(m);return o}
+function gunItem3D(k){const G=GUN_SRC&&GUN_SRC[k];if(!G)return null;const T=R.T,o=new T.Group();let m;if(G.obj)m=G.obj.clone(true);else if(G.geo)m=new T.Mesh(G.geo,G.mat);else return null;m.updateMatrixWorld(true);const c=new T.Box3().setFromObject(m).getCenter(new T.Vector3());m.position.sub(c);m.traverse(x=>{if(x.isMesh)x.castShadow=true});o.add(m);return o}   // centred: it floats and turns above the beam (new guns are whole models, old ones one mesh)   // centred: it floats and turns above the beam
 // beaten enemies sometimes drop a drink or a heal
 function chDrop(x,z){const r=Math.random(),k=r<.22?'energy':r<.32?'roll':r<.37?'neon':r<.39?'elastic':null;if(!k||!ST.props)return;const o=chItem(k,k==='roll'||k==='elastic'?.2:.2);o.position.set(x,0,z);ST.props.add(o)}
 function chRing(col){const T=R.T,r=new T.Mesh(new T.RingGeometry(.4,.5,28),new T.MeshBasicMaterial({color:col,transparent:true,opacity:.6,side:T.DoubleSide,depthWrite:false}));r.rotation.x=-Math.PI/2;r.position.y=.03;return r}
@@ -4320,7 +4383,7 @@ function chStart(){const H=FOREST.house,P=ST.player;CH.on=true;CH.peds=[];CH.rin
   Object.assign(P,{x:1.6,z:-128,ax:0,az:-1,maxHp:200,hp:150,trail:150,shield:0,maxShield:100});H.broken=false;
   CH.free=W2&&!!ST.freeReq;if(CH.free){CH.s='free';Object.assign(P,{x:0,z:-97,ax:0,az:1})}else if(W2)chW2Start();
   if(W2)setTimeout(()=>queueSkins(BOOT_SKINS),4000);   // only if one failed at the loading screen   // the city's people load in the background, one at a time, while she is still in the forest
-  chProps(ST.props);chApplyTOD(0);ST.cam.yaw=Math.atan2(P.ax,P.az);R.cam.position.set(P.x-P.ax*4.2,1.95,P.z-P.az*4.2);$('app').classList.add('ch');$('dnBtn').hidden=!CH.free;$('sbBtn').hidden=!CH.free;SB.list=[];SB.busy={};
+  chProps(ST.props);chApplyTOD(0);ST.cam.yaw=Math.atan2(P.ax,P.az);R.cam.position.set(P.x-P.ax*4.2,1.95,P.z-P.az*4.2);$('app').classList.add('ch');$('dnBtn').hidden=!CH.free;$('sbBtn').hidden=!CH.free;SB.list=[];SB.busy={};SHOT_HIT.mesh=null;setTimeout(()=>{if(phase==='story'&&ST.props)shotTargets()},5000);   /* measure what bullets can hit once, after the world is in */
   if(CH.free){for(const it of CH.items)it.m.visible=false;CH.items=[];setTimeout(()=>{if(phase==='story'&&CH.free)banner(lang==='ar'?'تمشّي حر · المدينة ورا الجسر':'Free roam · the city is across the bridge','gold',220)},500);return}
   if(W2){if(ST.restoreSave){const d=ST.restoreSave;ST.restoreSave=null;chRestore(d)}return}
   setTimeout(()=>{if(phase==='story'&&CH.on){banner(lang==='ar'?'الفصل الأول · الباب المكسور':'Chapter 1 · The Broken Door','gold',200);setTimeout(()=>{if(phase==='story'&&CH.s==='wood')banner(lang==='ar'?'اجمع ٥ قطع حطب':'Gather 5 pieces of firewood','sm',200)},3600)}},500)}
@@ -4333,7 +4396,7 @@ function chCure(){const P=ST.player,K=ST.katara;setState(P,'heal');P.healAmt=0;s
       // Katara goes to the tree house; Billi takes the bike
       K.leaving=1;K.dest=[TREEHOUSE.x+.9,TREEHOUSE.z+2.5];chSet('bike');banner(lang==='ar'?'اركب الدراجة · E':'Get on the bike · E','sm',200)})},900)},900)}
 function chPickUp(it){const ar=lang==='ar';
-  if(it.dropped){if(invAdd(it.kind)){it.m.visible=false;if(it.kind==='knife'||it.kind==='axe')ST.hasKnife=true}return}
+  if(it.dropped){if(invAdd(it.kind)){it.m.visible=false;if(it.kind==='knife'||it.kind==='axe')ST.hasKnife=true;if(GUNS[it.kind])gunTake(ST.player,it.kind,it.ammo==null?Infinity:it.ammo)}return}
   if(it.kind==='axe'){if(invAdd('axe')){it.m.visible=false;ST.hasKnife=true;equipGun(ST.player,null);equipKnife(ST.player,true,'axe');sfx('pickup');chSet('wood');chXP(10);banner(ar?'الفأس معك · اضربي الشجرة ('+KL('h')+')':'You have the axe · hit a tree ('+KL('h')+')','gold sm',220)}return}
   const WN=W2?4:5;if(it.kind==='wood'){it.m.visible=false;CH.wood++;sfx('pickup');chXP(3);banner((ar?'حطب ':'Firewood ')+CH.wood+'/'+WN,'gold sm',70);
     if(CH.wood>=WN){chSet('home');CH.todT=1;CH.todR=.00075;setTimeout(()=>{if(CH.s==='home')banner(ar?'الشمس تغيب... ارجع للبيت':'The sun is going down... head home','sm',200)},1200)}return}
@@ -4376,7 +4439,7 @@ function chTick(P,live){const H=FOREST.house;CH.t++;if(NET.on)netFreeTick();
   // riding or driving: the jump button is the boost (bike, motorbike and cars go faster while it is held)
   {const rd=!!(CH.ride||CH.drive);if(rd!==CH._boostUI){CH._boostUI=rd;const t=rd?(lang==='ar'?'⚡ سرعة':'⚡ Boost'):L('jumpShort');$('mpJump').textContent=t;$('mpJump').classList.toggle('boost',rd)}}
   // what lies at her feet (picked up with E)
-  CH.pick=null;let pd=1.35;for(const it of CH.items){if(!it.m.visible)continue;if(it.up&&!P.up)continue;it.m.rotation.y+=.02;if(it.m.userData.hover)it.m.userData.hover.position.y=.45+Math.sin(CH.t*.05)*.06;const d=Math.hypot(P.x-it.m.position.x,P.z-it.m.position.z);if(d<pd&&(it.kind!=='wood'||CH.s==='wood')){pd=d;CH.pick=it}}
+  CH.pick=null;let pd=1.35;for(const it of CH.items){if(!it.m.visible)continue;if(it.up&&!P.up)continue;it.m.rotation.y+=.02;if(it.m.userData.hover){it.m.userData.hover.position.y=(it.m.userData.spin?.75:.45)+Math.sin(CH.t*.05)*.06;if(it.m.userData.spin)it.m.userData.hover.rotation.y+=.03};const d=Math.hypot(P.x-it.m.position.x,P.z-it.m.position.z);if(d<pd&&(it.kind!=='wood'||CH.s==='wood')){pd=d;CH.pick=it}}
   if(ST.knifeItem.visible){const d=Math.hypot(P.x-ST.knifeItem.position.x,P.z-ST.knifeItem.position.z);if(d<pd){pd=d;CH.pick={kind:'knife',m:ST.knifeItem}}}
   // the story beats
   if(CH.s==='home'&&(()=>{const[dx_,dz_]=HW(HOUSE_FRONT[0],HOUSE_FRONT[1]);return Math.hypot(P.x-dx_,P.z-dz_)<7})()){if(!H.broken){H.broken=true;chKatara();sfx('heavy');banner(lang==='ar'?'الباب مكسور!':'The door is broken!','red',150);chSet('inside')}}
@@ -4677,7 +4740,8 @@ const VEH_CARDS={bike:[70,'Bicycle','bronze'],moto:[71,'Motorbike','silver'],red
   van:[76,'Minivan','silver'],truck:[77,'Tanker Truck','silver'],audi:[78,'Audi Quattro','gold'],patrol:[79,'Police Car','gold'],future:[80,'SUV','gold'],gt:[81,'Bentley GT','gold']};
 for(const k in VEH_CARDS){const[n,name,r]=VEH_CARDS[k];if(!CARDS['v_'+k])CARDS['v_'+k]={t:'vehicle',n,name,r,d:[],img:1,o:60+n}}
 CARD_TYPE.vehicle=['عربة','Vehicle'];CARD_DEF.vehicle='#a3e635';
-const SB={tab:'wpn',mode:'walk',list:[],n:0,busy:{}};
+const SB={tab:'wpn',mode:'walk',list:[],n:0,busy:{},ammo:120,hitAll:false};
+const SB_AMMO=[30,60,120,300,Infinity];   // bullets that come with a summoned gun (Infinity = endless)
 const SB_TABS=[['wpn','الأسلحة','Weapons',['melee','firearm']],['heal','العلاج والدرع','Heals & shield',['heal','shield']],['bag','الشنط','Bags',['bag']],['veh','العربات','Vehicles',['vehicle']],['ppl','الناس','People',[]]];
 const SB_MODES=[['walk','يتمشون','Walk around'],['ally','يقاتلون معك','Fight with you'],['enemy','يقاتلون ضدك','Fight against you']];
 const sbMaxPpl=()=>lazyMob()?8:12,SB_MAX_OBJ=24,SB_MAX_VEH=6;
@@ -4695,30 +4759,32 @@ function sbOpen(){if(!(phase==='story'&&CH.on&&CH.free))return;if(document.point
   let B=$('sbBoard');if(!B){B=document.createElement('div');B.id='sbBoard';B.hidden=true;$('app').appendChild(B);
     B.addEventListener('click',e=>{const t=e.target.closest('[data-sb]');if(!t)return;e.stopPropagation();const[a,v]=t.dataset.sb.split(':');
       if(a==='x')sbClose();else if(a==='tab'){SB.tab=v;sbDraw()}else if(a==='mode'){SB.mode=v;sbDraw()}else if(a==='card')sbSummon(v);else if(a==='ppl')sbPerson(v,SB.mode);
-      else if(a==='del')sbRemove(+v);else if(a==='clear')sbClear();if(UI_SET!=='none')dlgClick()})}
+      else if(a==='del')sbRemove(+v);else if(a==='clear')sbClear();else if(a==='ammo'){SB.ammo=v==='inf'?Infinity:+v;sbDraw()}else if(a==='hit'){SB.hitAll=v==='all';sbDraw()}
+      else if(a==='pm'){const[id,m]=v.split('.');sbSetMode(+id,m)}if(UI_SET!=='none')dlgClick()})}
   const wp=paused;if(!paused&&!sbOnline())togglePause();$('pauseMenu').hidden=true;B.dataset.wp=wp?'1':'';B.hidden=false;sbDraw()}
 function sbClose(){const B=$('sbBoard');if(!B||B.hidden)return;B.hidden=true;if(paused&&!B.dataset.wp)togglePause()}
 function sbDraw(){const B=$('sbBoard');if(!B||B.hidden)return;const tab=SB_TABS.find(t=>t[0]===SB.tab)||SB_TABS[0];
   let body='';
   if(tab[0]==='ppl'){const ok=sbMay('ppl');
-    body=`<div class="sbModes">${SB_MODES.map(([m,a,e])=>`<button type="button" data-sb="mode:${m}" class="${SB.mode===m?'on':''}">${sbT(a,e)}</button>`).join('')}</div>`+
+    body=`<div class="sbRow"><b>${sbT('اللي تستدعيه:','New people:')}</b><div class="sbModes">${SB_MODES.map(([m,a,e])=>`<button type="button" data-sb="mode:${m}" class="${SB.mode===m?'on':''}">${sbT(a,e)}</button>`).join('')}</div></div>`+
+      `<div class="sbRow"><b>${sbT('ضربك وطلقاتك تصيب:','Your hits and shots reach:')}</b><div class="sbModes">${[['foes','الأعداء بس','Enemies only'],['all','الكل','Everyone']].map(([k,a,e])=>`<button type="button" data-sb="hit:${k}" class="${(SB.hitAll?'all':'foes')===k?'on':''}">${sbT(a,e)}</button>`).join('')}</div></div>`+
       (ok?'':`<p class="sbNo">${sbT('صاحب الغرفة ما سمح لك تستدعي ناس','The room owner has not let you summon people')}</p>`)+
       `<div class="sbGrid sbPpl">${SB_PEOPLE().map(k=>{const f=FACES&&(FACES['sel_'+k]||(k==='billi'?FACES.angry:FACES[k+'_normal']));return`<button type="button" class="sbP${SB.busy[k]?' busy':''}" data-sb="ppl:${k}" ${ok?'':'disabled'}>${f?`<img src="${f}" alt="">`:`<span class="sbSil"></span>`}<b>${sbName(k)}</b></button>`}).join('')}</div>`}
-  else{const ok=sbMay('obj'),ids=Object.keys(CARDS).filter(id=>tab[3].includes(CARDS[id].t)&&(CARDS[id].t==='vehicle'||ITEM[id])).sort((a,b)=>(CARDS[a].o||0)-(CARDS[b].o||0));
-    body=(ok?'':`<p class="sbNo">${sbT('صاحب الغرفة ما سمح لك تستدعي أغراض','The room owner has not let you summon things')}</p>`)+
+  else{const ok=sbMay('obj'),ammoRow=tab[0]==='wpn'?`<div class="sbRow"><b>${sbT('رصاص السلاح الناري:','Bullets with a gun:')}</b><div class="sbModes">${SB_AMMO.map(n=>`<button type="button" data-sb="ammo:${n===Infinity?'inf':n}" class="${SB.ammo===n?'on':''}">${n===Infinity?sbT('بدون حد ∞','Endless ∞'):n}</button>`).join('')}</div></div>`:'',ids=Object.keys(CARDS).filter(id=>tab[3].includes(CARDS[id].t)&&(CARDS[id].t==='vehicle'||ITEM[id])).sort((a,b)=>(CARDS[a].o||0)-(CARDS[b].o||0));
+    body=ammoRow+(ok?'':`<p class="sbNo">${sbT('صاحب الغرفة ما سمح لك تستدعي أغراض','The room owner has not let you summon things')}</p>`)+
       `<div class="sbGrid">${ids.map(id=>{const can=ok&&sbWpnOk(id);return cardHTML(id,{btn:`<button type="button" class="sbGo${SB.busy[id]?' busy':''}" data-sb="card:${id}" ${can?'':'disabled'}>${SB.busy[id]?sbT('جاري التحميل…','Loading…'):sbT('استدعِ','Summon')}</button>`})}).join('')}</div>`}
   const mine=SB.list.filter(s=>s.alive());
   B.innerHTML=`<div class="sbIn"><div class="sbHead"><h3>${sbT('لوحة العالم','World Board')}</h3><button type="button" class="sbX" data-sb="x" aria-label="close">✕</button></div>
     <div class="sbTabs">${SB_TABS.map(([k,a,e])=>`<button type="button" data-sb="tab:${k}" class="${SB.tab===k?'on':''}">${sbT(a,e)}</button>`).join('')}</div>
     <div class="sbBody">${body}</div>
-    <div class="sbMine"><span>${sbT('اللي استدعيته','Summoned')} (${mine.length})</span>${mine.slice(-12).map(s=>`<button type="button" class="sbChip" data-sb="del:${s.id}">${s.label()} ✕</button>`).join('')}
+    <div class="sbMine"><span>${sbT('اللي استدعيته','Summoned')} (${mine.length})</span>${mine.slice(-12).map(s=>s.kind==='ppl'?`<span class="sbChip sbPm"><span>${sbName(s.a.id)}</span>${SB_MODES.map(([m,a,e])=>`<button type="button" data-sb="pm:${s.id}.${m}" class="${s.a.sum.mode===m?'on':''}">${sbT(a,e)}</button>`).join('')}<button type="button" data-sb="del:${s.id}" aria-label="remove">✕</button></span>`:`<button type="button" class="sbChip" data-sb="del:${s.id}">${s.label()} ✕</button>`).join('')}
       ${mine.length||sbOnline()?`<button type="button" class="sbClear" data-sb="clear">${sbT('امسح الكل','Clear all')}</button>`:''}</div></div>`}
 // ---- items, weapons, bags and vehicles: they appear in front of the player
 function sbSummon(id){const c=CARDS[id],P=ST.player;if(!c||!P||!CH.free)return;if(!sbMay('obj')||!sbWpnOk(id)){banner(sbT('مو مسموح','Not allowed'),'sm',70);return}
   if(c.t==='vehicle'){sbVehicle(id.slice(2));return}
   if(SB.list.filter(s=>s.kind==='obj'&&s.alive()).length>=SB_MAX_OBJ){banner(sbT('وصلت الحد · امسح شي أول','Limit reached · remove something first'),'sm',90);return}
-  const len=id==='bag_big'?.5:id==='bag_small'?.32:c.t==='heal'||c.t==='shield'?.2:.3,o=chItem(id,len),it=CH.items[CH.items.length-1],[x,z]=sbFront(1.4,(Math.random()-.5)*.8);
-  o.position.set(x,P.up?P.floor||0:0,z);ST.props.add(o);it.dropped=true;
+  const len=id==='bag_big'?.5:id==='bag_small'?.32:c.t==='heal'||c.t==='shield'?.2:.3,o=chItem(id,len),it=CH.items[CH.items.length-1],[x,z]=sbFront(2.3,(SB.n%2?1:-1)*(.7+Math.random()*.4));   // beside her line of sight, not hidden behind her
+  o.position.set(x,P.up?P.floor||0:0,z);ST.props.add(o);it.dropped=true;if(c.t==='firearm')it.ammo=SB.ammo;
   SB.list.push({id:++SB.n,kind:'obj',label:()=>(ITEM[id]&&ITEM[id][lang]||c.name).replace(/^\d+ · /,''),alive:()=>o.visible&&!!o.parent,kill:()=>{o.visible=false;if(o.parent)o.parent.remove(o);CH.items=CH.items.filter(i=>i!==it)}});
   banner('+ '+((ITEM[id]&&ITEM[id][lang])||c.name),'gold sm',70);sfx('whoosh');sbDraw()}
 const CAR_KINDS=['audi','patrol','red','future','gemini','van','sedan','car4','gt','truck'];
@@ -4735,14 +4801,23 @@ function sbPerson(k,mode,at,owner){const P=ST.player;if(!SKINS[k]||!P)return;
   if(SB.list.filter(s=>s.kind==='ppl'&&s.alive()).length>=sbMaxPpl()){banner(sbT('وصلت الحد · امسح أحد أول','Limit reached · remove someone first'),'sm',90);return}
   const go=()=>{if(!CH.on||!CH.free||phase!=='story')return;const[x,z]=at?[at.x,at.z]:sbFront(2.6,(Math.random()-.5)*2);
     const a=spawnActor(k,mode==='walk'?60:120,true,'');Object.assign(a,{x,z,ax:at?at.ax:-P.ax,az:at?at.az:-P.az,noFace:true,sum:{mode,owner:owner||null,home:[x,z],to:null}});a.dmgScale=mode==='enemy'?.55:.7;
-    if(mode==='walk'){a.relaxed=true;a.targets=null}
-    else if(mode==='ally'){a.targets=()=>sbEnemiesOf(a)}
-    else{a.targets=()=>sbVictimsOf(a);a.sumT=()=>sbNearest(a,sbVictimsOf(a),40);ST.foes.push(a)}
-    if(sbOnline()){a.netBot='s'+(++SB.n);a.team=mode==='enemy'?'X':mode==='walk'?'N':'A';NET.bots.push(a)}
+    sbApplyMode(a,mode);
+    if(sbOnline()){a.netBot='s'+(++SB.n);NET.bots.push(a);sbApplyMode(a,mode)}
     const s={id:++SB.n,kind:'ppl',a,owner:owner||null,label:()=>sbName(k)+' · '+sbT(...SB_MODES.find(m=>m[0]===mode).slice(1)),alive:()=>ST.actors.includes(a),kill:()=>sbDropActor(a)};SB.list.push(s);
     sfx('whoosh');spark(x,1,z,0xffe08a,10);sbDraw()};
   if(SKINS[k].src){go();return}
   loadSkin(k);SB.busy[k]=1;sbDraw();let n=0;const iv=setInterval(()=>{n++;if(SKINS[k].src||n>300||!CH.free){clearInterval(iv);SB.busy[k]=0;if(SKINS[k].src)go();else sbDraw()}},300)}
+function sbApplyMode(a,mode){a.sum.mode=mode;a.sumT=null;ST.foes=ST.foes.filter(e=>e!==a);a.dmgScale=mode==='enemy'?.55:.7;
+  if(mode==='walk'){a.relaxed=true;a.targets=null;a.sum.to=null}
+  else if(mode==='ally'){a.relaxed=false;a.targets=()=>sbEnemiesOf(a)}
+  else{a.relaxed=false;a.targets=()=>sbVictimsOf(a);a.sumT=()=>sbNearest(a,sbVictimsOf(a),40);ST.foes.push(a)}
+  if(a.netBot)a.team=mode==='enemy'?'X':mode==='walk'?'N':'A'}
+// change what someone already in the world does
+function sbSetMode(id,mode){const s=SB.list.find(x=>x.id===id);if(!s||s.kind!=='ppl'||!SB_MODES.some(m=>m[0]===mode))return;
+  if(sbOnline()&&!NET.room.isHost){NET.room.send({t:'summode',id:s.a.netBot,m:mode},NET.room.host);return}
+  sbApplyMode(s.a,mode);s.label=()=>sbName(s.a.id)+' · '+sbT(...SB_MODES.find(m=>m[0]===mode).slice(1));sbDraw()}
+// your punches, kicks and bullets: enemies only, or everyone you summoned too
+function sbPlayerTargets(){const L=ST.foes.filter(e=>e.hp>0);if(CH.free&&SB.hitAll)for(const s of SB.list)if(s.kind==='ppl'&&s.a.hp>0&&!L.includes(s.a))L.push(s.a);return L}
 function sbDropActor(a){removeActor(a);ST.foes=ST.foes.filter(e=>e!==a);if(NET.bots)NET.bots=NET.bots.filter(b=>b!==a)}
 const sbSide=a=>a===ST.player||(a.remote&&!a.netBot)?'player':a.sum?a.sum.mode:a.team==='X'?'enemy':a.netBot?'bot':'foe';
 function sbPeople(){const L=[ST.player,...ST.actors.filter(a=>a.sum)];if(sbOnline())for(const r of NET.rem.values())if(!r.netBot)L.push(r);return L.filter(t=>t&&t.hp>0)}
@@ -4756,6 +4831,7 @@ function sbClear(){for(const s of[...SB.list])if(s.alive()&&s.kill()!==false)SB.
 // the room owner's game: summon or clear for another player
 function sbNetMsg(d,from){if(!NET.room||!NET.room.isHost||!CH.free)return;
   if(d.t==='sum'){const S=sbRules();if((S.sumP||'host')!=='all')return;if(!SKINS[d.k]||!SB_MODES.some(m=>m[0]===d.m))return;sbPerson(d.k,d.m,{x:+d.x||0,z:+d.z||0,ax:+d.ax||0,az:+d.az||1},from)}
+  else if(d.t==='summode'){const s=SB.list.find(x=>x.kind==='ppl'&&x.a.netBot===d.id);if(s&&(s.owner===from||(sbRules().sumP||'host')==='all'))sbSetMode(s.id,d.m)}
   else if(d.t==='unsum'){for(const s of[...SB.list])if(s.owner===from&&s.alive()){s.kill();SB.list=SB.list.filter(x=>x!==s)}}}
 // every tick in free roam: walkers wander, allies fight or follow their owner, the fallen are cleared away
 function sbTick(P){if(!CH.free)return;SB.list=SB.list.filter(s=>s.alive());
@@ -4763,6 +4839,7 @@ function sbTick(P){if(!CH.free)return;SB.list=SB.list.filter(s=>s.alive());
     // a throw between two of them can lose its thrower (who turned to someone else): drop the one being thrown after 1.5 s
     if(a.state==='thrown'){a.thrT=(a.thrT||0)+1;if(a.thrT>90){a.thrT=0;setState(a,'air');a.vy=2.5;a.y=Math.max(a.y||0,.05)}}else a.thrT=0;
     if(a.hp<=0){a.sumKo=(a.sumKo||0)+1;if(a.sumKo>200){s.kill();}continue}
+    if(m.mode==='walk'&&(a.hp<(a.sumHp??=a.hp)||!['idle','walkF'].includes(a.state))){a.sumHp=a.hp;a.relaxed=false;updateFighter(a,P,{});if(['idle','walkF'].includes(a.state)){a.relaxed=true;m.to=null}continue}   // hit: the fall and getting up play, then the walk goes on
     if(m.mode==='walk'){if(!m.to||Math.hypot(m.to[0]-a.x,m.to[1]-a.z)<.4){const r=4+Math.random()*9,t=Math.random()*6.283;m.to=[m.home[0]+Math.cos(t)*r,m.home[1]+Math.sin(t)*r];m.wait=40+(Math.random()*120|0)}
       if(m.wait>0){m.wait--;a.state='idle';a.moveSpd=0;continue}
       const dx=m.to[0]-a.x,dz=m.to[1]-a.z,d=Math.hypot(dx,dz)||1,sp=1.3;a.ax=dx/d;a.az=dz/d;a.x+=a.ax*sp*STEP;a.z+=a.az*sp*STEP;a.state='walkF';a.relaxed=true;a.moveSpd=sp;a.walkPh=(a.walkPh||0)+sp*STEP*4.3}
@@ -4857,7 +4934,7 @@ function startStory(){if(!WORLD.ready||(!ST.freeReq&&!WORLD.full)){ensureWorld(s
   for(const a of[...ST.actors])removeActor(a);
   if(ST.props)R.scene.remove(ST.props);ST.props=takeWorld()||buildStreet();R.scene.add(ST.props);loadProps().then(placeProps);{const pr=ST.props;loadKit().then(()=>{if(ST.props===pr)placeKit(pr)})}
   applyDayNight();
-  ST.player=spawnActor(ST.playAs&&SKINS[ST.playAs]&&SKINS[ST.playAs].src?ST.playAs:'billi',200,false);ST.playAs=null;ST.player.noFace=true;ST.katara=null;ST.player.targets=()=>ST.foes.filter(e=>e.hp>0);
+  ST.player=spawnActor(ST.playAs&&SKINS[ST.playAs]&&SKINS[ST.playAs].src?ST.playAs:'billi',200,false);ST.playAs=null;ST.player.noFace=true;ST.katara=null;ST.player.targets=()=>sbPlayerTargets();
   ST.foes=[];ST.ally=null;ST.kid=null;ST.zone=-1;ST.active=false;ST.cleared=-1;ST.lock=null;ST.stam=100;ST.heals=3;ST.hasKnife=false;ST.deadT=0;ST.cam.yaw=0;ST.done=false;
   ST.knifeItem.visible=false;
   if(KNIFE_AT_START)ST.hasKnife=true;
@@ -5225,7 +5302,7 @@ const CHARS={
     s1:'kt_knee',s2:'kt_slaps',power:'kt_axe',launch:'risekick',kfin:'spinkick',sw:['#e07a9a','#1a1a1a','#d9a98a']},
   katara:{name:{ar:'كاتارا',en:'Katara'},style:{ar:'قتال شوارع سريع',en:'Fast street fighting'},
     stance:{ar:'خفيفة على رجولها، إيدها القدّامية عالية وجاهزة تصفع.',en:'Light on her feet, lead hand high and ready to slap.'},
-    s1:'kt_knee',s2:'kt_slaps',power:'kt_axe',launch:'risekick',kfin:'spinkick',rage:'katara_rage',sw:['#4a1e22','#2a1a14','#d9a98a']},anastasia:{name:{ar:'أناستاسيا',en:'Anastasia'},style:{ar:'قتال شوارع سريع',en:'Fast street fighting'},
+    s1:'kt_knee',s2:'kt_slaps',power:'kt_axe',launch:'risekick',kfin:'spinkick',rage:'katara_spank',sw:['#4a1e22','#2a1a14','#d9a98a']},anastasia:{name:{ar:'أناستاسيا',en:'Anastasia'},style:{ar:'قتال شوارع سريع',en:'Fast street fighting'},
     stance:{ar:'خفيفة على رجولها، إيدها القدّامية عالية وجاهزة تصفع.',en:'Light on her feet, lead hand high and ready to slap.'},
     s1:'kt_knee',s2:'kt_slaps',power:'kt_axe',launch:'risekick',kfin:'spinkick',rage:'katara_rage',sw:['#4a1e22','#2a1a14','#d9a98a']},
   bitchinho:{name:{ar:'بيتشينيو',en:'Bitchinho'},style:{ar:'قتال شوارع برازيلي (كابويرا)',en:'Brazilian street fighting (capoeira)'},
@@ -5240,7 +5317,7 @@ const MOVE_NAMES={
   billi_back:{ar:'ركلة الملكة الخلفية',en:'Royal Back Kick'},billi_slap:{ar:'صفعة الملكة (تشلّه)',en:"Queen's Slap (crumple)"},
   gent_haymaker:{ar:'لكمة الجنتلمان الطويلة',en:"Gentleman's Haymaker"},gent_jabs:{ar:'جاب جاب ستريت',en:'Jab, Jab, Straight'},
   pablo_flop:{ar:'نطة الكرش',en:'Belly Flop'},pablo_belly:{ar:'ضربة الكرش المزدوجة',en:'Double Belly Bump'},billi_axe:{ar:'ركلة الفأس الملكية',en:'Royal Axe Kick'},kfin:{ar:'ركلة دوّارة قاضية',en:'Spinning Finisher'},
-  kt_slaps:{ar:'صفعتين',en:'Double Slap'},kt_knee:{ar:'ركبة مندفعة',en:'Rushing Knee'},kt_axe:{ar:'ركلة الفأس',en:'Axe Kick'},katara_rage:{ar:'الطقّة السامّة 💨',en:'Toxic Fart 💨'},spinkick:{ar:'ركلة دوّارة',en:'Spinning Kick'},
+  kt_slaps:{ar:'صفعتين',en:'Double Slap'},kt_knee:{ar:'ركبة مندفعة',en:'Rushing Knee'},kt_axe:{ar:'ركلة الفأس',en:'Axe Kick'},katara_rage:{ar:'الطقّعة السامّة 💨',en:'The Toxic Farting 💨'},katara_spank:{ar:'مسكة وصفعتين',en:'Grab & Double Spank'},spinkick:{ar:'ركلة دوّارة',en:'Spinning Kick'},
   bt_meia:{ar:'ميا لوا (ركلة دوّارة واطية)',en:'Meia Lua'},bt_elbow:{ar:'ضربة كوع',en:'Elbow Strike'},bt_knee:{ar:'ركبة طايرة',en:'Flying Knee'},bt_armada:{ar:'أرمادا',en:'Armada'},risekick:{ar:'ركلة صاعدة',en:'Rising Kick'},
   son_dash:{ar:'نطحة مندفعة',en:'Rushing Headbutt'},son_flurry:{ar:'زخّة لكمات',en:'Fist Flurry'},son_head:{ar:'نطحة طايرة',en:'Flying Headbutt'},son_rocket:{ar:'نطحة الصاروخ',en:'Rocket Headbutt'},pablo_headbutt:{ar:'نطحة بالراس',en:'Headbutt'},pablo_haymaker:{ar:'لكمة عشوائية',en:'Wild Haymaker'},pablo_stomp:{ar:'دعسة',en:'Stomp'},
 };
@@ -5485,7 +5562,7 @@ function selectSlot(n){const P=phase==='story'?ST.player:p1;if(!P||P.hp<=0)retur
   if(P.gun){P.ammoBy=P.ammoBy||{};P.ammoBy[P.gun]=P.ammo}equipGun(P,null);equipKnife(P,false);
   if(it==='knife'||it==='axe')equipKnife(P,true,it);else if(GUNS[it]){if(phase!=='story')VS_W.on=true;equipGun(P,it)}
   sfx('pickup');banner(it==='none'?L('w_fists'):it==='axe'?ITEM.axe[lang]:it==='knife'?(CH.on?ITEM.knife[lang]:L('w_knife')):GUNS[it].name[lang],'gold sm',45);gunHud(P);syncPad()}
-function reloadGun(P){if(!P.gun||P.state==='reload')return;const G=GUNS[P.gun];if(!G||P.ammo>=magSize(P.gun))return;setState(P,'reload');P.reloadT=G.mag>6?70:90;sfx(G.rl==='gk'?'gpump':G.rl==='gc'?'gcock':'greload')}
+function reloadGun(P){if(!P.gun||P.state==='reload')return;const G=GUNS[P.gun];if(!G||P.ammo>=magSize(P.gun))return;if(gunRes(P)<=0){sfx('gdry');banner(lang==='ar'?'ما عندك رصاص زيادة':'No spare bullets','sm',60);return}setState(P,'reload');P.reloadT=G.mag>6?70:90;sfx(G.rl==='gk'?'gpump':G.rl==='gc'?'gcock':'greload')}
 function syncSettings(){uiSetRow();uiSetSync();buildDmgUI();buildBindUI();$('setLang').textContent=lang==='ar'?'عربي':'English';$('setSound').textContent=L(soundOn?'on':'off');$('setWpn').textContent=L('w_'+WPN.where);$('setArmed').textContent=L(WPN.armed?'on':'off');$('setBdmg').textContent=L('q_'+(WPN.dmg==='med'?'med':WPN.dmg));$('setAmmo').textContent=WPN.ammo==='inf'?'∞':WPN.ammo;$('setGfx').textContent=L('q_'+gfxQ);$('setMusic').textContent=L(musicOn?'on':'off');$('setTime').textContent=L(storyDay?'day':'night');if(master)master.gain.value=soundOn?1.1:0}
 $('setLang').onclick=()=>{$('langBtn').click();syncSettings()};
 $('setGfx').onclick=()=>{setGfx(GFXQ[(GFXQ.indexOf(gfxQ)+1)%3]);syncSettings()};
@@ -5988,7 +6065,7 @@ function netStart(){const R_=NET.room;if(!R_||!R_.state.go)return;const go=R_.st
 // ---- free roam: sending and drawing the others
 const netPub=a=>({x:+a.x.toFixed(2),z:+a.z.toFixed(2),y:+(a.y||0).toFixed(2),ax:+a.ax.toFixed(3),az:+a.az.toFixed(3),st:a.state,mv:a.move||0,mf:a.mf|0,hp:Math.round(a.hp),mh:a.maxHp|0,up:a.up?1:0,fl:+(a.floor||0).toFixed(2),rl:a.relaxed?1:0,kn:a.knife?1:0,g:a.gun||0,ms:+(a.moveSpd||0).toFixed(2),wp:+(a.walkPh||0).toFixed(2)});
 function netFreeTick(){const R_=NET.room,P=ST.player;if(!R_||NET.mode!=='free'||!P||phase!=='story')return;const S=NET.set;
-  if(!NET.spawned&&CH.on){NET.spawned=true;{const ids=[...R_.players.keys()].sort(),i=Math.max(0,ids.indexOf(R_.id));P.x+=(i-2)*1.6}applyStats(P,S.stats==='c'?'c':'n');const me=R_.me&&R_.me.d||{};NET.team=me.team||'A';P.team=NET.team;P.targets=()=>[...new Set([...netTargetsFor(P),...ST.foes.filter(e=>e.hp>0&&!e.netBot)])];
+  if(!NET.spawned&&CH.on){NET.spawned=true;{const ids=[...R_.players.keys()].sort(),i=Math.max(0,ids.indexOf(R_.id));P.x+=(i-2)*1.6}applyStats(P,S.stats==='c'?'c':'n');const me=R_.me&&R_.me.d||{};NET.team=me.team||'A';P.team=NET.team;P.targets=()=>[...new Set([...netTargetsFor(P),...ST.foes.filter(e=>e.hp>0&&!e.netBot),...(SB.hitAll?sbPlayerTargets():[])])];
     if(R_.isHost)for(let i=0;i<(+S.bots||0);i++){const ids=ROSTER_KNOWN.filter(k=>SKINS[k]&&SKINS[k].src&&k!=='gent'),id=ids[(i*3+1)%ids.length],b=spawnActor(id,200,true,'');Object.assign(b,{x:P.x+3+i*1.5,z:P.z+4,netBot:'b'+i,team:S.botSide==='enemy'?'X':S.botSide});applyStats(b,S.stats==='c'?'c':'n');b.targets=()=>netTargetsFor(b);ST.foes.push(b);NET.bots.push(b)}}
   // the rules of the room
   if(S.wpn==='none'){if(P.gun)equipGun(P,null);if(P.knife)equipKnife(P,false)}else if(S.wpn==='melee'&&P.gun)equipGun(P,null);
@@ -6044,7 +6121,7 @@ function netMsg(d,from){if(!d)return;if(d.t==='rtc'){rtcSignal(d,from);return}
   if(d.t==='s'&&NET.mode==='free'&&phase==='story'){const a=netRemote(from,d.ch,from,undefined);a.team=d.tm;netApply(a,d.p);
     if(d.b&&!(NET.room&&NET.room.isHost)){const keep=new Set();for(const b of d.b){keep.add(from+':'+b.id);const r=netRemote(from+':'+b.id,b.ch,from,b.id);r.team=b.tm;netApply(r,b)}
       for(const[k,r]of[...NET.rem])if(r.netOwner===from&&r.netBot&&!keep.has(k)){removeActor(r);NET.rem.delete(k)}}return}
-  if((d.t==='sum'||d.t==='unsum')&&NET.mode==='free'&&phase==='story'){sbNetMsg(d,from);return}
+  if((d.t==='sum'||d.t==='unsum'||d.t==='summode')&&NET.mode==='free'&&phase==='story'){sbNetMsg(d,from);return}
   if(d.t==='hit'){   // somebody hit me (or one of my bots)
     const P=ST.player,tgt=d.bot?NET.bots.find(b=>b.netBot===d.bot):P;if(!tgt||tgt.hp<=0)return;const was=tgt.hp;hurtHP(tgt,d.dmg);
     if(['idle','walkF','walkB','run','attack','crouch','block'].includes(tgt.state)||true){setState(tgt,d.big?'air':'hit');tgt.stun=d.big?30:14;tgt.vx=d.dx*(d.big?4:2.5);tgt.vz=d.dz*(d.big?4:2.5);if(d.big)tgt.vy=4}
